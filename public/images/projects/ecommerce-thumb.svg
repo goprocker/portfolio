@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <rect width="800" height="600" fill="#16161f"/>
+  <rect x="40" y="40" width="720" height="520" rx="16" fill="#12121a" stroke="#7c3aed" stroke-opacity="0.3"/>
+  <text x="400" y="310" text-anchor="middle" fill="#7c3aed" font-family="system-ui,sans-serif" font-size="28" font-weight="600">E-commerce Redesign</text>
+  <text x="400" y="350" text-anchor="middle" fill="#a1a1aa" font-family="system-ui,sans-serif" font-size="16">Design Project</text>
+</svg>

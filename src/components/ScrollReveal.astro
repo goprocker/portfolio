@@ -1,0 +1,13 @@
+---
+interface Props {
+  delay?: number;
+  class?: string;
+}
+
+const { delay = 0, class: className } = Astro.props;
+const delayClass = delay > 0 ? `scroll-reveal-delay-${delay}` : "";
+---
+
+<div class:list={["scroll-reveal", delayClass, className]}>
+  <slot />
+</div>

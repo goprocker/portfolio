@@ -1,0 +1,140 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ScrollReveal from "../../components/ScrollReveal.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({
+    params: { slug: project.data.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { title, description, category, tags, images, liveUrl, repoUrl, date } =
+  project.data;
+
+const categoryLabels: Record<string, string> = {
+  design: "Design",
+  code: "Code",
+  websites: "Websites",
+};
+
+const formattedDate = date.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+});
+---
+
+<Layout title={title} description={description}>
+  <article class="px-6 pt-16 pb-24">
+    <div class="max-w-4xl mx-auto">
+      <ScrollReveal>
+        <a
+          href="/projects"
+          class="inline-flex items-center text-sm text-text-muted hover:text-accent transition-colors mb-8"
+        >
+          &larr; Back to Projects
+        </a>
+      </ScrollReveal>
+
+      <ScrollReveal delay={1}>
+        <div class="mb-6">
+          <span class="text-xs font-medium px-3 py-1 rounded-full bg-accent/20 text-accent">
+            {categoryLabels[category]}
+          </span>
+        </div>
+        <h1 class="font-display text-4xl sm:text-5xl font-extrabold mb-4">
+          {title}
+        </h1>
+        <p class="text-text-muted text-lg leading-relaxed mb-6">
+          {description}
+        </p>
+        <div class="flex flex-wrap items-center gap-4 mb-8">
+          <span class="text-sm text-text-muted">{formattedDate}</span>
+          {
+            liveUrl && (
+              <a
+                href={liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sm text-accent hover:underline"
+              >
+                Live Demo &rarr;
+              </a>
+            )
+          }
+          {
+            repoUrl && (
+              <a
+                href={repoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sm text-accent hover:underline"
+              >
+                View Code &rarr;
+              </a>
+            )
+          }
+        </div>
+        {
+          tags.length > 0 && (
+            <div class="flex flex-wrap gap-2 mb-12">
+              {tags.map((tag) => (
+                <span class="text-xs text-text-muted bg-bg-elevated px-3 py-1.5 rounded-md border border-border">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )
+        }
+      </ScrollReveal>
+
+      {
+        images.length > 0 && (
+          <ScrollReveal delay={2}>
+            <div class="space-y-6 mb-16">
+              {images.map((img) => (
+                <img
+                  src={img}
+                  alt={`${title} screenshot`}
+                  class="w-full rounded-2xl border border-border"
+                  loading="lazy"
+                />
+              ))}
+            </div>
+          </ScrollReveal>
+        )
+      }
+
+      <ScrollReveal delay={3}>
+        <div class="prose prose-invert prose-lg max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-accent">
+          <Content />
+        </div>
+      </ScrollReveal>
+    </div>
+  </article>
+</Layout>
+
+<style is:global>
+  .prose h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+  }
+  .prose p {
+    color: var(--color-text-muted);
+    line-height: 1.75;
+  }
+  .prose ul {
+    color: var(--color-text-muted);
+  }
+  .prose li {
+    margin-bottom: 0.5rem;
+  }
+  .prose strong {
+    color: var(--color-text);
+  }
+</style>

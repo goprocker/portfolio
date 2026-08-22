@@ -1,0 +1,70 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+  featured?: boolean;
+}
+
+const { project, featured = false } = Astro.props;
+const { title, description, thumbnail, category, tags, slug } = project.data;
+
+const categoryLabels: Record<string, string> = {
+  design: "Design",
+  code: "Code",
+  websites: "Websites",
+};
+
+const categoryColors: Record<string, string> = {
+  design: "bg-pink-500/20 text-pink-300",
+  code: "bg-blue-500/20 text-blue-300",
+  websites: "bg-emerald-500/20 text-emerald-300",
+};
+---
+
+<a
+  href={`/projects/${slug}`}
+  class:list={[
+    "project-card group block bg-bg-card border border-border rounded-2xl overflow-hidden",
+    featured && "md:col-span-2",
+  ]}
+>
+  <div class:list={["relative overflow-hidden", featured ? "aspect-[2/1]" : "aspect-[4/3]"]}>
+    <img
+      src={thumbnail}
+      alt={title}
+      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      loading="lazy"
+    />
+    <div class="absolute inset-0 bg-gradient-to-t from-bg/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+  </div>
+  <div class="p-6">
+    <div class="flex items-center gap-3 mb-3">
+      <span
+        class:list={[
+          "text-xs font-medium px-3 py-1 rounded-full",
+          categoryColors[category],
+        ]}
+      >
+        {categoryLabels[category]}
+      </span>
+    </div>
+    <h3 class="font-display text-xl font-bold mb-2 group-hover:text-accent transition-colors">
+      {title}
+    </h3>
+    <p class="text-text-muted text-sm leading-relaxed mb-4 line-clamp-2">
+      {description}
+    </p>
+    {
+      tags.length > 0 && (
+        <div class="flex flex-wrap gap-2">
+          {tags.slice(0, 3).map((tag) => (
+            <span class="text-xs text-text-muted bg-bg-elevated px-2.5 py-1 rounded-md">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )
+    }
+  </div>
+</a>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <rect width="800" height="600" fill="#16161f"/>
+  <rect x="40" y="40" width="720" height="520" rx="16" fill="#12121a" stroke="#ec4899" stroke-opacity="0.3"/>
+  <text x="400" y="300" text-anchor="middle" fill="#ec4899" font-family="system-ui,sans-serif" font-size="28" font-weight="600">Lumina Brand</text>
+  <text x="400" y="340" text-anchor="middle" fill="#a1a1aa" font-family="system-ui,sans-serif" font-size="16">Brand Identity</text>
+  <circle cx="400" cy="420" r="40" fill="#86efac" opacity="0.6"/>
+</svg>

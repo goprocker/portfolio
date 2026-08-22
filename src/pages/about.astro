@@ -1,0 +1,83 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ResumeSection from "../components/ResumeSection.astro";
+import ScrollReveal from "../components/ScrollReveal.astro";
+import { site } from "../data/site";
+---
+
+<Layout title="About" description={`Learn more about ${site.name} — designer and developer.`}>
+  <section class="px-6 pt-16 pb-24">
+    <div class="max-w-4xl mx-auto">
+      <ScrollReveal>
+        <p class="text-accent text-sm font-medium tracking-widest uppercase mb-4">
+          About Me
+        </p>
+        <h1 class="font-display text-4xl sm:text-5xl font-extrabold mb-8">
+          Hi, I'm {site.name}
+        </h1>
+      </ScrollReveal>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
+        <ScrollReveal delay={1} class="lg:col-span-2">
+          <p class="text-text-muted text-lg leading-relaxed mb-6">
+            {site.about.bio}
+          </p>
+          <ul class="space-y-3">
+            {
+              site.about.highlights.map((item) => (
+                <li class="flex items-start gap-3 text-text-muted">
+                  <span class="text-accent mt-1 shrink-0">&bull;</span>
+                  {item}
+                </li>
+              ))
+            }
+          </ul>
+        </ScrollReveal>
+
+        <ScrollReveal delay={2}>
+          <div class="bg-bg-card border border-border rounded-2xl p-6">
+            <h3 class="font-display font-bold mb-4">Quick Info</h3>
+            <dl class="space-y-4 text-sm">
+              <div>
+                <dt class="text-text-muted mb-1">Email</dt>
+                <dd>
+                  <a href={`mailto:${site.email}`} class="text-accent hover:underline">
+                    {site.email}
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt class="text-text-muted mb-1">Location</dt>
+                <dd>Available Worldwide (Remote)</dd>
+              </div>
+              <div>
+                <dt class="text-text-muted mb-1">Status</dt>
+                <dd class="flex items-center gap-2">
+                  <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
+                  Open to opportunities
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </ScrollReveal>
+      </div>
+
+      <ScrollReveal delay={3}>
+        <h2 class="font-display text-2xl font-bold mb-6">Skills</h2>
+        <div class="flex flex-wrap gap-3 mb-20">
+          {
+            site.skills.map((skill) => (
+              <span class="px-4 py-2 bg-bg-card border border-border rounded-full text-sm">
+                {skill}
+              </span>
+            ))
+          }
+        </div>
+      </ScrollReveal>
+
+      <ScrollReveal delay={4}>
+        <ResumeSection />
+      </ScrollReveal>
+    </div>
+  </section>
+</Layout>

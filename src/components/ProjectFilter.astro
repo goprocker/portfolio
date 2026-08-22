@@ -1,0 +1,62 @@
+<div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" id="project-filters">
+  <button
+    data-filter="all"
+    class="filter-btn active shrink-0 px-5 py-2.5 text-sm font-medium rounded-full border border-border hover:border-accent transition-all"
+  >
+    All
+  </button>
+  <button
+    data-filter="design"
+    class="filter-btn shrink-0 px-5 py-2.5 text-sm font-medium rounded-full border border-border hover:border-accent transition-all"
+  >
+    Design
+  </button>
+  <button
+    data-filter="code"
+    class="filter-btn shrink-0 px-5 py-2.5 text-sm font-medium rounded-full border border-border hover:border-accent transition-all"
+  >
+    Code
+  </button>
+  <button
+    data-filter="websites"
+    class="filter-btn shrink-0 px-5 py-2.5 text-sm font-medium rounded-full border border-border hover:border-accent transition-all"
+  >
+    Websites
+  </button>
+</div>
+
+<script>
+  const filters = document.getElementById("project-filters");
+  const items = document.querySelectorAll("[data-category]");
+
+  filters?.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest("[data-filter]");
+    if (!btn) return;
+
+    const filter = btn.getAttribute("data-filter");
+
+    filters.querySelectorAll(".filter-btn").forEach((b) => {
+      b.classList.remove("active");
+    });
+    btn.classList.add("active");
+
+    items.forEach((item) => {
+      const category = item.getAttribute("data-category");
+      if (filter === "all" || category === filter) {
+        item.classList.remove("hidden");
+      } else {
+        item.classList.add("hidden");
+      }
+    });
+  });
+</script>
+
+<style>
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>

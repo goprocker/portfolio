@@ -1,0 +1,86 @@
+---
+import { site } from "../data/site";
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+
+const links = [
+  { href: "/", label: "Home" },
+  { href: "/projects", label: "Projects" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
+
+function isActive(href: string) {
+  if (href === "/") return currentPath === "/";
+  return currentPath.startsWith(href);
+}
+---
+
+<header class="sticky top-0 z-50 backdrop-blur-xl bg-bg/80 border-b border-border">
+  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a
+      href="/"
+      class="font-display font-bold text-xl tracking-tight hover:text-accent transition-colors"
+      transition:name="logo"
+    >
+      {site.name.split(" ")[0]}<span class="text-accent">.</span>
+    </a>
+
+    <ul class="hidden md:flex items-center gap-8">
+      {
+        links.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class:list={[
+                "nav-link text-sm font-medium transition-colors",
+                isActive(link.href)
+                  ? "text-accent active"
+                  : "text-text-muted hover:text-text",
+              ]}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <a
+      href="/contact"
+      class="hidden md:inline-flex items-center px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-full transition-all hover:shadow-[0_0_24px_var(--color-accent-glow)]"
+    >
+      Let's Talk
+    </a>
+
+    <!-- Mobile menu -->
+    <details class="md:hidden relative group">
+      <summary class="list-none cursor-pointer p-2 text-text-muted hover:text-text">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </summary>
+      <div class="absolute right-0 top-full mt-2 w-48 bg-bg-elevated border border-border rounded-xl p-4 shadow-xl">
+        {
+          links.map((link) => (
+            <a
+              href={link.href}
+              class:list={[
+                "block py-2 text-sm transition-colors",
+                isActive(link.href) ? "text-accent" : "text-text-muted hover:text-text",
+              ]}
+            >
+              {link.label}
+            </a>
+          ))
+        }
+      </div>
+    </details>
+  </nav>
+</header>

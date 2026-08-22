@@ -1,0 +1,110 @@
+---
+import { site } from "../data/site";
+
+const formspreeId = import.meta.env.PUBLIC_FORMSPREE_ID;
+const actionUrl = formspreeId
+  ? `https://formspree.io/f/${formspreeId}`
+  : undefined;
+---
+
+<form
+  action={actionUrl}
+  method="POST"
+  class="space-y-6"
+  id="contact-form"
+>
+  {
+    !formspreeId && (
+      <div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-200 text-sm">
+        Add your Formspree ID to <code class="text-amber-100">.env</code> as{" "}
+        <code class="text-amber-100">PUBLIC_FORMSPREE_ID</code> to enable form
+        submissions.
+      </div>
+    )
+  }
+
+  <div>
+    <label for="name" class="block text-sm font-medium mb-2">Name</label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      required
+      class="w-full px-4 py-3 bg-bg-elevated border border-border rounded-xl text-text placeholder:text-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+      placeholder="Your name"
+    />
+  </div>
+
+  <div>
+    <label for="email" class="block text-sm font-medium mb-2">Email</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      required
+      class="w-full px-4 py-3 bg-bg-elevated border border-border rounded-xl text-text placeholder:text-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+      placeholder="you@example.com"
+    />
+  </div>
+
+  <div>
+    <label for="message" class="block text-sm font-medium mb-2">Message</label>
+    <textarea
+      id="message"
+      name="message"
+      required
+      rows="5"
+      class="w-full px-4 py-3 bg-bg-elevated border border-border rounded-xl text-text placeholder:text-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-none"
+      placeholder="Tell me about your project..."
+    ></textarea>
+  </div>
+
+  <button
+    type="submit"
+    class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 bg-accent hover:bg-accent-hover text-white font-medium rounded-full transition-all hover:shadow-[0_0_32px_var(--color-accent-glow)] disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    Send Message
+  </button>
+</form>
+
+<script>
+  const form = document.getElementById("contact-form") as HTMLFormElement;
+
+  form?.addEventListener("submit", async (e) => {
+    if (!form.action || form.action === window.location.href) {
+      e.preventDefault();
+      return;
+    }
+
+    e.preventDefault();
+    const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Sending...";
+
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
+        headers: { Accept: "application/json" },
+      });
+
+      if (response.ok) {
+        btn.textContent = "Message Sent!";
+        form.reset();
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }, 3000);
+      } else {
+        throw new Error("Failed");
+      }
+    } catch {
+      btn.textContent = "Failed — try again";
+      btn.disabled = false;
+      setTimeout(() => {
+        btn.textContent = originalText;
+      }, 3000);
+    }
+  });
+</script>

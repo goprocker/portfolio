@@ -1,0 +1,37 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ProjectFilter from "../../components/ProjectFilter.astro";
+import ProjectGrid from "../../components/ProjectGrid.astro";
+import ScrollReveal from "../../components/ScrollReveal.astro";
+import { getCollection } from "astro:content";
+
+const projects = (await getCollection("projects")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<Layout title="Projects" description="Browse my design work, coding projects, and websites.">
+  <section class="px-6 pt-16 pb-24">
+    <div class="max-w-6xl mx-auto">
+      <ScrollReveal>
+        <p class="text-accent text-sm font-medium tracking-widest uppercase mb-4">
+          Portfolio
+        </p>
+        <h1 class="font-display text-4xl sm:text-5xl font-extrabold mb-4">
+          All Projects
+        </h1>
+        <p class="text-text-muted text-lg max-w-xl mb-10">
+          Design, code, and websites — filter by category to explore my work.
+        </p>
+      </ScrollReveal>
+
+      <ScrollReveal delay={1}>
+        <ProjectFilter />
+      </ScrollReveal>
+
+      <div class="mt-10">
+        <ProjectGrid projects={projects} />
+      </div>
+    </div>
+  </section>
+</Layout>
