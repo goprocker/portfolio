@@ -3,6 +3,7 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
 import Neofetch from "./Neofetch.astro";
 import SpotifyWidget from "./SpotifyWidget.astro";
 import GamesWidget from "./GamesWidget.astro";
+import GitHubActivity from "./GitHubActivity.astro";
 
 const { developer, skills, collabs, experience, internships, ambassadorExperience, events } = PORTFOLIO_DATA;
 ---
@@ -44,7 +45,7 @@ const { developer, skills, collabs, experience, internships, ambassadorExperienc
           href="#gui-projects"
           class="gui-nav-item flex items-center gap-2 p-1.5 hover:bg-[var(--border-color)] text-[var(--fg-bright)] transition-colors"
         >
-          <span class="text-purple-400">🚀</span> projects.md (Projects)
+          projects.md (Projects)
         </a>
         <a
           href="#gui-experience"
@@ -66,6 +67,9 @@ const { developer, skills, collabs, experience, internships, ambassadorExperienc
         </a>
         <a href="#gui-events" class="gui-nav-item flex items-center gap-2 p-1.5 hover:bg-[var(--border-color)] text-[var(--fg-bright)] transition-colors">
           <span class="text-purple-400">🎤</span> events.md (Events)
+        </a>
+        <a href="#gui-github" class="gui-nav-item flex items-center gap-2 p-1.5 hover:bg-[var(--border-color)] text-[var(--fg-bright)] transition-colors">
+          <span class="text-emerald-400">▦</span> github-activity.log
         </a>
         <a
           href="#gui-contact"
@@ -187,6 +191,8 @@ const { developer, skills, collabs, experience, internships, ambassadorExperienc
           </div>
         </div>
       </section>
+
+      <GitHubActivity />
 
       <!-- Section 2: Skills -->
       <section
