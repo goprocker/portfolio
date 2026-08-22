@@ -61,7 +61,7 @@ export const PORTFOLIO_DATA = {
     specs: {
       OS: "Chennai, India / CSE (AI)", Kernel: "Agentic AI & automation", Uptime: "Always building",
       Shell: "TypeScript / Python", Terminal: "Astro TUI Portfolio", WM: "LoopFound",
-      Editor: "VS Code", CPU: "Curiosity-driven", Memory: "Coffee-powered",
+      Editor: "Antigravity", CPU: "Curiosity-driven", Memory: "Tea powered",
     },
   },
   skills: [

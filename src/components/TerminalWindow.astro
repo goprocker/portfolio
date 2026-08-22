@@ -159,6 +159,9 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
       document.querySelectorAll<HTMLElement>("[data-visitor-name]").forEach((element) => { element.textContent = name; });
       window.dispatchEvent(new CustomEvent("portfolio:visitor-name", { detail: name }));
       nameGate?.classList.add("hidden");
+      window.setTimeout(() => {
+        (window as unknown as { switchTuiMode?: (mode: "cli" | "gui") => void }).switchTuiMode?.("gui");
+      }, 0);
     }
 
     setTimeout(() => nameInput?.focus(), 100);
