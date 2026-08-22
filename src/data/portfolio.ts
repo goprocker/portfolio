@@ -36,7 +36,7 @@ export interface EventItem {
 
 export const PORTFOLIO_DATA = {
   developer: {
-    name: "Gopinath",
+    name: "GOPINATH",
     handle: "goprocker",
     title: "AI & ML Engineer",
     alias: "gopinath@chennai",
@@ -51,11 +51,12 @@ export const PORTFOLIO_DATA = {
     bio: "CSE (AI) student, co-founder at LoopFound, and lead of a 60-member student AI community. I build agentic AI systems for unglamorous, high-stakes problems such as flood response and grievance redressal. I’m interested in the intersection of AI assistants, automation, and real-time systems—and in shipping work that matters.",
     quote: '"Build things that ship, not just prototypes that impress."',
     asciiBanner: `
-   ____  ___  ____ ___ _   _    _  _____ _   _
-  / ___|/ _ \|  _ \_ _| \ | |  / \|_   _| | | |
- | |  _| | | | |_) | ||  \| | / _ \ | | | |_| |
- | |_| | |_| |  __/| || |\  |/ ___ \| | |  _  |
-  \____|\___/|_|  |___|_| \_/_/   \_\_| |_| |_|
+   ██████╗  ██████╗ ██████╗ ██╗███╗   ██╗ █████╗ ████████╗██╗  ██╗
+  ██╔════╝ ██╔═══██╗██╔══██╗██║████╗  ██║██╔══██╗╚══██╔══╝██║  ██║
+  ██║  ███╗██║   ██║██████╔╝██║██╔██╗ ██║███████║   ██║   ███████║
+  ██║   ██║██║   ██║██╔═══╝ ██║██║╚██╗██║██╔══██║   ██║   ██╔══██║
+  ╚██████╔╝╚██████╔╝██║     ██║██║ ╚████║██║  ██║   ██║   ██║  ██║
+   ╚═════╝  ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
 `,
     specs: {
       OS: "Chennai, India / CSE (AI)", Kernel: "Agentic AI & automation", Uptime: "Always building",
