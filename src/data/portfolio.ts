@@ -34,6 +34,11 @@ export interface EventItem {
   contribution: string;
 }
 
+export interface PrincipleItem {
+  title: string;
+  description: string;
+}
+
 export const PORTFOLIO_DATA = {
   developer: {
     name: "GOPINATH",
@@ -127,6 +132,16 @@ export const PORTFOLIO_DATA = {
     { name: "Hack The Planet '26", role: "Student Coordinator & Volunteer", date: "July 2026", contribution: "Coordinated and volunteered throughout the five-day national cybersecurity event hosted by OWASP Sathyabama." },
     { name: "Build with Gemini", role: "Main Speaker & Student Coordinator", date: "July 27, 2026", contribution: "Led the main talk and coordinated the session as a Google Student Ambassador." },
   ] as EventItem[],
+  principles: [
+    { title: "SHIP SOLO BEFORE SCALING TEAMS", description: "Temple Journey, HabitLoop, Digital Horizon Conclave — I build the full system alone first to prove it works, then bring in a team once the shape is proven." },
+    { title: "AGENTS SHOULD COORDINATE, NOT JUST RESPOND", description: "A single prompt is a feature. ResponSync's three-agent pipeline is a system — agents that hand off context, verify each other, and recover when one fails." },
+    { title: "PICK PROBLEMS WITH REAL STAKES", description: "Flood response coordination, grievance redressal, attendance for 1,000+ students — I build for urgency and friction, not for demo-day applause." },
+    { title: "MEASURE BEFORE YOU CLAIM", description: "A 40% load-time improvement only means something because it was logged. If a dashboard doesn't exist yet, the decision isn't ready to be made." },
+    { title: "RESTRUCTURE, DON'T PATCH", description: "When AI Foundry hit an engagement crisis, the fix wasn't more reminders — it was rebuilding the model itself into async sub-team support." },
+    { title: "STACK FLUENCY OVER STACK LOYALTY", description: "React, Lovable, n8n, Gemini pipelines — the tool gets chosen by the constraint (team skill, timeline, no-code need), not by habit." },
+    { title: "PRUNE THE PORTFOLIO LIKE A CODEBASE", description: "Titles and roles that don't compound get dropped, same as dead code. Keep what stacks — AI Foundry, HWI, CSI, LoopFound, SynosAI — cut the rest." },
+    { title: "RE-INTERVIEW, DON'T INHERIT", description: "Re-interviewing all 60 AI Foundry members across seven sub-teams instead of assuming the existing structure was correct — verify the system before you build on it." },
+  ] as PrincipleItem[],
   commands: [
     { name: "help", desc: "List all available terminal commands", usage: "help" }, { name: "about", desc: "Display bio & summary", usage: "about [or cat bio.txt]" },
     { name: "skills", desc: "Display skill proficiency meters", usage: "skills [or cat skills.sh]" }, { name: "projects", desc: "Display projects", usage: "projects [or cat projects.md]" },
