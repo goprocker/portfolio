@@ -151,6 +151,8 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
   import { applyTheme, applyCRTConfig } from '../config/themeConfig';
 
   document.addEventListener("DOMContentLoaded", () => {
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     const nameGate = document.getElementById("visitor-name-gate");
     const nameForm = document.getElementById("visitor-name-form") as HTMLFormElement | null;
     const nameInput = document.getElementById("visitor-name-input") as HTMLInputElement | null;
@@ -161,6 +163,7 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
       nameGate?.classList.add("hidden");
       window.setTimeout(() => {
         (window as unknown as { switchTuiMode?: (mode: "cli" | "gui") => void }).switchTuiMode?.("gui");
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
       }, 0);
     }
 
