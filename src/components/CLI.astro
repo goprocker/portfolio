@@ -65,6 +65,7 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
 <script>
   import { PORTFOLIO_DATA } from "../data/portfolio";
   import { SPOTIFY_CONFIG, getSpotifyActivity } from "../config/spotifyConfig";
+  import { GAMES_CONFIG, getLiveGameActivity } from "../config/gamesConfig";
   import {
     ALL_THEMES,
     applyTheme,
@@ -188,6 +189,7 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
       const parts = rawCmd.split(" ").filter(Boolean);
       const cmd = parts[0].toLowerCase();
       const args = parts.slice(1);
+      const flag = (args[0] || "").toLowerCase();
 
       switch (cmd) {
         case "help":
@@ -203,8 +205,9 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
           break;
 
         case "skills":
+        case "skill":
           playSuccessSound();
-          renderSkills();
+          renderSkills(flag === "--list" || flag === "-l");
           break;
 
         case "collabs":
@@ -212,7 +215,58 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
         case "projects":
         case "project":
           playSuccessSound();
-          renderCollabs();
+          renderCollabs(flag === "--featured" || flag === "-f");
+          break;
+
+        case "portfolio":
+        case "portfolio.exe":
+          playSuccessSound();
+          handlePortfolio(args[0]);
+          break;
+
+        case "dir":
+          playSuccessSound();
+          renderDir();
+          break;
+
+        case "type":
+          playSuccessSound();
+          handleType(args[0]);
+          break;
+
+        case "cd":
+          playSuccessSound();
+          handleCd(args[0]);
+          break;
+
+        case "github":
+        case "gh":
+          playSuccessSound();
+          renderGithub();
+          break;
+
+        case "status":
+          playSuccessSound();
+          renderStatus();
+          break;
+
+        case "coffee":
+        case "tea":
+          renderCoffee();
+          break;
+
+        case "hire-me":
+        case "hire":
+        case "hireme":
+          renderHireMe();
+          break;
+
+        case "rm":
+          handleRm(args.join(" "));
+          break;
+
+        case "deploy":
+          handleDeploy(args.join(" "));
           break;
 
         case "experience":
@@ -246,27 +300,110 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
           renderOrganizations();
           break;
 
+        case "principles":
+        case "philosophy":
+        case "values":
+          playSuccessSound();
+          renderPrinciples();
+          break;
+
+        case "focus":
+        case "current":
+        case "now":
+          playSuccessSound();
+          renderFocus();
+          break;
+
+        case "resume":
+        case "cv":
+        case "download":
+          playSuccessSound();
+          renderResume();
+          break;
+
+        case "games":
+        case "game":
+        case "gaming":
+        case "activity":
+          playSuccessSound();
+          renderGames();
+          break;
+
+        case "quote":
+        case "fortune":
+        case "motivate":
+          playSuccessSound();
+          renderQuote();
+          break;
+
+        case "whoami":
+          playSuccessSound();
+          renderWhoami();
+          break;
+
+        case "tree":
+          playSuccessSound();
+          renderTree();
+          break;
+
+        case "date":
+        case "time":
+        case "clock":
+          playSuccessSound();
+          renderDate();
+          break;
+
+        case "ping":
+          playSuccessSound();
+          renderPing(args[0]);
+          break;
+
+        case "echo":
+          playSuccessSound();
+          renderEcho(args.join(" "));
+          break;
+
+        case "history":
+          playSuccessSound();
+          renderHistory();
+          break;
+
+        case "banner":
+        case "ascii":
+          playSuccessSound();
+          renderBanner();
+          break;
+
+        case "repo":
+        case "source":
+        case "code":
+          playSuccessSound();
+          renderRepo();
+          break;
+
+        case "weather":
+          playSuccessSound();
+          renderWeather();
+          break;
+
+        case "sudo":
+          if (args[0] && (args[0].toLowerCase() === "hire-me" || args[0].toLowerCase() === "hire" || args[0].toLowerCase() === "hireme")) {
+            renderHireMe();
+          } else {
+            renderSudo(args.join(" "));
+          }
+          break;
+
         case "cat":
           playSuccessSound();
-          if (args[0] === "bio.txt") renderAbout();
-          else if (args[0] === "skills.sh") renderSkills();
-          else if (args[0] === "collabs.md" || args[0] === "projects.md") renderCollabs();
-          else if (args[0] === "experience.md") renderExperience();
-          else if (args[0] === "internships.md") renderInternships();
-          else if (args[0] === "events.md") renderEvents();
-          else if (args[0] === "ambassadors.md") renderAmbassadors();
-          else if (args[0] === "companies.txt") renderOrganizations();
-          else if (args[0] === "contact.txt") renderContact();
-          else
-            appendOutput(
-              `<div class="text-yellow-400">Usage: cat <bio.txt | skills.sh | projects.md | experience.md | internships.md | ambassadors.md | companies.txt | contact.txt></div>`,
-            );
+          handleType(args[0]);
           break;
 
         case "ls":
           playSuccessSound();
           appendOutput(`
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono py-1">
+              <span class="text-yellow-400 font-bold">📄 about.txt</span>
               <span class="text-yellow-400 font-bold">📄 bio.txt</span>
               <span class="text-emerald-400 font-bold">⚙️ skills.sh</span>
               <span class="text-purple-400 font-bold">🚀 projects.md</span>
@@ -275,7 +412,11 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
               <span class="text-purple-400 font-bold">🎤 events.md</span>
               <span class="text-yellow-400 font-bold">🎓 ambassadors.md</span>
               <span class="text-blue-400 font-bold">🏢 companies.txt</span>
+              <span class="text-purple-400 font-bold">📜 principles.md</span>
+              <span class="text-cyan-400 font-bold">⚡ focus.txt</span>
+              <span class="text-emerald-400 font-bold">📑 resume.txt</span>
               <span class="text-red-400 font-bold">✉️ contact.txt</span>
+              <span class="text-emerald-400 font-bold">⚡ portfolio.exe</span>
             </div>
           `);
           break;
@@ -378,8 +519,8 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
           playErrorSound();
           appendOutput(`
             <div class="text-red-400">
-              zsh: command not found: <span class="font-bold">${escapeHtml(cmd)}</span>. 
-              Type <span class="text-[var(--fg-bright)] underline cursor-pointer" onclick="document.getElementById('cli-input').value='help'; document.getElementById('cli-input').dispatchEvent(new KeyboardEvent('keydown', {key:'Enter'}));">help</span> for manual.
+              '${escapeHtml(cmd)}' is not recognized as an internal or external command.
+              Type <span class="text-[var(--fg-bright)] underline cursor-pointer" onclick="document.getElementById('cli-input').value='help'; document.getElementById('cli-input').dispatchEvent(new KeyboardEvent('keydown', {key:'Enter'}));">help</span> to view available commands.
             </div>
           `);
           break;
@@ -404,6 +545,200 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
       appendOutput(html);
     }
 
+    function renderDir() {
+      appendOutput(`
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-3 my-2 font-mono text-xs space-y-1">
+          <div class="text-[var(--fg-dim)]">Directory: <span class="text-[var(--fg-bright)] font-bold">C:\\Portfolio</span></div>
+          <pre class="text-[var(--fg-main)] text-xs leading-relaxed whitespace-pre font-mono">
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+<span class="text-[var(--accent)] font-bold">d-----</span>        30-08-2026     19:42                <span class="text-yellow-400 font-bold">about</span>
+<span class="text-[var(--accent)] font-bold">d-----</span>        30-08-2026     19:42                <span class="text-yellow-400 font-bold">projects</span>
+<span class="text-[var(--accent)] font-bold">d-----</span>        30-08-2026     19:42                <span class="text-yellow-400 font-bold">skills</span>
+<span class="text-[var(--accent)] font-bold">d-----</span>        30-08-2026     19:42                <span class="text-yellow-400 font-bold">experience</span>
+<span class="text-[var(--accent)] font-bold">d-----</span>        30-08-2026     19:42                <span class="text-yellow-400 font-bold">contact</span>
+<span class="text-[var(--fg-dim)]">-a----</span>        30-08-2026     19:42           1024 <span class="text-yellow-400">about.txt</span>
+<span class="text-[var(--fg-dim)]">-a----</span>        30-08-2026     19:42           2048 <span class="text-yellow-400">bio.txt</span>
+<span class="text-[var(--fg-dim)]">-a----</span>        30-08-2026     19:42           1536 <span class="text-emerald-400">skills.sh</span>
+<span class="text-[var(--fg-dim)]">-a----</span>        30-08-2026     19:42           4096 <span class="text-purple-400">projects.md</span>
+<span class="text-[var(--fg-dim)]">-a----</span>        30-08-2026     19:42           3072 <span class="text-cyan-400">experience.md</span>
+<span class="text-[var(--fg-dim)]">-a----</span>        30-08-2026     19:42           2560 <span class="text-purple-400">principles.md</span>
+<span class="text-[var(--fg-dim)]">-a----</span>        30-08-2026     19:42           1280 <span class="text-cyan-400">focus.txt</span>
+<span class="text-[var(--fg-dim)]">-a----</span>        30-08-2026     19:42           2048 <span class="text-emerald-400">resume.txt</span>
+<span class="text-[var(--fg-dim)]">-a----</span>        30-08-2026     19:42            512 <span class="text-red-400">contact.txt</span>
+<span class="text-[var(--fg-dim)]">-a----</span>        30-08-2026     19:42         104857 <span class="text-emerald-400 font-bold">portfolio.exe</span></pre>
+          <div class="text-[10px] text-[var(--fg-dim)] pt-1">Type 'type &lt;file&gt;', 'cd &lt;dir&gt;', or 'portfolio.exe' to inspect.</div>
+        </div>
+      `);
+    }
+
+    function handleCd(targetDir?: string) {
+      const dir = (targetDir || "").toLowerCase().trim().replace(/[\\/]/g, "");
+      if (!dir || dir === "~" || dir === "portfolio" || dir === "c:" || dir === "..") {
+        appendOutput(`<div class="text-cyan-400 font-mono text-xs my-1">Current directory: <span class="font-bold">C:\\Portfolio</span></div>`);
+        return;
+      }
+      if (dir === "about") {
+        appendOutput(`<div class="text-cyan-400 font-mono text-xs my-1">Navigated to <span class="font-bold">C:\\Portfolio\\about</span>:</div>`);
+        renderAbout();
+      } else if (dir === "projects" || dir === "collabs") {
+        appendOutput(`<div class="text-cyan-400 font-mono text-xs my-1">Navigated to <span class="font-bold">C:\\Portfolio\\projects</span>:</div>`);
+        renderCollabs();
+      } else if (dir === "skills") {
+        appendOutput(`<div class="text-cyan-400 font-mono text-xs my-1">Navigated to <span class="font-bold">C:\\Portfolio\\skills</span>:</div>`);
+        renderSkills();
+      } else if (dir === "experience" || dir === "work") {
+        appendOutput(`<div class="text-cyan-400 font-mono text-xs my-1">Navigated to <span class="font-bold">C:\\Portfolio\\experience</span>:</div>`);
+        renderExperience();
+      } else if (dir === "contact") {
+        appendOutput(`<div class="text-cyan-400 font-mono text-xs my-1">Navigated to <span class="font-bold">C:\\Portfolio\\contact</span>:</div>`);
+        renderContact();
+      } else {
+        playErrorSound();
+        appendOutput(`<div class="text-red-400 font-mono text-xs my-1">The system cannot find the path specified: ${escapeHtml(targetDir || "")}. Available directories: about, projects, skills, experience, contact.</div>`);
+      }
+    }
+
+    function handleType(fileName?: string) {
+      const file = (fileName || "").toLowerCase().trim();
+      if (file === "about.txt" || file === "bio.txt" || file === "about") renderAbout();
+      else if (file === "skills.sh" || file === "skills.txt" || file === "skills") renderSkills();
+      else if (file === "collabs.md" || file === "projects.md" || file === "projects.txt" || file === "projects") renderCollabs();
+      else if (file === "experience.md" || file === "experience.txt" || file === "experience") renderExperience();
+      else if (file === "internships.md" || file === "internships") renderInternships();
+      else if (file === "events.md" || file === "events") renderEvents();
+      else if (file === "ambassadors.md" || file === "ambassadors") renderAmbassadors();
+      else if (file === "companies.txt" || file === "companies") renderOrganizations();
+      else if (file === "principles.md" || file === "principles.txt" || file === "principles") renderPrinciples();
+      else if (file === "focus.txt" || file === "status.txt" || file === "focus") renderFocus();
+      else if (file === "resume.txt" || file === "cv.txt" || file === "resume") renderResume();
+      else if (file === "contact.txt" || file === "contact") renderContact();
+      else {
+        playErrorSound();
+        appendOutput(
+          `<div class="text-yellow-400 text-xs font-mono">Usage: type &lt;about.txt | bio.txt | skills.sh | projects.md | experience.md | principles.md | focus.txt | resume.txt | contact.txt&gt;</div>`,
+        );
+      }
+    }
+
+    function handlePortfolio(flag?: string) {
+      const f = (flag || "").toLowerCase().trim();
+      if (f === "--about" || f === "-a") {
+        renderAbout();
+      } else if (f === "--skills" || f === "-s") {
+        renderSkills();
+      } else if (f === "--projects" || f === "-p") {
+        renderCollabs();
+      } else if (f === "--experience" || f === "-e") {
+        renderExperience();
+      } else if (f === "--contact" || f === "-c") {
+        renderContact();
+      } else {
+        appendOutput(`
+          <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-4 my-2 font-mono text-xs space-y-2">
+            <div class="text-[var(--fg-dim)] text-[11px]">Microsoft Windows [Version 11.0.26100.1]</div>
+            <div class="text-[var(--fg-bright)] font-bold">C:\\Users\\Gopinath&gt; portfolio.exe</div>
+            <div class="space-y-0.5 text-xs text-[var(--fg-main)] pt-1">
+              <div>Initializing portfolio...</div>
+              <div>Loading projects........... <span class="text-emerald-400 font-bold">[OK]</span></div>
+              <div>Loading experience......... <span class="text-emerald-400 font-bold">[OK]</span></div>
+              <div>Loading skills............. <span class="text-emerald-400 font-bold">[OK]</span></div>
+              <div>Loading agentic engine..... <span class="text-emerald-400 font-bold">[OK]</span></div>
+            </div>
+            <div class="pt-2 border-t border-[var(--border-color)] text-xs">
+              <span class="text-emerald-400 font-bold">Welcome, ${escapeHtml(visitorName)}.</span>
+              <div class="text-[var(--fg-dim)] mt-1">Available flags: <span class="text-[var(--accent)] font-bold">--about</span>, <span class="text-[var(--accent)] font-bold">--skills</span>, <span class="text-[var(--accent)] font-bold">--projects</span>, <span class="text-[var(--accent)] font-bold">--experience</span>, <span class="text-[var(--accent)] font-bold">--contact</span></div>
+            </div>
+          </div>
+        `);
+      }
+    }
+
+    function renderGithub() {
+      const gh = PORTFOLIO_DATA.developer.github;
+      window.open(gh, "_blank");
+      appendOutput(`
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-3 my-2 font-mono text-xs space-y-1.5">
+          <div class="text-emerald-400 font-bold flex items-center gap-2">
+            <span>🐙</span>
+            <span>Opening GitHub in new window...</span>
+          </div>
+          <div class="text-[var(--fg-main)]">URL: <a href="${gh}" target="_blank" rel="noopener noreferrer" class="text-sky-400 font-bold underline">${gh} ↗</a></div>
+          <div class="text-[10px] text-[var(--fg-dim)]">Repositories: responsesync, portfolio, habitloop, sisteventformmaker...</div>
+        </div>
+      `);
+    }
+
+    function renderStatus() {
+      appendOutput(`
+        <div class="border-l-2 border-emerald-400 bg-[var(--bg-card)] p-3 my-2 font-mono text-xs space-y-1">
+          <div class="text-emerald-400 font-bold text-sm">Building things that matter...</div>
+          <div class="text-[var(--fg-main)]">CSE (AI) @ Sathyabama · Co-founder @ LoopFound · Lead @ AI Foundry '29 · Intern @ SynosAI</div>
+          <div class="text-[10px] text-[var(--fg-dim)] pt-0.5">${PORTFOLIO_DATA.developer.status}</div>
+        </div>
+      `);
+    }
+
+    function renderCoffee() {
+      playErrorSound();
+      appendOutput(`
+        <div class="border border-amber-500/40 bg-amber-950/20 p-3 my-2 font-mono text-xs space-y-1">
+          <div class="text-amber-400 font-bold flex items-center gap-1.5">
+            <span>☕</span>
+            <span>ERROR: Coffee level critically low ☕</span>
+          </div>
+          <div class="text-[var(--fg-main)]">Refilling caffeine and tea reserves... Ready to ship next-level AI agents &amp; applications!</div>
+        </div>
+      `);
+    }
+
+    function renderHireMe() {
+      playSuccessSound();
+      appendOutput(`
+        <div class="border border-emerald-500/50 bg-emerald-950/30 p-4 my-2 font-mono text-xs space-y-2">
+          <div class="text-emerald-400 font-bold text-sm flex items-center gap-2 border-b border-emerald-500/30 pb-1.5">
+            <span>✓ ACCESS GRANTED</span>
+            <span class="text-[10px] bg-emerald-500 text-black px-1.5 py-0.5 font-bold uppercase">READY TO HIRE</span>
+          </div>
+          <p class="text-[var(--fg-main)] leading-relaxed">
+            Gopinath is currently <strong class="text-emerald-400">OPEN FOR INTERNSHIPS, CONTRACTS &amp; COLLABORATIONS</strong>.
+          </p>
+          <div class="space-y-1 text-xs pt-1">
+            <div>📧 <strong>Email:</strong> <a href="mailto:${PORTFOLIO_DATA.developer.email}" class="text-sky-400 underline font-bold">${PORTFOLIO_DATA.developer.email}</a></div>
+            <div>💼 <strong>LinkedIn:</strong> <a href="${PORTFOLIO_DATA.developer.linkedin}" target="_blank" class="text-sky-400 underline font-bold">${PORTFOLIO_DATA.developer.linkedin} ↗</a></div>
+            <div>🐙 <strong>GitHub:</strong> <a href="${PORTFOLIO_DATA.developer.github}" target="_blank" class="text-sky-400 underline font-bold">${PORTFOLIO_DATA.developer.github} ↗</a></div>
+          </div>
+        </div>
+      `);
+    }
+
+    function handleRm(targetArg?: string) {
+      const arg = (targetArg || "").toLowerCase().trim();
+      if (arg.includes("boring-ui") || arg.includes("boring") || arg.includes("-rf")) {
+        playSuccessSound();
+        appendOutput(`
+          <div class="border border-cyan-500/40 bg-cyan-950/20 p-3 my-2 font-mono text-xs space-y-1">
+            <div class="text-cyan-400 font-bold">Removing boring interfaces... Done ✓</div>
+            <div class="text-[var(--fg-bright)]">[████████████████████] 100%</div>
+            <div class="text-emerald-400 font-bold">Modern TUI + GUI aesthetic initialized.</div>
+          </div>
+        `);
+      } else {
+        appendOutput(`<div class="text-yellow-400 text-xs font-mono">Usage: rm -rf boring-ui</div>`);
+      }
+    }
+
+    function handleDeploy(targetArg?: string) {
+      playSuccessSound();
+      appendOutput(`
+        <div class="border border-emerald-500/40 bg-emerald-950/20 p-3 my-2 font-mono text-xs space-y-1.5">
+          <div class="text-[var(--fg-bright)] font-bold">Deploying ${escapeHtml(targetArg || "future")}...</div>
+          <div class="text-emerald-400 font-mono font-bold">[████████████████████] 100%</div>
+          <div class="text-emerald-400 font-bold">Future successfully deployed ✓</div>
+        </div>
+      `);
+    }
+
     function renderAbout() {
       const { developer } = PORTFOLIO_DATA;
       appendOutput(`
@@ -419,7 +754,26 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
       `);
     }
 
-    function renderSkills() {
+    function renderSkills(listOnly = false) {
+      if (listOnly) {
+        const allSkills: string[] = [];
+        PORTFOLIO_DATA.skills.forEach((cat) => {
+          cat.skills.forEach((s) => allSkills.push(s.name));
+        });
+        appendOutput(`
+          <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-3 my-2 font-mono text-xs space-y-1.5">
+            <div class="text-[var(--fg-bright)] font-bold border-b border-[var(--border-color)] pb-1 flex items-center justify-between">
+              <span>⚡ TECH STACK // PLAIN LIST</span>
+              <span class="text-[10px] text-emerald-400 font-bold">${allSkills.length} SKILLS</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-1 pt-1">
+              ${allSkills.map((s) => `<div class="text-emerald-400">• <span class="text-[var(--fg-bright)] font-bold">${s}</span></div>`).join("")}
+            </div>
+          </div>
+        `);
+        return;
+      }
+
       let html = `<div class="space-y-3 my-2">`;
       PORTFOLIO_DATA.skills.forEach((cat) => {
         html += `
@@ -447,9 +801,21 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
       appendOutput(html);
     }
 
-    function renderCollabs() {
+    function renderCollabs(featuredOnly = false) {
+      let list = PORTFOLIO_DATA.collabs;
+      if (featuredOnly) {
+        list = PORTFOLIO_DATA.collabs.filter((c) => c.id === "responsesync" || c.id === "dhc" || c.id === "habitloop");
+      }
       let html = `<div class="space-y-3 my-2">`;
-      PORTFOLIO_DATA.collabs.forEach((c) => {
+      if (featuredOnly) {
+        html += `
+          <div class="border border-emerald-500/40 bg-emerald-950/20 p-2.5 font-mono text-xs text-emerald-400 font-bold flex items-center justify-between">
+            <span>⭐ FEATURED FLAG ACTIVE // TOP SHIPPED PROJECTS</span>
+            <span class="text-[10px] text-[var(--fg-dim)]">3 SELECTED</span>
+          </div>
+        `;
+      }
+      list.forEach((c) => {
         html += `
           <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-4 text-xs font-mono space-y-2 hover:border-[var(--border-active)] transition-colors">
             <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
@@ -508,6 +874,354 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
       ];
       const unique = Array.from(new Map(entries.map((entry) => [entry.name, entry])).values());
       appendOutput(`<div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-3 my-2 font-mono text-xs"><div class="mb-3 border-b border-[var(--border-color)] pb-2 font-bold text-[var(--fg-bright)]">🏢 ORGANIZATIONS // CLUBS, COMPANIES & COLLEGES</div><div class="grid gap-2 sm:grid-cols-2">${unique.map((entry) => `<div class="flex items-center justify-between border border-[var(--border-color)] bg-[var(--bg-main)] px-3 py-2"><span class="font-bold text-[var(--fg-main)]">${entry.name}</span><span class="text-[10px] text-[var(--accent)]">${entry.type}</span></div>`).join("")}</div></div>`);
+    }
+
+    function renderPrinciples() {
+      let html = `
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-4 my-2 font-mono text-xs space-y-3">
+          <div class="text-[var(--fg-bright)] font-bold text-sm border-b border-[var(--border-color)] pb-2 flex items-center justify-between">
+            <span>📜 CORE PRINCIPLES // HOW I THINK & BUILD</span>
+            <span class="text-[10px] text-[var(--accent)]">[8 PILLARS]</span>
+          </div>
+          <div class="grid gap-2.5">
+      `;
+      PORTFOLIO_DATA.principles.forEach((p, idx) => {
+        html += `
+          <div class="border border-[var(--border-color)] bg-[var(--bg-main)] p-3 space-y-1">
+            <div class="text-[var(--accent)] font-bold text-xs flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 bg-[var(--border-color)] text-[10px] text-[var(--fg-bright)]">0${idx + 1}</span>
+              <span>${escapeHtml(p.title)}</span>
+            </div>
+            <p class="text-[var(--fg-main)] text-xs leading-relaxed pl-7">${escapeHtml(p.description)}</p>
+          </div>
+        `;
+      });
+      html += `</div></div>`;
+      appendOutput(html);
+    }
+
+    function renderFocus() {
+      appendOutput(`
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-4 my-2 font-mono text-xs space-y-3">
+          <div class="text-[var(--fg-bright)] font-bold text-sm border-b border-[var(--border-color)] pb-2 flex items-center justify-between">
+            <span>⚡ ACTIVE FOCUS &amp; OPERATING VECTOR</span>
+            <span class="text-[10px] text-emerald-400 font-bold">LIVE 2026</span>
+          </div>
+          
+          <div class="space-y-2">
+            <div class="text-[var(--accent)] font-bold text-xs">🚀 BUILDING (In Active Development)</div>
+            <div class="bg-[var(--bg-main)] border border-[var(--border-color)] p-2.5 space-y-1 text-xs text-[var(--fg-main)]">
+              <div>├── <span class="text-[var(--fg-bright)] font-bold">RTI Revamp</span> <span class="text-[var(--fg-dim)]">[Reimagined RTI filing UX — OpenAI hackathon]</span></div>
+              <div>├── <span class="text-[var(--fg-bright)] font-bold">Parithivam</span> <span class="text-[var(--fg-dim)]">[Build What Moves India — public-service UX]</span></div>
+              <div>├── <span class="text-[var(--fg-bright)] font-bold">1Q00 Hackathon App</span> <span class="text-[var(--fg-dim)]">[App build — 1Q00 hackathon]</span></div>
+              <div>└── <span class="text-[var(--fg-bright)] font-bold">Personal Projects</span> <span class="text-[var(--fg-dim)]">[Independent AI tools &amp; agents]</span></div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="text-[var(--accent)] font-bold text-xs">📚 LEARNING (Deepening Fundamentals)</div>
+            <div class="bg-[var(--bg-main)] border border-[var(--border-color)] p-2.5 space-y-1 text-xs text-[var(--fg-main)]">
+              <div>├── <span class="text-[var(--fg-bright)] font-bold">DSA in Java</span> <span class="text-[var(--fg-dim)]">[Transferring Python base to Java for competitive coding]</span></div>
+              <div>├── <span class="text-[var(--fg-bright)] font-bold">Agentic Systems</span> <span class="text-[var(--fg-dim)]">[Multi-agent orchestration, LangGraph &amp; MCP]</span></div>
+              <div>└── <span class="text-[var(--fg-bright)] font-bold">Team &amp; Hackathon Ops</span> <span class="text-[var(--fg-dim)]">[Rapid prototyping in multidisciplinary squads]</span></div>
+            </div>
+          </div>
+
+          <div class="pt-1 text-[11px] text-[var(--fg-dim)] border-t border-[var(--border-color)]/60 flex items-center justify-between">
+            <span>STATUS: <span class="text-emerald-400 font-bold">${PORTFOLIO_DATA.developer.status}</span></span>
+            <span>📍 Chennai, India</span>
+          </div>
+        </div>
+      `);
+    }
+
+    function renderResume() {
+      const { developer } = PORTFOLIO_DATA;
+      appendOutput(`
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-4 my-2 font-mono text-xs space-y-3">
+          <div class="text-[var(--fg-bright)] font-bold text-sm border-b border-[var(--border-color)] pb-2 flex items-center justify-between">
+            <span>📑 CURRICULUM VITAE // ${developer.name}</span>
+            <a href="/resume.pdf" download class="px-2.5 py-1 bg-[var(--accent)] text-[var(--bg-main)] font-bold rounded-none hover:opacity-90 transition-opacity text-[11px]">
+              DOWNLOAD PDF 📥
+            </a>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="space-y-1">
+              <div class="text-[var(--accent)] font-bold">🎓 EDUCATION</div>
+              <div class="text-[var(--fg-bright)] font-bold">B.E. Computer Science (AI)</div>
+              <div class="text-[var(--fg-dim)]">Sathyabama Institute of Science &amp; Technology</div>
+            </div>
+            <div class="space-y-1">
+              <div class="text-[var(--accent)] font-bold">💼 TOP HIGHLIGHTS</div>
+              <div>• Co-founder &amp; CMO @ <span class="text-[var(--fg-bright)] font-bold">LoopFound</span></div>
+              <div>• Founder &amp; Lead @ <span class="text-[var(--fg-bright)] font-bold">AI Foundry '29</span></div>
+              <div>• Frontend Intern @ <span class="text-[var(--fg-bright)] font-bold">SynosAI</span></div>
+              <div>• Google Gemini Student Ambassador</div>
+            </div>
+          </div>
+          <div class="pt-2 border-t border-[var(--border-color)]">
+            <div class="text-[var(--accent)] font-bold mb-1">🛠️ CORE EXPERTISE</div>
+            <div class="text-[var(--fg-main)]">TypeScript, JavaScript, Python, LangGraph, Gemini/Claude APIs, React, Next.js, Node.js, Tailwind CSS, PostgreSQL, Vector DBs (Qdrant/Chroma).</div>
+          </div>
+          <div class="text-[10px] text-[var(--fg-dim)]">Direct link: <a href="/resume.pdf" download class="text-sky-400 hover:underline">/resume.pdf</a> (Type 'contact' to reach out directly)</div>
+        </div>
+      `);
+    }
+
+    async function renderGames() {
+      const isLanyardConfigured =
+        GAMES_CONFIG.enabled &&
+        GAMES_CONFIG.lanyardUserId &&
+        GAMES_CONFIG.lanyardUserId.trim() !== "" &&
+        GAMES_CONFIG.lanyardUserId !== "your_discord_id";
+
+      if (!isLanyardConfigured) {
+        appendOutput(`
+          <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-4 my-2 text-xs font-mono space-y-2">
+            <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
+              <span class="text-yellow-400 font-bold flex items-center gap-1.5">🎮 GAMING ACTIVITY RPC</span>
+              <span class="text-[10px] text-[var(--fg-dim)] font-bold">STANDBY</span>
+            </div>
+            <div class="text-[var(--fg-main)] leading-relaxed">
+              Live Discord gaming status is currently standby. Set <span class="text-[var(--accent)] font-bold">lanyardUserId</span> in <span class="text-sky-400 font-bold">src/config/gamesConfig.ts</span> to sync Discord game presence.
+            </div>
+            <div class="text-xs text-[var(--fg-dim)]">Current Status: 🟢 Offline / Focusing on coding &amp; building.</div>
+          </div>
+        `);
+        return;
+      }
+
+      const liveGame = await getLiveGameActivity();
+      if (liveGame && liveGame.isPlaying) {
+        appendOutput(`
+          <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-4 my-2 text-xs font-mono space-y-2.5">
+            <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
+              <span class="text-emerald-400 font-bold flex items-center gap-1.5">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping opacity-75 absolute inline-flex h-full w-full rounded-full bg-emerald-400"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                🎮 LIVE GAME PLAYING
+              </span>
+              <span class="text-[10px] px-1.5 py-0.5 border border-[var(--border-color)] bg-[var(--bg-main)] text-emerald-400 font-bold">RPC ACTIVE</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div><span class="text-[var(--accent)] font-bold">Game:</span> <span class="text-[var(--fg-bright)] font-bold">${escapeHtml(liveGame.gameName)}</span></div>
+              <div><span class="text-[var(--accent)] font-bold">State:</span> <span class="text-emerald-400">${escapeHtml(liveGame.state || liveGame.details || "In Game")}</span></div>
+            </div>
+          </div>
+        `);
+      } else {
+        appendOutput(`
+          <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-3 my-2 text-xs font-mono space-y-1.5">
+            <div class="text-[var(--fg-bright)] font-bold border-b border-[var(--border-color)] pb-1 flex items-center justify-between">
+              <span>🎮 GAMING ACTIVITY // DISCORD RPC</span>
+              <span class="text-[10px] text-[var(--fg-dim)]">NO ACTIVE GAME</span>
+            </div>
+            <p class="text-[var(--fg-main)]">Gopinath is currently not in-game. (Shipping AI agents &amp; systems ⚡)</p>
+          </div>
+        `);
+      }
+    }
+
+    const quotes = [
+      { text: "Build things that ship, not just prototypes that impress.", author: "Gopinath" },
+      { text: "Agents should coordinate, not just respond.", author: "Gopinath" },
+      { text: "Simplicity is prerequisite for reliability.", author: "Edsger W. Dijkstra" },
+      { text: "Talk is cheap. Show me the code.", author: "Linus Torvalds" },
+      { text: "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.", author: "Martin Fowler" },
+      { text: "The function of good software is to make the complex appear to be simple.", author: "Grady Booch" },
+      { text: "Make it work, make it right, make it fast.", author: "Kent Beck" },
+    ];
+
+    function renderQuote() {
+      const q = quotes[Math.floor(Math.random() * quotes.length)];
+      appendOutput(`
+        <div class="border-l-2 border-[var(--accent)] bg-[var(--bg-card)] p-3 my-2 font-mono text-xs space-y-1">
+          <div class="text-[var(--fg-bright)] italic text-sm">"${escapeHtml(q.text)}"</div>
+          <div class="text-[var(--accent)] font-bold text-right">— ${escapeHtml(q.author)}</div>
+        </div>
+      `);
+    }
+
+    function renderWhoami() {
+      const sessionId = Math.random().toString(36).substring(2, 8).toUpperCase();
+      appendOutput(`
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-3 my-2 font-mono text-xs space-y-1.5">
+          <div class="text-[var(--fg-bright)] font-bold border-b border-[var(--border-color)] pb-1 flex items-center justify-between">
+            <span>👤 SESSION IDENTITY // WHOAMI</span>
+            <span class="text-[10px] text-emerald-400 font-bold">AUTHENTICATED</span>
+          </div>
+          <div class="text-emerald-400 font-bold text-sm">gopinath\\${escapeHtml(visitorName)}</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+            <div><span class="text-[var(--accent)] font-bold">User:</span> <span class="text-[var(--fg-bright)] font-bold">${escapeHtml(visitorName)}</span></div>
+            <div><span class="text-[var(--accent)] font-bold">Role:</span> Guest Explorer / Recruiter</div>
+            <div><span class="text-[var(--accent)] font-bold">Host:</span> GOPINATH-WIN11\\Portfolio</div>
+            <div><span class="text-[var(--accent)] font-bold">Session ID:</span> #${sessionId}</div>
+            <div><span class="text-[var(--accent)] font-bold">Directory:</span> C:\\Portfolio</div>
+            <div><span class="text-[var(--accent)] font-bold">Environment:</span> Windows Terminal (PowerShell 7.4)</div>
+          </div>
+        </div>
+      `);
+    }
+
+    function renderTree() {
+      appendOutput(`
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-3 my-2 font-mono text-xs space-y-1">
+          <div class="text-[var(--fg-bright)] font-bold border-b border-[var(--border-color)] pb-1">📂 FILE SYSTEM TREE // portfolio/</div>
+          <pre class="text-[var(--fg-main)] text-xs leading-relaxed whitespace-pre font-mono">
+<span class="text-[var(--accent)] font-bold">portfolio/</span>
+├── 📄 <span class="text-yellow-400">bio.txt</span>
+├── ⚙️ <span class="text-emerald-400">skills.sh</span>
+├── 📜 <span class="text-purple-400">principles.md</span>
+├── ⚡ <span class="text-cyan-400">focus.txt</span>
+├── 📑 <span class="text-emerald-400">resume.txt</span>
+├── 🏢 <span class="text-blue-400">companies.txt</span>
+├── ✉️ <span class="text-red-400">contact.txt</span>
+├── 📁 <span class="text-yellow-400 font-bold">projects/</span>
+│   ├── 🤝 responsesync/       <span class="text-[var(--fg-dim)]">[Flood response multi-agent system]</span>
+│   ├── 🌐 digital-horizon/    <span class="text-[var(--fg-dim)]">[Symposium site with WebGL hero]</span>
+│   ├── ⏱️ habitloop/          <span class="text-[var(--fg-dim)]">[Habit tracker with Supabase]</span>
+│   ├── 📝 sist-form-maker/    <span class="text-[var(--fg-dim)]">[Event form builder tool]</span>
+│   └── 🔄 p2pskill/           <span class="text-[var(--fg-dim)]">[Peer-to-peer skill exchange]</span>
+├── 📁 <span class="text-cyan-400 font-bold">experience/</span>
+│   ├── 🚀 loopfound/          <span class="text-[var(--fg-dim)]">[Co-founder &amp; CMO]</span>
+│   ├── 🤖 ai-foundry-29/      <span class="text-[var(--fg-dim)]">[Founder &amp; 60+ member lead]</span>
+│   ├── ⚙️ synosai/            <span class="text-[var(--fg-dim)]">[Frontend / UI intern]</span>
+│   └── 🧪 vr-media/           <span class="text-[var(--fg-dim)]">[AI developer intern]</span>
+└── 📁 <span class="text-purple-400 font-bold">events/</span>
+    ├── 🏆 rushhour-hackathon/ <span class="text-[var(--fg-dim)]">[ResponSync, 4th place &amp; special mention]</span>
+    ├── 🛡️ obscura-ctf/        <span class="text-[var(--fg-dim)]">[National cybersecurity CTF organizer]</span>
+    └── 🎤 build-with-gemini/  <span class="text-[var(--fg-dim)]">[Main speaker &amp; coordinator]</span>
+
+<span class="text-[var(--fg-dim)]">3 directories, 16 items. Type 'cat &lt;filename&gt;' or command directly to inspect.</span></pre>
+        </div>
+      `);
+    }
+
+    function renderDate() {
+      const now = new Date();
+      const utcStr = now.toUTCString();
+      const localStr = now.toLocaleString("en-US", {
+        timeZone: "Asia/Kolkata",
+        dateStyle: "full",
+        timeStyle: "long",
+      });
+      const isoStr = now.toISOString();
+      appendOutput(`
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-3 my-2 font-mono text-xs space-y-1">
+          <div class="text-[var(--fg-bright)] font-bold border-b border-[var(--border-color)] pb-1">⏰ SYSTEM CLOCK &amp; DATE</div>
+          <div><span class="text-[var(--accent)] font-bold">Chennai (IST):</span> <span class="text-emerald-400 font-bold">${localStr}</span></div>
+          <div><span class="text-[var(--accent)] font-bold">UTC:</span> <span class="text-[var(--fg-main)]">${utcStr}</span></div>
+          <div><span class="text-[var(--accent)] font-bold">ISO 8601:</span> <span class="text-[var(--fg-dim)]">${isoStr}</span></div>
+          <div><span class="text-[var(--accent)] font-bold">Uptime:</span> <span class="text-cyan-400 font-bold">${PORTFOLIO_DATA.developer.specs.Uptime}</span></div>
+        </div>
+      `);
+    }
+
+    function renderPing(target = "gopinath.dev") {
+      const host = target.replace(/https?:\/\//, "").split("/")[0] || "gopinath.dev";
+      const t1 = (Math.random() * 10 + 8).toFixed(1);
+      const t2 = (Math.random() * 10 + 7).toFixed(1);
+      const t3 = (Math.random() * 10 + 9).toFixed(1);
+      const avg = (((+t1) + (+t2) + (+t3)) / 3).toFixed(1);
+      appendOutput(`
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-3 my-2 font-mono text-xs space-y-1 leading-relaxed">
+          <div class="text-[var(--fg-bright)] font-bold">PING ${escapeHtml(host)} (127.0.0.1): 56 data bytes</div>
+          <div class="text-[var(--fg-main)]">64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=${t1} ms</div>
+          <div class="text-[var(--fg-main)]">64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=${t2} ms</div>
+          <div class="text-[var(--fg-main)]">64 bytes from 127.0.0.1: icmp_seq=3 ttl=64 time=${t3} ms</div>
+          <div class="pt-1 text-[var(--accent)] font-bold">--- ${escapeHtml(host)} ping statistics ---</div>
+          <div class="text-[var(--fg-dim)]">3 packets transmitted, 3 received, 0% packet loss, time 2004ms</div>
+          <div class="text-emerald-400 font-bold">rtt min/avg/max = ${Math.min(+t1, +t2, +t3)}/${avg}/${Math.max(+t1, +t2, +t3)} ms (Connection Stable ⚡)</div>
+        </div>
+      `);
+    }
+
+    function renderEcho(text: string) {
+      if (!text) {
+        appendOutput(`<div class="text-[var(--fg-dim)] my-1">&nbsp;</div>`);
+        return;
+      }
+      appendOutput(`<div class="text-[var(--fg-bright)] my-1 font-mono">${escapeHtml(text)}</div>`);
+    }
+
+    function renderHistory() {
+      if (commandHistory.length === 0) {
+        appendOutput(`<div class="text-[var(--fg-dim)] my-1">No commands entered in this session yet.</div>`);
+        return;
+      }
+      let html = `
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-3 my-2 font-mono text-xs space-y-1">
+          <div class="text-[var(--fg-bright)] font-bold border-b border-[var(--border-color)] pb-1">📜 SESSION COMMAND HISTORY</div>
+          <div class="space-y-0.5">
+      `;
+      commandHistory.forEach((hCmd, idx) => {
+        html += `<div><span class="text-[var(--fg-dim)] mr-2">${(idx + 1).toString().padStart(2, "0")}</span> <span class="text-[var(--accent)] font-bold">${escapeHtml(hCmd)}</span></div>`;
+      });
+      html += `</div></div>`;
+      appendOutput(html);
+    }
+
+    function renderBanner() {
+      appendOutput(`
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-3 my-2 font-mono text-xs">
+          <pre class="text-[var(--accent)] text-[9px] sm:text-xs overflow-x-auto leading-none select-none whitespace-pre">${PORTFOLIO_DATA.developer.asciiBanner}</pre>
+          <div class="text-center font-bold text-[var(--fg-bright)] mt-1">${PORTFOLIO_DATA.developer.name} — ${PORTFOLIO_DATA.developer.title}</div>
+        </div>
+      `);
+    }
+
+    function renderRepo() {
+      appendOutput(`
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-4 my-2 font-mono text-xs space-y-2">
+          <div class="text-[var(--fg-bright)] font-bold text-sm border-b border-[var(--border-color)] pb-1 flex items-center justify-between">
+            <span>📦 PORTFOLIO REPOSITORY &amp; ARCHITECTURE</span>
+            <span class="text-[10px] text-emerald-400 font-bold">v1.0.0</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div><span class="text-[var(--accent)] font-bold">Framework:</span> Astro 5.0 (Static SSR)</div>
+            <div><span class="text-[var(--accent)] font-bold">Language:</span> TypeScript</div>
+            <div><span class="text-[var(--accent)] font-bold">Styling:</span> Tailwind CSS + Custom TUI CSS</div>
+            <div><span class="text-[var(--accent)] font-bold">Audio:</span> Web Audio API Synthesizer</div>
+            <div><span class="text-[var(--accent)] font-bold">Visuals:</span> HTML5 Canvas Matrix &amp; CRT</div>
+            <div><span class="text-[var(--accent)] font-bold">RPC:</span> Discord Lanyard WebSocket</div>
+          </div>
+          <div class="pt-2 border-t border-[var(--border-color)]">
+            <span class="text-[var(--accent)] font-bold">GitHub Source:</span>
+            <a href="${PORTFOLIO_DATA.developer.github}/portfolio" target="_blank" rel="noopener noreferrer" class="text-sky-400 hover:underline font-bold ml-1">
+              ${PORTFOLIO_DATA.developer.github}/portfolio ↗
+            </a>
+          </div>
+        </div>
+      `);
+    }
+
+    function renderWeather() {
+      appendOutput(`
+        <div class="border border-[var(--border-color)] bg-[var(--bg-card)] p-3 my-2 font-mono text-xs space-y-1">
+          <div class="text-[var(--fg-bright)] font-bold border-b border-[var(--border-color)] pb-1 flex items-center justify-between">
+            <span>☀️ WEATHER // CHENNAI, TAMIL NADU, INDIA</span>
+            <span class="text-[10px] text-yellow-400 font-bold">13.0827° N, 80.2707° E</span>
+          </div>
+          <pre class="text-[var(--fg-main)] text-xs leading-relaxed whitespace-pre font-mono">
+   \\  /       <span class="text-yellow-400 font-bold">Condition:</span> Clear &amp; Sunny ☀️
+ _ /""\\ _     <span class="text-[var(--accent)] font-bold">Temperature:</span> 31°C / 88°F (Feels like 34°C)
+   \\  /       <span class="text-cyan-400 font-bold">Humidity:</span> 68% | <span class="text-emerald-400 font-bold">Wind:</span> 14 km/h ENE
+               <span class="text-[var(--fg-bright)] font-bold">Status:</span> Optimal weather for shipping systems 🚀</pre>
+        </div>
+      `);
+    }
+
+    function renderSudo(argStr: string) {
+      playErrorSound();
+      appendOutput(`
+        <div class="border border-red-500/40 bg-red-950/20 p-3 my-2 font-mono text-xs space-y-1">
+          <div class="text-red-400 font-bold">[sudo] password for ${escapeHtml(visitorName)}: *******</div>
+          <div class="text-red-400 font-bold">⛔ Access Denied: User '${escapeHtml(visitorName)}' is not in the sudoers file.</div>
+          <div class="text-[var(--fg-dim)] text-[11px]">This incident will be reported to Gopinath 🤖</div>
+        </div>
+      `);
     }
 
     function renderNeofetch() {
@@ -729,7 +1443,7 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
         const cDur = Math.max(1, tEnd - tStart);
         const cPct = Math.min(100, Math.max(0, Math.round((cProgress / cDur) * 100)));
         const cFilled = Math.round(cPct / 5);
-        const cBar = "█".repeat(cFilled) + "░".repeat(20 - cFilled);
+        const cBar = "█".repeat(cFilled) + "░".repeat(20 - filled);
 
         if (curEl) curEl.textContent = formatTime(cProgress);
         if (durEl) durEl.textContent = formatTime(cDur);
