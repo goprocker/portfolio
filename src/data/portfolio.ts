@@ -98,6 +98,7 @@ export const PORTFOLIO_DATA = {
   ambassadorExperience: [
     { organization: "Google", role: "Google Gemini Student Ambassador (GID: 2500)", period: "May 2026 – September 2026", status: "ACTIVE", description: "Representing Google Gemini on campus and driving awareness and adoption of Gemini AI tools among students." },
     { organization: "IIT Delhi", role: "TRYST'26 Campus Ambassador", period: "January 2026 – March 2026", status: "COMPLETED", description: "Represented IIT Delhi's TRYST'26 techfest on campus, driving student registrations and event awareness." },
+    { organization: "IIT Delhi", role: "Rendezvous Campus Ambassador", period: "September 2026 – Present", status: "ACTIVE", description: "Representing IIT Delhi's Rendezvous cultural festival on campus, driving event awareness and student participation." },
     { organization: "Paytm", role: "Student Ambassador", period: "April 2026 – Present", status: "ACTIVE", description: "Representing Paytm on campus as a student ambassador." },
     { organization: "Tresend", role: "Student Ambassador", period: "June 2026 – Present", status: "ACTIVE", description: "Driving awareness and adoption of Tresend within the campus community." },
     { organization: "Techfest Bombay", role: "Campus Ambassador", period: "July 2026 – Present", status: "ACTIVE", description: "Representing Techfest Bombay on campus and building awareness among students." },
