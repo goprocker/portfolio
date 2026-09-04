@@ -98,11 +98,9 @@ export const PORTFOLIO_DATA = {
   ambassadorExperience: [
     { organization: "Google", role: "Google Gemini Student Ambassador (GID: 2500)", period: "May 2026 – September 2026", status: "ACTIVE", description: "Representing Google Gemini on campus and driving awareness and adoption of Gemini AI tools among students." },
     { organization: "IIT Delhi", role: "TRYST'26 Campus Ambassador", period: "January 2026 – March 2026", status: "COMPLETED", description: "Represented IIT Delhi's TRYST'26 techfest on campus, driving student registrations and event awareness." },
-    { organization: "SRM Institute of Science and Technology", role: "Aaruush Ambassador", period: "June 2026 – Present", status: "ACTIVE", description: "Representing SRM's Aaruush techfest on campus and driving student participation." },
     { organization: "Paytm", role: "Student Ambassador", period: "April 2026 – Present", status: "ACTIVE", description: "Representing Paytm on campus as a student ambassador." },
     { organization: "Tresend", role: "Student Ambassador", period: "June 2026 – Present", status: "ACTIVE", description: "Driving awareness and adoption of Tresend within the campus community." },
     { organization: "Techfest Bombay", role: "Campus Ambassador", period: "July 2026 – Present", status: "ACTIVE", description: "Representing Techfest Bombay on campus and building awareness among students." },
-    { organization: "Cloud Junction", role: "Campus Ambassador", period: "July 2026 – Present", status: "ACTIVE", description: "Representing Cloud Junction on campus and connecting students with its community and opportunities." },
   ] as ExperienceItem[],
   experience: [
     { organization: "LoopFound", role: "Co-Founder & CMO", period: "August 2025 – Present", status: "ACTIVE", description: "Co-founded a web development agency, leading marketing and growth while building internal tools such as referral tracking and financial dashboards for client operations." },
