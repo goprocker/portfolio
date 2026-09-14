@@ -103,45 +103,45 @@
         </div>
 
         <!-- Controls Panel -->
-        <div class="flex flex-wrap items-center justify-between gap-2 sm:gap-3 pt-1">
-          <!-- Playback Buttons -->
-          <div class="flex items-center gap-1.5 sm:gap-2">
+        <div class="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-2.5 sm:gap-3 pt-1">
+          <!-- Playback Buttons (Centered on Mobile) -->
+          <div class="flex items-center justify-center w-full sm:w-auto gap-2 sm:gap-2">
             <button
               id="radio-prev-btn"
               title="Previous Track"
-              class="px-2.5 sm:px-3 py-1 sm:py-1.5 border border-[var(--border-color)] bg-[var(--bg-main)] hover:border-[var(--border-active)] text-[var(--fg-bright)] font-bold text-[11px] sm:text-xs cursor-pointer active:scale-95 transition-transform"
+              class="px-3 py-1.5 border border-[var(--border-color)] bg-[var(--bg-main)] hover:border-[var(--border-active)] text-[var(--fg-bright)] font-bold text-xs cursor-pointer active:scale-95 transition-transform"
             >
               ⏮ PREV
             </button>
             <button
               id="radio-play-btn"
               title="Play / Pause"
-              class="px-3.5 sm:px-4 py-1 sm:py-1.5 border-2 border-[var(--accent)] bg-[var(--bg-main)] hover:bg-[var(--border-color)] text-[var(--fg-bright)] font-bold text-[11px] sm:text-xs cursor-pointer active:scale-95 transition-transform shadow-[0_0_10px_var(--glow-color)]"
+              class="px-4 py-1.5 border-2 border-[var(--accent)] bg-[var(--bg-main)] hover:bg-[var(--border-color)] text-[var(--fg-bright)] font-bold text-xs cursor-pointer active:scale-95 transition-transform shadow-[0_0_10px_var(--glow-color)]"
             >
               ▶ PLAY
             </button>
             <button
               id="radio-next-btn"
               title="Next Track"
-              class="px-2.5 sm:px-3 py-1 sm:py-1.5 border border-[var(--border-color)] bg-[var(--bg-main)] hover:border-[var(--border-active)] text-[var(--fg-bright)] font-bold text-[11px] sm:text-xs cursor-pointer active:scale-95 transition-transform"
+              class="px-3 py-1.5 border border-[var(--border-color)] bg-[var(--bg-main)] hover:border-[var(--border-active)] text-[var(--fg-bright)] font-bold text-xs cursor-pointer active:scale-95 transition-transform"
             >
               NEXT ⏭
             </button>
           </div>
 
-          <!-- Volume Slider -->
-          <div class="flex items-center gap-1.5 sm:gap-2 text-xs">
+          <!-- Volume Slider (Desktop Only, Default 100%) -->
+          <div class="hidden sm:flex items-center gap-1.5 sm:gap-2 text-xs">
             <span id="radio-vol-icon" class="cursor-pointer text-xs sm:text-sm">🔊</span>
             <input
               id="radio-vol-slider"
               type="range"
               min="0"
               max="100"
-              value="65"
+              value="100"
               aria-label="Radio Volume Slider"
               class="w-20 sm:w-24 accent-[var(--accent)] cursor-pointer"
             />
-            <span id="radio-vol-label" class="text-[10px] sm:text-[11px] text-[var(--fg-dim)] font-mono w-7 sm:w-8">65%</span>
+            <span id="radio-vol-label" class="text-[10px] sm:text-[11px] text-[var(--fg-dim)] font-mono w-7 sm:w-8">100%</span>
           </div>
         </div>
       </div>
@@ -308,8 +308,13 @@
           const cur = ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0;
           const dur = ytPlayer.getDuration ? ytPlayer.getDuration() : 0;
           const timeEl = document.getElementById("radio-time-display");
+          const track = allTracks[currentTrackIdx];
           if (timeEl) {
-            timeEl.textContent = `${formatTime(cur)} / ${formatTime(dur)}`;
+            if (track?.duration === "LIVE" || dur > 86400 || dur <= 0 || !isFinite(dur)) {
+              timeEl.textContent = "00:00 / ∞";
+            } else {
+              timeEl.textContent = `${formatTime(cur)} / ${formatTime(dur)}`;
+            }
           }
         } catch {}
       }
@@ -720,6 +725,15 @@
     if (artistEl) artistEl.textContent = track.artist;
     if (genreEl) genreEl.textContent = track.genre.toUpperCase();
 
+    const timeEl = document.getElementById("radio-time-display");
+    if (timeEl) {
+      if (track.duration === "LIVE") {
+        timeEl.textContent = "00:00 / ∞";
+      } else {
+        timeEl.textContent = "0:00 / 0:00";
+      }
+    }
+
     // Highlight row in tracklist
     const rows = document.querySelectorAll(".radio-track-row");
     rows.forEach((row, idx) => {
@@ -732,7 +746,7 @@
   }
 
   function formatTime(secs: number): string {
-    if (isNaN(secs) || secs < 0) return "0:00";
+    if (isNaN(secs) || secs < 0 || !isFinite(secs)) return "0:00";
     const mins = Math.floor(secs / 60);
     const remainder = Math.floor(secs % 60);
     return `${mins}:${remainder < 10 ? "0" : ""}${remainder}`;
@@ -741,8 +755,13 @@
   function updateTimeDisplay() {
     if (!audioEl) return;
     const timeEl = document.getElementById("radio-time-display");
+    const track = allTracks[currentTrackIdx];
     if (timeEl) {
-      timeEl.textContent = `${formatTime(audioEl.currentTime)} / ${formatTime(audioEl.duration)}`;
+      if (track?.duration === "LIVE" || isNaN(audioEl.duration) || !isFinite(audioEl.duration)) {
+        timeEl.textContent = "00:00 / ∞";
+      } else {
+        timeEl.textContent = `${formatTime(audioEl.currentTime)} / ${formatTime(audioEl.duration)}`;
+      }
     }
   }
 
