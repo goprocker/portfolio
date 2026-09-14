@@ -25,7 +25,7 @@ export interface GitHubStats {
 
 function extractUsername(): string {
   const raw = (PORTFOLIO_DATA.developer.github || "").trim().replace(/^@/, "");
-  if (!raw) return "nivinvysakh";
+  if (!raw) return "goprocker";
 
   // Extract owner username from github.com/username or github.com/username/repo
   const match = raw.match(/github\.com\/([a-zA-Z0-9_-]+)/i);
@@ -33,7 +33,7 @@ function extractUsername(): string {
     return match[1];
   }
 
-  // If user entered just their username directly (e.g. "torvalds" or "nivinvysakh")
+  // If user entered just their username directly (e.g. "goprocker")
   return raw.replace(/\/$/, "");
 }
 

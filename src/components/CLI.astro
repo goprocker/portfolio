@@ -472,7 +472,7 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
               <span class="text-emerald-400 font-bold">📑 resume.txt</span>
               <span class="text-red-400 font-bold">✉️ contact.txt</span>
               <span class="text-emerald-400 font-bold">⚡ portfolio.exe</span>
-              <span class="text-sky-400 font-bold cursor-pointer" onclick="document.getElementById('gui-github')?.scrollIntoView()">🐙 github.sh</span>
+              <span class="text-sky-400 font-bold cursor-pointer" onclick="document.getElementById('gui-github-stats')?.scrollIntoView()">🐙 github.sh</span>
               <span class="text-red-400 font-bold">✉️ contact.txt</span>
               <span class="text-[var(--accent)] font-bold cursor-pointer" onclick="window.togglePong?.(true)">🕹️ pong.sh*</span>
               <span class="text-emerald-400 font-bold cursor-pointer" onclick="window.toggleSnake?.(true)">🐍 snake.sh*</span>
@@ -594,9 +594,13 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
           break;
 
         case "repos":
-        case "projects":
           playSuccessSound();
           renderRepos();
+          break;
+
+        case "projects":
+          playSuccessSound();
+          renderCollabs();
           break;
 
         case "crt":
