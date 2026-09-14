@@ -9,7 +9,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.2.4",
+    "astro": "^7.3.2",
     "canvas-confetti": "1.9.4"
   },
   "devDependencies": {
@@ -17,6 +17,6 @@
     "@tailwindcss/vite": "^4.3.3",
     "@types/canvas-confetti": "1.9.0",
     "tailwindcss": "^4.3.3",
-    "typescript": "^5.7.3"
+    "typescript": "^5.9.3"
   }
 }
