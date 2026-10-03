@@ -126,6 +126,7 @@ export const PORTFOLIO_DATA = {
   ] as ExperienceItem[],
   internships: [
     { organization: "VR Media Network", role: "AI Developer Intern", period: "May 2026 – June 2026 · Chennai, Tamil Nadu, India · On-site", status: "COMPLETED", description: "Completed an on-site AI Developer internship with VR Media Network." },
+    { organization: "St Britto's Academy", role: "AI Developer Intern", period: "June 2025 – August 2025", status: "COMPLETED", description: "Completed an AI Developer internship at St Britto's Academy." },
   ] as ExperienceItem[],
   events: [
     { name: "Expert System for First-Year AI Students", role: "Lead Event Coordinator", date: "October 1, 2026", contribution: "Led coordination for an expert system event for first-year AI students under WiCyS Sathyabama." },
