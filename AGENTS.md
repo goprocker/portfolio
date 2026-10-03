@@ -1,3 +1,18 @@
+# Codex Commit Messages
+
+For every commit authored during a Codex session:
+
+1. Use a concise Conventional Commit subject that describes the change.
+2. Add a short, commit-specific body explaining what changed and why. Write it from the actual diff; never reuse generic wording or invent context.
+3. Leave a blank line between the subject, body, and trailers.
+4. Append this trailer unless the repository defines a different required Codex attribution:
+
+```text
+Co-authored-by: Jarvis <technicalmanjash@gmail.com>
+```
+
+Never add a Claude attribution or Claude session URL to work performed by Codex. Do not fabricate a Codex session URL when none is available.
+
 ## Development
 
 When starting the dev server, use background mode:
