@@ -324,10 +324,10 @@ const { developer, skills, collabs, experience, internships, ambassadorExperienc
           <span class="text-[10px] sm:text-xs text-[var(--fg-dim)] shrink-0">[SHIPPED &amp; BUILDING]</span>
         </div>
 
-        <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           {
             collabs.map((item) => (
-              <div class="border border-[var(--border-color)] bg-[var(--bg-main)] p-5 space-y-3 hover:border-[var(--border-active)] transition-all">
+              <article class="aspect-square overflow-y-auto border border-[var(--border-color)] bg-[var(--bg-main)] p-4 space-y-3 hover:border-[var(--border-active)] transition-colors">
                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-color)] pb-2">
                   <h3 class="text-sm font-bold text-[var(--fg-bright)] flex items-center gap-2">
                     <span>🚀</span> {item.title}
@@ -390,7 +390,7 @@ const { developer, skills, collabs, experience, internships, ambassadorExperienc
                     </a>
                   )}
                 </div>
-              </div>
+              </article>
             ))
           }
         </div>
@@ -526,13 +526,12 @@ const { developer, skills, collabs, experience, internships, ambassadorExperienc
             <div id="gui-gh-lang-list" class="flex flex-wrap gap-2 text-xs"></div>
           </div>
 
-          <!-- Pinned Repositories Grid -->
+          <!-- Featured Repositories Grid -->
           <div class="space-y-2">
-            <div class="flex items-center justify-between gap-2 text-[10px] text-[var(--fg-dim)] font-bold uppercase tracking-wider">
-              <span>Featured Repositories</span>
-              <span class="text-[var(--accent)]">[GITHUB PINNED]</span>
+            <div class="text-[10px] text-[var(--fg-dim)] font-bold uppercase tracking-wider">
+              Featured Repositories
             </div>
-            <div id="gui-gh-repos-list" class="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+            <div id="gui-gh-repos-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
           </div>
         </div>
       </section>
@@ -682,18 +681,18 @@ const { developer, skills, collabs, experience, internships, ambassadorExperienc
           card.href = repo.url;
           card.target = "_blank";
           card.rel = "noopener noreferrer";
-          card.className = "aspect-square overflow-hidden border border-[var(--border-color)] bg-[var(--bg-main)] p-4 hover:border-[var(--accent)] hover:bg-[var(--bg-card)] transition-colors flex flex-col justify-between group";
+          card.className = "border border-[var(--border-color)] bg-[var(--bg-main)] p-3 hover:border-[var(--accent)] transition-all flex flex-col justify-between block group";
           card.innerHTML = `
-            <div class="min-h-0">
-              <div class="flex items-center justify-between gap-2 border-b border-[var(--border-color)] pb-2 mb-3">
-                <span class="text-xs font-bold text-[var(--fg-bright)] group-hover:text-[var(--accent)] truncate">📌 ${repo.name}</span>
+            <div>
+              <div class="flex items-center justify-between gap-2 border-b border-[var(--border-color)] pb-1.5 mb-1.5">
+                <span class="text-xs font-bold text-[var(--fg-bright)] group-hover:text-[var(--accent)] truncate">📦 ${repo.name}</span>
                 <span class="text-[10px] text-[var(--accent)] font-bold shrink-0">⭐ ${repo.stars}</span>
               </div>
-              <p class="text-[11px] text-[var(--fg-dim)] line-clamp-4 leading-relaxed">${repo.description}</p>
+              <p class="text-[11px] text-[var(--fg-dim)] line-clamp-2 leading-tight">${repo.description}</p>
             </div>
-            <div class="flex items-center justify-between text-[10px] text-[var(--fg-dim)] pt-3 mt-3 border-t border-[var(--border-color)] gap-2">
+            <div class="flex flex-wrap items-center justify-between text-[10px] text-[var(--fg-dim)] pt-2 mt-2 border-t border-[var(--border-color)] gap-1">
               <span class="text-emerald-400 font-bold">${repo.language}</span>
-              <span class="truncate">${repo.forks} forks · Open ↗</span>
+              <span class="truncate">Updated ${repo.updatedAt} ↗</span>
             </div>
           `;
           reposListEl.appendChild(card);
