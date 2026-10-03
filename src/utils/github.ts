@@ -12,7 +12,7 @@ export interface GitHubStats {
   totalStars: number;
   totalForks: number;
   topLanguages: Array<{ name: string; count: number; percentage: number }>;
-  topRepos: Array<{
+  featuredRepos: Array<{
     name: string;
     description: string;
     stars: number;
@@ -37,8 +37,22 @@ function extractUsername(): string {
   return raw.replace(/\/$/, "");
 }
 
-const CACHE_KEY = "tui_github_stats_cache";
+const CACHE_KEY = "tui_github_stats_cache_v2";
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+
+function formatRepository(repo: any, username: string) {
+  const owner = repo.owner?.login || username;
+
+  return {
+    name: owner.toLowerCase() === username.toLowerCase() ? repo.name : repo.full_name,
+    description: repo.description || "No description provided",
+    stars: repo.stargazers_count || 0,
+    forks: repo.forks_count || 0,
+    language: repo.language || "Plain Text",
+    url: repo.html_url,
+    updatedAt: new Date(repo.pushed_at || repo.updated_at).toLocaleDateString(),
+  };
+}
 
 export async function fetchGitHubStats(): Promise<GitHubStats | null> {
   const username = extractUsername();
@@ -73,29 +87,42 @@ export async function fetchGitHubStats(): Promise<GitHubStats | null> {
     let totalForks = 0;
     const langCounts: Record<string, number> = {};
 
-    const formattedRepos = reposData
+    reposData
       .filter((repo: any) => !repo.fork)
-      .map((repo: any) => {
-        const stars = repo.stargazers_count || 0;
-        const forks = repo.forks_count || 0;
-        totalStars += stars;
-        totalForks += forks;
+      .forEach((repo: any) => {
+        totalStars += repo.stargazers_count || 0;
+        totalForks += repo.forks_count || 0;
 
         if (repo.language) {
           langCounts[repo.language] = (langCounts[repo.language] || 0) + 1;
         }
+      });
 
-        return {
-          name: repo.name,
-          description: repo.description || "No description provided",
-          stars,
-          forks,
-          language: repo.language || "Plain Text",
-          url: repo.html_url,
-          updatedAt: new Date(repo.pushed_at || repo.updated_at).toLocaleDateString(),
-        };
-      })
-      .sort((a: any, b: any) => b.stars - a.stars);
+    const repositoriesByName = new Map(
+      reposData.map((repo: any) => [String(repo.full_name).toLowerCase(), repo]),
+    );
+    const pinnedRepositories = PORTFOLIO_DATA.developer.pinnedRepositories;
+    const missingPinnedRepositories = pinnedRepositories.filter(
+      (fullName) => !repositoriesByName.has(fullName.toLowerCase()),
+    );
+
+    const fetchedPinnedRepositories = await Promise.all(
+      missingPinnedRepositories.map(async (fullName) => {
+        const response = await fetch(`https://api.github.com/repos/${fullName}`);
+        return response.ok ? response.json() : null;
+      }),
+    );
+
+    fetchedPinnedRepositories.forEach((repo) => {
+      if (repo?.full_name) {
+        repositoriesByName.set(String(repo.full_name).toLowerCase(), repo);
+      }
+    });
+
+    const featuredRepos = pinnedRepositories.flatMap((fullName) => {
+      const repo = repositoriesByName.get(fullName.toLowerCase());
+      return repo ? [formatRepository(repo, username)] : [];
+    });
 
     // Calculate language percentages
     const totalLangs = Object.values(langCounts).reduce((a, b) => a + b, 0);
@@ -119,7 +146,7 @@ export async function fetchGitHubStats(): Promise<GitHubStats | null> {
       totalStars,
       totalForks,
       topLanguages,
-      topRepos: formattedRepos.slice(0, 8),
+      featuredRepos,
     };
 
     // Save to Cache
