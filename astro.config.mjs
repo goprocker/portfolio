@@ -13,7 +13,21 @@ export default defineConfig({
   },
   vite: {
     // @ts-ignore
-    plugins: [tailwindcss()],
+    plugins: [
+      tailwindcss(),
+      {
+        name: "portfolio:content-dependency-interop",
+        configEnvironment(name) {
+          if (name === "astro") {
+            return {
+              optimizeDeps: {
+                include: ["picomatch", "yaml"],
+              },
+            };
+          }
+        },
+      },
+    ],
     server: {
       allowedHosts: ["tui-portfolio-dev.tuiportfolio.orb.local", ".orb.local"],
     },
