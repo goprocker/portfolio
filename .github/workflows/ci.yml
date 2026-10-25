@@ -25,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Run Astro Type & Syntax Check
-        run: npx astro check
+        run: npm run check
 
       - name: Verify Production Build
         run: npm run build

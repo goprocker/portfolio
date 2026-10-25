@@ -34,7 +34,7 @@ Production checks:
 
 ```bash
 npm run build
-npx --no-install astro check
+npm run check
 ```
 
 ## Content
