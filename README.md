@@ -1,8 +1,17 @@
 # GOPINATH — AI & ML Engineer Portfolio
 
-Retro terminal-style portfolio for GOPINATH: CSE (AI) student, Co-Founder at LoopFound, and founder of the AI Foundry '29 student community.
+Retro terminal-style portfolio for GOPINATH: CSE (AI) student, Co-Founder at LoopFound, founder of the AI Foundry '29 student community, and active AI/frontend intern.
 
-Built with Astro, Tailwind CSS, and TypeScript.
+Built with Astro 7, Tailwind CSS 4, and TypeScript 6.
+
+## Current roles
+
+- **AI Engineer Intern** — Redrox Industries PVT Limited (August 2026 – Present)
+- **Frontend/UI Developer Intern** — SynosAI (2026 – Present)
+- **Co-Founder & CMO** — LoopFound (August 2025 – Present)
+- **Founder & Lead** — AI Foundry '29 (2025 – Present)
+
+Recent ambassador work includes serving as an **IIT Delhi Rendezvous Campus Ambassador** from August 2026 to October 2026.
 
 ## Features
 
@@ -16,18 +25,21 @@ Built with Astro, Tailwind CSS, and TypeScript.
 
 ```bash
 npm install
-npm run dev
+npm run astro -- dev --background
 ```
 
-Production build:
+Manage the background server with `npm run astro -- dev status`, `npm run astro -- dev logs`, and `npm run astro -- dev stop`.
+
+Production checks:
 
 ```bash
 npm run build
+npx --no-install astro check
 ```
 
 ## Content
 
-Portfolio data is managed in [src/data/portfolio.ts](src/data/portfolio.ts).
+Portfolio roles, internships, projects, events, and profile details are managed in [src/data/portfolio.ts](src/data/portfolio.ts). Project case studies live in `src/content/projects/`.
 
 ## Credits
 
