@@ -114,14 +114,14 @@ export const PORTFOLIO_DATA = {
   experience: [
     { organization: "LoopFound", role: "Co-Founder & CMO", period: "August 2025 – Present", status: "ACTIVE", description: "Co-founded a web development agency, leading marketing and growth while building internal tools such as referral tracking and financial dashboards for client operations." },
     { organization: "AI Foundry '29", role: "Founder & Lead", period: "2025 – Present", status: "ACTIVE", description: "Built and lead a 60+ member student AI community across seven sub-teams, with structured technical curricula and a leadership selection process." },
-    { organization: "HWI Club (HackWithIndia), Sathyabama", role: "Incoming President · Previously Chapter Lead", period: "2026 – Present", status: "ACTIVE", description: "Leading campus hackathon and community-building initiatives at Sathyabama." },
+    { organization: "HWI Club (HackWithIndia), Sathyabama", role: "Founding President", period: "2026 – Present", status: "ACTIVE", description: "Leading campus hackathon and community-building initiatives at Sathyabama." },
     { organization: "WiCyS Sathyabama", role: "Technical & Media Team Member", period: "November 2025 – Present", status: "ACTIVE", description: "Co-organized Obscura CTF, a national jeopardy-style cybersecurity event, with RedTeam Hacker Academy." },
     { organization: "OWASP Sathyabama", role: "Design Team Member", period: "April 2026 – Present", status: "ACTIVE", description: "Contributed design and coordination support for initiatives including Hack The Planet, a five-day national cybersecurity event." },
     { organization: "DSC Sathyabama", role: "Design Team Member", period: "February 2026 – Present", status: "ACTIVE", description: "Contributed design work for community initiatives." },
     { organization: "AWS Student Builder Group", role: "Design Team Member", period: "July 2026 – Present", status: "ACTIVE", description: "Contributed design work for the Sathyabama student builder community." },
     { organization: "ACM Sathyabama", role: "Technical Team Member", period: "March 2026 – Present", status: "ACTIVE", description: "Contributed technical support for student community initiatives." },
     { organization: "Salted_dscripts", role: "Editor", period: "February 2026 – Present", status: "ACTIVE", description: "Edited content for the Salted_dscripts publication." },
-    { organization: "Microsoft Club, Sathyabama", role: "Web & App Development Domain Member", period: "August 2026 – Present", status: "ACTIVE", description: "Selected for the Web and App Development domain for the 2026–27 term." },
+    { organization: "Microsoft Club, Sathyabama", role: "Web & App Development Domain Member", period: "August 2026 – October 2026", status: "COMPLETED", description: "Served in the Web and App Development domain for the 2026–27 term." },
   ] as ExperienceItem[],
   internships: [
     { organization: "Redrox Industries PVT Limited", role: "AI Engineer Intern", period: "August 2026 – Present", status: "ACTIVE", description: "Working as an AI Engineer Intern at Redrox Industries PVT Limited." },
