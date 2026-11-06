@@ -75,7 +75,7 @@
     display: flex; align-items: center; gap: 10px; padding: 0 16px;
     overflow: hidden; opacity: 0;
     animation: dotIn 0.35s ease-out 0.8s forwards;
-    transition: width 0.75s cubic-bezier(0.34, 1.45, 0.5, 1), height 0.6s cubic-bezier(0.34, 1.45, 0.5, 1), margin 0.75s cubic-bezier(0.34, 1.45, 0.5, 1), transform 0.85s cubic-bezier(0.7, 0, 0.2, 1), box-shadow 0.6s;
+    transition: width 0.75s cubic-bezier(0.34, 1.45, 0.5, 1), height 0.6s cubic-bezier(0.34, 1.45, 0.5, 1), margin 0.75s cubic-bezier(0.34, 1.45, 0.5, 1), translate 0.85s cubic-bezier(0.7, 0, 0.2, 1), box-shadow 0.6s;
   }
   .boot-pill.bloom { width: 290px; height: 52px; margin: -26px 0 0 -145px; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 20px 60px -10px rgb(80 110 255 / 0.55); }
   .boot-pill.dock { box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.55); }
@@ -139,7 +139,12 @@
   // Every boot lands on the desktop under the notch, not wherever the last visit was scrolled to.
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   const toTop = () => window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  if (boot) toTop();
+  if (boot) {
+    // A dock link leaves #section in the URL; on reload that would jump past the desktop.
+    if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+    toTop();
+    window.addEventListener("load", toTop, { once: true });
+  }
 
   let finished = false;
   const finish = () => {
@@ -192,7 +197,7 @@
         pill.style.width = `${target.width}px`;
         pill.style.height = `${target.height}px`;
         pill.style.margin = `${-target.height / 2}px 0 0 ${-target.width / 2}px`;
-        pill.style.transform = `translate(${dx}px, ${dy}px)`;
+        pill.style.translate = `${dx}px ${dy}px`; // not transform: dotIn (fill: forwards) owns that
       }
       await wait(860);
       // Hand over to the real notch in the same frame, then open the screen from it.
