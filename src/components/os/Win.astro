@@ -1,0 +1,31 @@
+---
+import AppIcon from "./AppIcon.astro";
+
+interface Props {
+  id: string;
+  title: string;
+  icon: string;
+  heading?: string;
+  sub?: string;
+}
+
+const { id, title, icon, sub } = Astro.props;
+---
+
+<section id={id} class="os-wrap scroll-mt-20 py-6 sm:py-8">
+  <div class="win glass" data-reveal>
+    <div class="win-bar">
+      <span class="win-title"><AppIcon name={icon as any} size={20} />{title}</span>
+      <span class="win-ctl" aria-hidden="true"><span>—</span><span>▢</span><span>✕</span></span>
+    </div>
+    <div class="win-body">
+      {Astro.slots.has("heading") && (
+        <header class="mb-8 sm:mb-10">
+          <h2 class="win-h"><slot name="heading" /></h2>
+          {sub && <p class="win-sub">{sub}</p>}
+        </header>
+      )}
+      <slot />
+    </div>
+  </div>
+</section>
