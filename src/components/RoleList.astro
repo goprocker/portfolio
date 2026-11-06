@@ -1,0 +1,41 @@
+---
+import type { ExperienceItem } from "../data/portfolio";
+
+interface Props {
+  items: ExperienceItem[];
+}
+
+const { items } = Astro.props;
+const current = items.filter((item) => item.status === "ACTIVE");
+const past = items.filter((item) => item.status !== "ACTIVE");
+const cleanRole = (role: string) => role.replace(/\s*\(.*\)/, "");
+---
+
+<ul class="divide-y divide-[var(--border-color)] text-sm">
+  {current.map((item) => (
+    <li class="flex items-start gap-3 py-2.5 first:pt-0">
+      <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
+      <span class="min-w-0">
+        <span class="block font-semibold text-[var(--fg-bright)]">{item.organization}</span>
+        <span class="block text-[13px] text-[var(--fg-main)]">{cleanRole(item.role)}</span>
+      </span>
+    </li>
+  ))}
+</ul>
+
+{past.length > 0 && (
+  <div class="mt-4 border-t border-dashed border-[var(--border-color)] pt-3">
+    <p class="mb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--fg-dim)]">// Past roles</p>
+    <ul class="space-y-2.5 text-sm opacity-70">
+      {past.map((item) => (
+        <li class="flex items-start gap-3">
+          <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full border border-[var(--fg-dim)]"></span>
+          <span class="min-w-0">
+            <span class="flex flex-wrap items-center gap-2 font-semibold text-[var(--fg-main)]">{item.organization}<span class="rounded border border-[var(--border-color)] px-1 text-[9px] font-bold text-[var(--fg-dim)]">ENDED</span></span>
+            <span class="block text-[12px] text-[var(--fg-dim)]">{cleanRole(item.role)} · {item.period.replace(/\s*–\s*Ended$/, " – ended")}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
