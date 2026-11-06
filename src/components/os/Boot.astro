@@ -136,10 +136,16 @@
   const pill = document.getElementById("boot-pill");
   const reel = Array.from(document.querySelectorAll<HTMLElement>("#boot-reel span"));
 
+  // Every boot lands on the desktop under the notch, not wherever the last visit was scrolled to.
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  const toTop = () => window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  if (boot) toTop();
+
   let finished = false;
   const finish = () => {
     if (!boot || finished) return;
     finished = true;
+    toTop();
     document.documentElement.classList.add("notch-landed");
     boot.classList.add("leaving", "opening");
     document.documentElement.classList.remove("booting");
