@@ -1,0 +1,945 @@
+---
+import "../../styles/os.css";
+import { PORTFOLIO_DATA, eventDateValue } from "../../data/portfolio";
+import Win from "./Win.astro";
+import AppIcon from "./AppIcon.astro";
+import Boot from "./Boot.astro";
+import AgentGraph from "../AgentGraph.astro";
+import RoleList from "../RoleList.astro";
+import SpotifyWidget from "../SpotifyWidget.astro";
+import GamesWidget from "../GamesWidget.astro";
+import GitHubActivity from "../GitHubActivity.astro";
+
+const {
+  developer, profile, operatingVector, nowBuilding, learning, wins, labs, orgs, gssoc,
+  skills, collabs, experience, internships, ambassadorExperience, events, principles,
+} = PORTFOLIO_DATA;
+
+const featured = collabs.filter((c) => c.featured);
+const more = collabs.filter((c) => !c.featured);
+const leadership = experience.slice(0, 3);
+const communities = experience.slice(3);
+const byNewest = [...events].sort((a, b) => eventDateValue(b.date) - eventDateValue(a.date));
+const talks = byNewest.filter((e) => /speaker/i.test(e.role));
+const otherEvents = byNewest.filter((e) => !/speaker/i.test(e.role));
+
+const apps = [
+  { href: "#desktop", icon: "home", label: "Home" },
+  { href: "#now", icon: "now", label: "Now building" },
+  { href: "#work", icon: "work", label: "Projects" },
+  { href: "#experience", icon: "experience", label: "Experience" },
+  { href: "#orgs", icon: "orgs", label: "Organizations" },
+  { href: "#stage", icon: "stage", label: "Talks & events" },
+  { href: "#stack", icon: "stack", label: "Stack" },
+  { href: "#about", icon: "about", label: "About" },
+  { href: "#contact", icon: "mail", label: "Mail me" },
+];
+
+const coverColors: Record<string, [string, string]> = {
+  livora: ["#2f9e44", "#f08c00"],
+  orvio: ["#f0487a", "#7c5cf6"],
+  unbd: ["#e8590c", "#c92a2a"],
+};
+
+const kindPill = (type: string) => {
+  if (/hackathon/i.test(type)) return "pill-amber";
+  if (/client|company/i.test(type)) return "pill-rose";
+  if (/desktop|app/i.test(type)) return "pill-violet";
+  return "pill-blue";
+};
+
+const notchMessages = [
+  developer.status.trim().toLowerCase().replace(/^./, (c) => c.toUpperCase()),
+  `Building ${nowBuilding[0].name}`,
+  "Islet is out — a notch for Windows",
+  `${developer.headlineStats[0].value} users served`,
+  "AI Eng & Tech Lead @ Redrox",
+];
+---
+
+<div class="os" data-site>
+  <Boot />
+  <div class="wallpaper" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <!-- NOTCH: status + quick launcher -->
+  <div class="notch-wrap">
+    <div class="notch" id="notch" role="button" tabindex="0" aria-expanded="false" aria-label="Status and quick menu">
+      <div class="notch-bar">
+        <span class="live" aria-hidden="true"></span>
+        <span class="notch-msg" aria-live="polite">
+          {notchMessages.map((m, i) => <span class:list={[i === 0 && "on"]}>{m}</span>)}
+        </span>
+        <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span id="notch-clock" class="os-mono text-[11px] text-white/70">--:--</span>
+      </div>
+      <div class="notch-panel">
+        <div class="flex items-center justify-between pb-2 text-[11px] text-white/60">
+          <span>{developer.alias}</span>
+          <button type="button" id="mode-toggle" class="rounded-full bg-white/10 px-2.5 py-1 hover:bg-white/20" aria-label="Toggle light and dark mode">◐ Theme</button>
+        </div>
+        <div class="grid grid-cols-5 gap-1">
+          {apps.slice(1).map((a) => <a href={a.href} class="notch-app"><AppIcon name={a.icon as any} size={34} />{a.label.split(" ")[0]}</a>)}
+          <a href="/terminal" class="notch-app"><AppIcon name="terminal" size={34} />Terminal</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCK: main navigation -->
+  <nav class="dock glass" aria-label="Sections">
+    {apps.map((a) => <a href={a.href} data-label={a.label} class="dock-link"><AppIcon name={a.icon as any} size={44} /><span class="sr-only">{a.label}</span></a>)}
+    <span class="sep" aria-hidden="true"></span>
+    <a href={developer.github} target="_blank" rel="noopener noreferrer" data-label="GitHub"><AppIcon name="github" size={44} /><span class="sr-only">GitHub</span></a>
+    <a href="/terminal" data-label="Terminal"><AppIcon name="terminal" size={44} /><span class="sr-only">Terminal</span></a>
+    <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" data-label="Resume"><AppIcon name="resume" size={44} /><span class="sr-only">Resume</span></a>
+  </nav>
+
+  <main>
+    <!-- DESKTOP / HERO -->
+    <section id="desktop" class="desktop os-wrap grid gap-10 lg:grid-cols-12 lg:items-center">
+      <div class="lg:col-span-6">
+        <div class="flex items-center gap-4" data-boot style="--d:.05s">
+          <img src="/images/gopinath.jpg" alt="Gopinath R" class="avatar" width="96" height="96" />
+          <div>
+            <p class="text-sm font-semibold text-[var(--ink)]">Gopinath R <span class="font-normal text-[var(--muted)]">@{developer.handle}</span></p>
+            <span class="status-pill glass mt-2"><span class="live"></span>{developer.status.trim().toLowerCase()}</span>
+          </div>
+        </div>
+        <h1 class="hello mt-8" data-boot style="--d:.15s">
+          I'd rather <span class="os-serif">ship</span><br />than talk about shipping.
+        </h1>
+        <p class="mt-6 max-w-md text-lg leading-relaxed text-[var(--ink-2)]" data-boot style="--d:.3s">
+          Full-stack developer &amp; AI engineer from {developer.location}. Co-founder at <b class="text-[var(--ink)]">LoopFound</b>, Tech Lead at <b class="text-[var(--ink)]">Redrox</b>, Frontend Developer at <b class="text-[var(--ink)]">Anaxly</b>. I build multi-agent AI tools at hackathons and in open source.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3" data-boot style="--d:.42s">
+          <a href="#work" class="ob ob-primary">Open projects <span class="k">↓</span></a>
+          <a href="#contact" class="ob">Mail me</a>
+          <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" class="ob">Resume ↗</a>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-2" data-boot style="--d:.5s">
+          <a href={developer.github} target="_blank" rel="noopener noreferrer" class="pill">GitHub ↗</a>
+          <a href={developer.linkedin} target="_blank" rel="noopener noreferrer" class="pill">LinkedIn ↗</a>
+          <a href={developer.twitter} target="_blank" rel="noopener noreferrer" class="pill">X ↗</a>
+          <a href={developer.instagram} target="_blank" rel="noopener noreferrer" class="pill">Photography ↗</a>
+          <a href={developer.website} target="_blank" rel="noopener noreferrer" class="pill">loopfound.in ↗</a>
+        </div>
+      </div>
+
+      <!-- Draggable widgets -->
+      <div class="widgets grid gap-4 lg:col-span-6 lg:block" id="widgets">
+        <div class="widget glass lg:left-0 lg:top-0 lg:w-[280px]" data-widget data-boot style="--d:.35s">
+          <div class="widget-head"><span class="flex items-center gap-2"><AppIcon name="stats" size={18} />Stats</span><span>⋮⋮</span></div>
+          <dl class="grid grid-cols-2 gap-3">
+            {developer.headlineStats.map((s) => (
+              <div class="rounded-xl bg-[var(--glass-strong)] p-3">
+                <dd data-count={s.value} class="text-3xl font-bold tracking-tight text-[var(--ink)] tabular-nums">{s.value}</dd>
+                <dt class="mt-1 text-[11px] text-[var(--muted)]">{s.label}</dt>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div class="widget glass lg:right-0 lg:top-[27%] lg:w-[300px]" data-widget data-boot style="--d:.45s">
+          <div class="widget-head"><span class="flex items-center gap-2"><AppIcon name="agents" size={18} />agents.app</span><span>⋮⋮</span></div>
+          <div class="-m-2"><AgentGraph /></div>
+        </div>
+
+        <div class="widget glass lg:left-0 lg:top-[45%] lg:w-[285px]" data-widget data-boot style="--d:.55s">
+          <div class="widget-head"><span class="flex items-center gap-2"><AppIcon name="now" size={18} />Now building</span><span>⋮⋮</span></div>
+          <ul class="space-y-2 text-sm" id="widget-now">
+            {nowBuilding.slice(0, 5).map((p) => (
+              <li class="flex items-center justify-between gap-3">
+                <span class="font-medium text-[var(--ink)]">{p.name}</span>
+                <span class="os-mono text-[11px] text-[var(--muted)]">{p.context}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="widget note lg:right-[2%] lg:top-0 lg:w-[225px] lg:rotate-[2deg]" data-widget data-boot style="--d:.65s">
+          <div class="widget-head"><span class="flex items-center gap-2"><AppIcon name="pin" size={18} />Note</span><span>⋮⋮</span></div>
+          <p class="text-[15px] font-medium leading-snug">Have something worth building? Products, freelance, hackathon teams — or a good argument about AI.</p>
+          <a href="#contact" class="mt-3 inline-block text-sm font-bold underline underline-offset-4">My inbox is open →</a>
+        </div>
+      </div>
+
+      <p class="os-mono col-span-full hidden text-center text-[11px] text-[var(--muted)] lg:block" data-boot style="--d:.9s">psst — drag the widgets around, or hover the notch.</p>
+    </section>
+
+    <!-- SIGNAL STRIP -->
+    <div class="os-wrap pb-6">
+      <div class="glass flex flex-wrap items-center gap-2 rounded-2xl p-3" data-reveal>
+        <span class="os-mono px-2 text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">Recent ▸</span>
+        {wins.map((w) => <span class="pill">✓ {w}</span>)}
+      </div>
+    </div>
+
+    <!-- NOW BUILDING -->
+    <Win id="now" title="now.log — in active development" icon="now" sub="Stuff that isn't finished yet. Some of it will break.">
+      <Fragment slot="heading">Currently <span class="os-serif">building</span></Fragment>
+      <p class="os-mono mb-3 flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]"><span class="live !h-1.5 !w-1.5"></span>Pushed recently · live from GitHub</p>
+      <div id="now-live" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-live="polite">
+        {[0, 1, 2, 3].map(() => <div class="tile skeleton h-[168px]"></div>)}
+      </div>
+
+      <p class="os-mono mt-8 mb-3 text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">Also on the bench · next up on GitHub</p>
+      <div id="now-bench" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-live="polite">
+        {[0, 1, 2, 3].map(() => <div class="tile skeleton h-[104px]"></div>)}
+      </div>
+      <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-2xl border border-[var(--hair)] p-4 text-sm" data-reveal>
+        <span class="os-mono text-[11px] uppercase tracking-[0.12em] text-[var(--blue)]">Learning</span>
+        {learning.map((l) => <span><b class="text-[var(--ink)]">{l.name}</b> <span class="text-[var(--muted)]">— {l.detail}</span></span>)}
+      </div>
+    </Win>
+
+    <!-- PROJECTS -->
+    <Win id="work" title="Projects — Explorer" icon="work" sub={`${collabs.length} shipped builds, ${labs.length} labs experiments. Click any card for the full story.`}>
+      <Fragment slot="heading">Featured <span class="os-serif">work</span></Fragment>
+      <div class="grid gap-4 md:grid-cols-2">
+        {featured.map((item) => {
+          const [c1, c2] = coverColors[item.id] ?? ["#3d6bff", "#7c5cf6"];
+          return (
+            <a href={`/projects/${item.id}`} class="tile group block p-3" data-spot data-reveal data-repo={item.repo?.replace("https://github.com/", "").toLowerCase()}>
+              <div class="cover">
+                {item.image ? (
+                  <img src={item.image} alt={`Screenshot of ${item.title}`} loading="lazy" data-parallax />
+                ) : (
+                  <div class="cover-gen h-full" style={`--c1:${c1};--c2:${c2}`}>
+                    <strong>{item.title}</strong><small>{item.partnerType}</small>
+                  </div>
+                )}
+              </div>
+              <div class="p-3 pt-4">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class={`pill ${kindPill(item.partnerType)}`}>{item.partnerType}</span>
+                  {item.status !== "COMPLETED" && <span class="pill pill-mint">{item.status === "ONGOING" ? "in progress" : "live"}</span>}
+                  <span class="live-meta os-mono ml-auto text-[11px] text-[var(--muted)]">{item.period}</span>
+                </div>
+                <h3 class="mt-3 flex items-center justify-between text-2xl font-bold tracking-tight text-[var(--ink)]">
+                  {item.title}<span class="text-lg text-[var(--muted)] transition-transform group-hover:translate-x-1 group-hover:text-[var(--blue)]">→</span>
+                </h3>
+                <p class="mt-1.5 line-clamp-2 text-sm leading-relaxed text-[var(--ink-2)]">{item.description}</p>
+                <div class="mt-3 flex flex-wrap gap-1.5">{item.techStack.slice(0, 4).map((t) => <span class="pill">{t}</span>)}</div>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+
+      <h3 class="os-mono mt-12 mb-4 text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">More shipped work</h3>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {more.map((item) => (
+          <a href={`/projects/${item.id}`} class="tile group flex gap-3 p-3" data-spot data-reveal>
+            <div class="h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[var(--ink)]">
+              {item.image ? <img src={item.image} alt="" loading="lazy" class="h-full w-full object-cover object-top" /> : <div class="cover-gen h-full !rounded-none"><small>{item.title}</small></div>}
+            </div>
+            <div class="min-w-0">
+              <p class="truncate font-semibold text-[var(--ink)] group-hover:text-[var(--blue)]">{item.title}</p>
+              <p class="truncate text-xs text-[var(--muted)]">{item.partnerType} · {item.period}</p>
+              <p class="mt-1 truncate text-xs text-[var(--ink-2)]">{item.techStack.slice(0, 3).join(" · ")}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <h3 class="os-mono mt-12 mb-4 text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">Labs — side quests</h3>
+      <div class="grid gap-3 md:grid-cols-3">
+        {labs.map((l) => (
+          <a href={l.link} target="_blank" rel="noopener noreferrer" class="tile block p-5" data-spot data-reveal>
+            <div class="flex items-center justify-between"><span class="pill pill-violet">{l.stack}</span><span class="text-[var(--muted)]">↗</span></div>
+            <h4 class="mt-4 text-lg font-bold text-[var(--ink)]">{l.name}</h4>
+            <p class="mt-1 text-sm leading-relaxed text-[var(--ink-2)]">{l.detail}</p>
+          </a>
+        ))}
+      </div>
+    </Win>
+
+    <!-- EXPERIENCE -->
+    <Win id="experience" title="experience.exe" icon="experience" sub={`${internships.length} industry roles — pick one.`}>
+      <Fragment slot="heading">Where I've <span class="os-serif">built</span></Fragment>
+      <div class="grid gap-4 lg:grid-cols-12">
+        <div class="flex gap-1 overflow-x-auto lg:col-span-4 lg:flex-col" role="tablist" aria-label="Experience">
+          {internships.map((item, i) => (
+            <button type="button" role="tab" id={`xp-tab-${i}`} aria-controls={`xp-panel-${i}`} aria-selected={i === 0 ? "true" : "false"} class="xp-tab shrink-0 px-4 py-3 lg:w-full">
+              <span class="flex items-center gap-2 font-semibold">{item.status === "ACTIVE" && <span class="live !h-1.5 !w-1.5"></span>}{item.organization}</span>
+              <span class="os-mono mt-0.5 block text-[11px]">{item.period.split(" · ")[0]}</span>
+            </button>
+          ))}
+        </div>
+        <div class="tile p-6 sm:p-8 lg:col-span-8" data-spot>
+          {internships.map((item, i) => (
+            <div role="tabpanel" id={`xp-panel-${i}`} aria-labelledby={`xp-tab-${i}`} class="xp-panel" hidden={i !== 0}>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class:list={["pill", item.status === "ACTIVE" ? "pill-mint" : ""]}>{item.status === "ACTIVE" ? "current" : "completed"}</span>
+                <span class="os-mono text-xs text-[var(--muted)]">{item.period}</span>
+              </div>
+              <h3 class="mt-5 text-3xl font-bold tracking-tight text-[var(--ink)]">{item.role}</h3>
+              <p class="os-serif mt-1 text-2xl text-[var(--blue)]">@ {item.organization}</p>
+              <p class="mt-5 max-w-2xl text-base leading-relaxed text-[var(--ink-2)]">{item.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Win>
+
+    <!-- ORGANIZATIONS & LEADERSHIP -->
+    <Win id="orgs" title="Organizations" icon="orgs" sub="Places I started, run, or hang around in.">
+      <Fragment slot="heading">Building <span class="os-serif">people</span>, too</Fragment>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {orgs.map((o) => (
+          <a href={o.link} target="_blank" rel="noopener noreferrer" class="tile group flex flex-col gap-4 p-5" data-spot data-reveal>
+            <div class="flex items-start justify-between gap-3">
+              {o.logo
+                ? <img src={o.logo} alt="" class="h-12 w-12 rounded-2xl object-cover shadow-sm" loading="lazy" />
+                : <span class="grid h-12 w-12 place-items-center rounded-2xl bg-[var(--ink)] text-sm font-bold text-[var(--desk)]">{o.name.replace(/[^A-Za-z ]/g, "").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</span>}
+              <span class={`pill shrink-0 !text-[10px] ${o.badge === "Founder" ? "pill-blue" : o.badge === "Rare" ? "pill-amber" : o.badge === "Lead" ? "pill-violet" : ""}`}>{o.badge}</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold leading-tight tracking-tight text-[var(--ink)] group-hover:text-[var(--blue)]">{o.name}</h3>
+              <p class="mt-1 text-sm font-medium text-[var(--ink-2)]">{o.role}</p>
+              <p class="os-mono mt-2 text-[11px] text-[var(--muted)]">{o.note}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <div class="mt-8 grid gap-4 md:grid-cols-3">
+        {leadership.map((item) => (
+          <article class="tile p-6" data-spot data-reveal>
+            <span class="os-mono text-[11px] uppercase tracking-[0.1em] text-[var(--blue)]">{item.organization}</span>
+            <h3 class="mt-3 text-xl font-bold text-[var(--ink)]">{item.role}</h3>
+            <p class="os-mono mt-1 text-[11px] text-[var(--muted)]">{item.period}</p>
+            <p class="mt-3 text-sm leading-relaxed text-[var(--ink-2)]">{item.description}</p>
+          </article>
+        ))}
+      </div>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        <div class="tile p-6" data-reveal><h3 class="os-mono mb-4 text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">Communities &amp; clubs</h3><RoleList items={communities} /></div>
+        <div class="tile p-6" data-reveal><h3 class="os-mono mb-4 text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">Ambassador programs</h3><RoleList items={ambassadorExperience} /></div>
+      </div>
+    </Win>
+
+    <!-- GSSOC -->
+    <Win id="gssoc" title="Achievements" icon="badge">
+      <div class="grid items-center gap-8 lg:grid-cols-12">
+        <div class="lg:col-span-4" data-reveal>
+          <span class="pill pill-amber">★ Rare badge</span>
+          <h2 class="win-h mt-4 !text-4xl">{gssoc.title}</h2>
+          <p class="mt-2 font-semibold text-[var(--ink)]">{gssoc.role}</p>
+          <p class="mt-2 text-sm text-[var(--muted)]">{gssoc.note}</p>
+          <p class="os-mono mt-4 text-xs text-[var(--blue)]">{gssoc.badges.length} badges earned</p>
+        </div>
+        <div class="grid grid-cols-3 gap-4 sm:grid-cols-4 lg:col-span-8 lg:grid-cols-7">
+          {gssoc.badges.map((b) => (
+            <figure class="badge grid justify-items-center gap-2 text-center" data-reveal>
+              <img src={b.image} alt="" class="badge-img" loading="lazy" width="92" height="92" />
+              <figcaption class:list={["text-[11px]", b.rare ? "font-bold text-[var(--ink)]" : "text-[var(--muted)]"]}>{b.name}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </Win>
+
+    <!-- STAGE -->
+    <Win id="stage" title="Talks & events" icon="stage" sub={`${talks.length} talks given, ${events.length} events in total.`}>
+      <Fragment slot="heading">On <span class="os-serif">stage</span></Fragment>
+      <div class="overflow-hidden rounded-2xl border border-[var(--hair)]">
+        {talks.map((e) => (
+          <div class="trow grid gap-1 p-5 sm:grid-cols-12 sm:items-baseline" data-reveal>
+            <span class="os-mono text-xs text-[var(--muted)] sm:col-span-3">{e.date}</span>
+            <div class="sm:col-span-9">
+              <h3 class="text-lg font-bold text-[var(--ink)]">{e.name}</h3>
+              <p class="mt-1 text-sm text-[var(--ink-2)]">{e.contribution}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <details class="tile mt-4 p-5" data-reveal>
+        <summary class="flex items-center justify-between font-semibold text-[var(--ink)]"><span>{otherEvents.length} more events organized &amp; competed in</span><span class="chev text-xl">›</span></summary>
+        <ul class="mt-4">
+          {otherEvents.map((e) => (
+            <li class="trow grid gap-1 py-4 sm:grid-cols-12">
+              <span class="os-mono text-xs text-[var(--muted)] sm:col-span-3">{e.date}</span>
+              <div class="sm:col-span-9"><p class="font-semibold text-[var(--ink)]">{e.name} <span class="os-mono text-xs font-normal text-[var(--blue)]">· {e.role}</span></p><p class="mt-1 text-sm text-[var(--ink-2)]">{e.contribution}</p></div>
+            </li>
+          ))}
+        </ul>
+      </details>
+    </Win>
+
+    <!-- STACK -->
+    <Win id="stack" title="Toolbox" icon="stack" sub="The bold ones are what I open first.">
+      <Fragment slot="heading">The <span class="os-serif">stack</span></Fragment>
+      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        {skills.map((cat, i) => (
+          <div class="tile p-5" data-spot data-reveal>
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-[var(--ink)]">{cat.category}</h3>
+              <span class="os-mono text-[10px] text-[var(--muted)]">0{i + 1} · {cat.skills.length} tools</span>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-1.5">
+              {cat.skills.map((s) => <span class:list={["pill", s.tag === "CORE" && "pill-blue font-semibold"]}>{s.name}</span>)}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div class="mt-4 grid gap-4 rounded-2xl border border-[var(--hair)] p-5 sm:grid-cols-2 lg:grid-cols-4" data-reveal>
+        {operatingVector.map((v) => <div><p class="font-semibold text-[var(--ink)]">{v.area}</p><p class="mt-1 text-sm text-[var(--muted)]">{v.detail}</p></div>)}
+      </div>
+    </Win>
+
+    <!-- ABOUT -->
+    <Win id="about" title="about.txt" icon="about">
+      <div class="grid gap-8 lg:grid-cols-12 lg:items-stretch">
+        <div class="flex flex-col lg:col-span-6" data-reveal>
+          <p class="os-mono text-sm text-[var(--blue)]">const gopinath = () =&gt; ship();</p>
+          <h2 class="win-h mt-3">How I <span class="os-serif">think</span></h2>
+          <p class="mt-5 text-[17px] leading-relaxed text-[var(--ink)]">{developer.bio}</p>
+          {developer.quote && <blockquote class="os-serif mt-5 border-l-2 border-[var(--blue)] pl-4 text-xl text-[var(--blue)]">{developer.quote}</blockquote>}
+          <div class="mt-auto flex flex-wrap gap-2 pt-6 text-xs">
+            <span class="pill">📍 {developer.location}</span>
+            <span class="pill">CSE · AI @ Sathyabama</span>
+            <span class="pill">aka "Jarvis"</span>
+            <a href={developer.instagram} target="_blank" rel="noopener noreferrer" class="pill hover:text-[var(--blue)]">Off-screen: photography ↗</a>
+          </div>
+        </div>
+
+        <!-- Principles: one at a time -->
+        <div id="principles" class="tile flex flex-col p-6 sm:p-8 lg:col-span-6" data-reveal>
+          <div class="flex items-center justify-between">
+            <span class="os-mono text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">Principles</span>
+            <span class="flex gap-1">
+              <button type="button" class="pr-nav ob !px-3 !py-1.5" data-dir="-1" aria-label="Previous principle">←</button>
+              <button type="button" class="pr-nav ob !px-3 !py-1.5" data-dir="1" aria-label="Next principle">→</button>
+            </span>
+          </div>
+          <div class="pr-stage relative mt-6 min-h-[190px] flex-1" aria-live="polite">
+            {principles.map((p, i) => (
+              <article class:list={["pr-slide", i === 0 && "on"]} data-i={i}>
+                <span class="os-serif block text-6xl leading-none text-[var(--blue)]">{String(i + 1).padStart(2, "0")}</span>
+                <h3 class="mt-4 text-xl font-bold leading-snug tracking-tight text-[var(--ink)]">{p.title.charAt(0) + p.title.slice(1).toLowerCase()}</h3>
+                <p class="mt-2 text-[15px] leading-relaxed text-[var(--ink-2)]">{p.description}</p>
+              </article>
+            ))}
+          </div>
+          <div class="mt-6 flex flex-wrap gap-1.5" role="tablist" aria-label="Choose a principle">
+            {principles.map((p, i) => (
+              <button type="button" role="tab" class:list={["pr-dot os-mono", i === 0 && "on"]} data-i={i} aria-selected={i === 0 ? "true" : "false"} title={p.title}>{String(i + 1).padStart(2, "0")}</button>
+            ))}
+          </div>
+          <div class="pr-progress mt-4"><i></i></div>
+        </div>
+      </div>
+    </Win>
+
+    <!-- GITHUB -->
+    <Win id="github" title="GitHub — live" icon="github">
+      <Fragment slot="heading">In the <span class="os-serif">commits</span></Fragment>
+      <div class="space-y-4">
+        <div data-reveal><GitHubActivity /></div>
+        <div id="gui-gh-loading" class="os-mono text-xs text-[var(--muted)]">Connecting to GitHub…</div>
+        <div id="gui-gh-content" class="hidden space-y-4">
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div class="tile p-4"><div class="text-xs text-[var(--muted)]">Stars</div><div id="gui-gh-stars" class="mt-1 text-3xl font-bold text-[var(--ink)]">0</div></div>
+            <div class="tile p-4"><div class="text-xs text-[var(--muted)]">Forks</div><div id="gui-gh-forks" class="mt-1 text-3xl font-bold text-[var(--ink)]">0</div></div>
+            <div class="tile p-4"><div class="text-xs text-[var(--muted)]">Public repos</div><div id="gui-gh-repos" class="mt-1 text-3xl font-bold text-[var(--ink)]">0</div></div>
+            <div class="tile p-4"><div class="text-xs text-[var(--muted)]">Followers</div><div id="gui-gh-followers" class="mt-1 text-3xl font-bold text-[var(--ink)]">0</div></div>
+          </div>
+          <div class="tile p-4"><div class="mb-3 text-xs text-[var(--muted)]">Primary languages</div><div id="gui-gh-lang-list" class="os-mono flex flex-wrap gap-2 text-xs"></div></div>
+          <p class="os-mono pt-2 text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">Recently pushed · live from GitHub</p>
+          <div id="gui-gh-repos-list" class="os-mono grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
+        </div>
+      </div>
+    </Win>
+
+    <!-- OFF THE CLOCK -->
+    <Win id="offclock" title="Off the clock" icon="music">
+      <Fragment slot="heading">When I'm <span class="os-serif">not</span> shipping</Fragment>
+      <div class="grid gap-4 md:grid-cols-3">
+        <div data-reveal><SpotifyWidget /></div>
+        <div data-reveal><GamesWidget /></div>
+        <div class="tile flex flex-col gap-3 p-5" data-reveal>
+          <h3 class="font-bold text-[var(--ink)]">Playground</h3>
+          <p class="text-sm text-[var(--muted)]">Little things hidden in this site.</p>
+          <div class="mt-auto grid grid-cols-2 gap-2">
+            <button type="button" id="gui-launch-pong" class="ob justify-center !px-2">Pong</button>
+            <button type="button" id="gui-launch-snake" class="ob justify-center !px-2">Snake</button>
+            <button type="button" id="gui-launch-radio" class="ob justify-center !px-2">Radio</button>
+            <button type="button" id="gui-launch-matrix" class="ob justify-center !px-2">Matrix</button>
+          </div>
+          <a href="/terminal" class="ob ob-primary justify-center">Open the terminal</a>
+        </div>
+      </div>
+    </Win>
+
+    <!-- CONTACT: mail compose -->
+    <Win id="contact" title="New message — Mail" icon="mail">
+      <div class="grid gap-10 lg:grid-cols-12">
+        <div class="lg:col-span-5" data-reveal>
+          <span class="status-pill glass"><span class="live"></span>available for new projects</span>
+          <h2 class="win-h mt-5">Have something worth <span class="os-serif">building?</span></h2>
+          <p class="mt-4 text-[var(--ink-2)]">Products, freelance work, hackathon teams, or a good argument about AI. My inbox is open — I usually reply within a day.</p>
+          <div class="mt-6 flex flex-wrap gap-2">
+            <a href={`mailto:${developer.email}`} class="pill pill-blue">{developer.email}</a>
+            <a href={developer.linkedin} target="_blank" rel="noopener noreferrer" class="pill">LinkedIn ↗</a>
+            <a href={developer.twitter} target="_blank" rel="noopener noreferrer" class="pill">X ↗</a>
+            <a href={developer.instagram} target="_blank" rel="noopener noreferrer" class="pill">Instagram ↗</a>
+            <a href={developer.website} target="_blank" rel="noopener noreferrer" class="pill">loopfound.in ↗</a>
+          </div>
+        </div>
+        <form id="contact-form" data-recipient-email={developer.email} class="tile p-5 sm:p-6 lg:col-span-7" data-reveal>
+          <div class="mail-field"><label>To</label><span class="text-[15px] text-[var(--ink)]">Gopinath R &lt;{developer.email}&gt;</span></div>
+          <div class="mail-field"><label for="contact-name">From</label><input id="contact-name" name="name" type="text" required placeholder="Your name" /></div>
+          <div class="mail-field"><label for="contact-email">Reply-to</label><input id="contact-email" name="email" type="email" required placeholder="you@company.com" /></div>
+          <div class="mail-field"><label for="contact-message">Message</label><textarea id="contact-message" name="message" required rows="5" placeholder="Tell me about the role, project or idea…"></textarea></div>
+          <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
+            <span id="form-status" class="hidden text-xs font-bold"></span>
+            <button id="contact-submit-btn" type="submit" class="ob ob-primary ml-auto"><span id="btn-text">Send message →</span></button>
+          </div>
+        </form>
+      </div>
+    </Win>
+  </main>
+
+  <footer class="os-wrap flex flex-wrap items-center justify-between gap-4 pt-6 pb-28 text-xs text-[var(--muted)]">
+    <span class="os-mono">goprOS v1 · © {new Date().getFullYear()} Gopinath R · Chennai</span>
+    <span class="flex gap-4">
+      <a href={developer.github} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--ink)]">GitHub</a>
+      <a href={developer.linkedin} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--ink)]">LinkedIn</a>
+      <a href="/terminal" class="hover:text-[var(--ink)]">Terminal</a>
+    </span>
+  </footer>
+</div>
+
+<script>
+  import confetti from "canvas-confetti";
+  import { playSuccessSound } from "../../utils/sound";
+  import { PORTFOLIO_DATA } from "../../data/portfolio";
+  import { fetchGitHubStats, timeAgo } from "../../utils/github";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("contact-form") as HTMLFormElement;
+    const statusMsg = document.getElementById("form-status");
+    const submitBtn = document.getElementById(
+      "contact-submit-btn",
+    ) as HTMLButtonElement;
+    const btnText = document.getElementById("btn-text");
+    const recipientEmail = PORTFOLIO_DATA.developer.email;
+
+    // Fetch and populate live GitHub stats
+    initGitHubStats();
+
+    // "Currently building": the repos pushed most recently, straight from GitHub.
+    function renderNowLive(stats: NonNullable<Awaited<ReturnType<typeof fetchGitHubStats>>>) {
+      const box = document.getElementById("now-live");
+      if (!box) return;
+      // When a repo has no GitHub "About", fall back to the portfolio's own project blurb.
+      const blurbs = new Map(PORTFOLIO_DATA.collabs.filter((c) => c.repo).map((c) => [c.repo!.split("/").pop()!.toLowerCase(), c.description.split(/(?<=\.)\s/)[0]]));
+      const about = (r: { name: string; description: string }) =>
+        r.description && r.description !== "No description provided" ? r.description : blurbs.get(r.name.toLowerCase()) ?? "";
+      const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
+      const active = stats.featuredRepos.filter((r) => r.name.toLowerCase() !== "portfolio");
+      const repos = active.slice(0, 4);
+      if (!repos.length) { box.innerHTML = ""; return; }
+
+      // The next four most recently pushed repos.
+      // Hero widget + notch follow the same live list.
+      const widget = document.getElementById("widget-now");
+      if (widget) {
+        widget.innerHTML = active.slice(0, 5).map((r) => `<li class="flex items-center justify-between gap-3"><a href="${r.url}" target="_blank" rel="noopener noreferrer" class="truncate font-medium text-[var(--ink)] hover:text-[var(--blue)]">${esc(r.name)}</a><span class="os-mono shrink-0 text-[11px] text-[var(--muted)]">${timeAgo(r.pushedAt)}</span></li>`).join("");
+      }
+      const notchBuilding = document.querySelectorAll<HTMLElement>(".notch-msg span")[1];
+      if (notchBuilding) notchBuilding.textContent = `Building ${repos[0].name}`;
+
+      const bench = document.getElementById("now-bench");
+      if (bench) {
+        const next = active.slice(4, 8);
+        bench.innerHTML = next.length
+          ? next.map((r) => `<a href="${r.url}" target="_blank" rel="noopener noreferrer" class="tile now-card group block !min-h-0 p-4" data-spot>
+              <div class="flex items-center justify-between gap-2"><h3 class="truncate font-bold tracking-tight text-[var(--ink)]">${esc(r.name)}</h3><span class="text-[var(--muted)] group-hover:text-[var(--blue)]">↗</span></div>
+              <p class="mt-1 truncate text-sm text-[var(--ink-2)]">${esc(about(r)) || "Work in progress."}</p>
+              <p class="os-mono mt-2 flex justify-between text-[11px] text-[var(--muted)]"><span>${esc(r.language)}</span><span>pushed ${timeAgo(r.pushedAt)}</span></p>
+            </a>`).join("")
+          : "";
+      }
+      box.innerHTML = repos.map((r) => {
+        const days = Math.floor((Date.now() - Date.parse(r.pushedAt)) / 86_400_000);
+        const heat = Math.max(8, 100 - days * 6);
+        const fresh = days <= 3;
+        return `<a href="${r.url}" target="_blank" rel="noopener noreferrer" class="tile now-card group flex flex-col p-5" data-spot>
+          <div class="flex items-center justify-between gap-2">
+            <span class="pill ${fresh ? "pill-mint" : "pill-blue"}">${fresh ? '<span class="live !h-1.5 !w-1.5"></span>' : ""}pushed ${timeAgo(r.pushedAt)}</span>
+            <span class="text-[var(--muted)] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+          </div>
+          <h3 class="mt-5 text-xl font-bold tracking-tight text-[var(--ink)]">${esc(r.name)}</h3>
+          <p class="mt-1 line-clamp-2 text-sm text-[var(--ink-2)]">${esc(about(r)) || "Work in progress."}</p>
+          <div class="mt-auto pt-4">
+            <div class="flex items-center justify-between text-[11px] text-[var(--muted)]"><span class="os-mono">${esc(r.language)}</span><span class="os-mono">★ ${r.stars}</span></div>
+            <div class="heat mt-2"><i style="width:${heat}%"></i></div>
+          </div>
+        </a>`;
+      }).join("");
+    }
+
+    // Project cards with a repo get live stars + last-push time.
+    function decorateProjects(stats: NonNullable<Awaited<ReturnType<typeof fetchGitHubStats>>>) {
+      document.querySelectorAll<HTMLElement>("[data-repo]").forEach((card) => {
+        const info = stats.repoIndex[card.dataset.repo ?? ""];
+        const meta = card.querySelector<HTMLElement>(".live-meta");
+        if (!info || !meta) return;
+        meta.textContent = `${info.stars ? `★ ${info.stars} · ` : ""}pushed ${timeAgo(info.pushedAt)}`;
+        meta.classList.add("text-[var(--blue)]");
+      });
+    }
+
+    async function initGitHubStats() {
+      const loadingEl = document.getElementById("gui-gh-loading");
+      const contentEl = document.getElementById("gui-gh-content");
+      const starsEl = document.getElementById("gui-gh-stars");
+      const forksEl = document.getElementById("gui-gh-forks");
+      const reposEl = document.getElementById("gui-gh-repos");
+      const followersEl = document.getElementById("gui-gh-followers");
+      const langListEl = document.getElementById("gui-gh-lang-list");
+      const reposListEl = document.getElementById("gui-gh-repos-list");
+
+      const stats = await fetchGitHubStats();
+      if (!stats) {
+        if (loadingEl) loadingEl.textContent = "GitHub metrics temporarily offline / rate-limited.";
+        return;
+      }
+
+      renderNowLive(stats);
+      decorateProjects(stats);
+      if (loadingEl) loadingEl.classList.add("hidden");
+      if (contentEl) contentEl.classList.remove("hidden");
+
+      if (starsEl) starsEl.textContent = String(stats.totalStars);
+      if (forksEl) forksEl.textContent = String(stats.totalForks);
+      if (reposEl) reposEl.textContent = String(stats.publicRepos);
+      if (followersEl) followersEl.textContent = String(stats.followers);
+
+      if (langListEl) {
+        langListEl.innerHTML = "";
+        stats.topLanguages.forEach((lang) => {
+          const badge = document.createElement("span");
+          badge.className = "px-2 py-1 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--fg-bright)] flex items-center gap-1.5";
+          badge.innerHTML = `<span class="text-[var(--accent)] font-bold">${lang.name}</span> <span class="text-[var(--fg-dim)] text-[10px]">(${lang.percentage}%)</span>`;
+          langListEl.appendChild(badge);
+        });
+      }
+
+      if (reposListEl) {
+        reposListEl.innerHTML = "";
+        stats.featuredRepos.slice(0, 6).forEach((repo) => {
+          const card = document.createElement("a");
+          card.href = repo.url;
+          card.target = "_blank";
+          card.rel = "noopener noreferrer";
+          card.className = "border border-[var(--border-color)] bg-[var(--bg-main)] p-3 hover:border-[var(--accent)] transition-all flex flex-col justify-between block group";
+          card.innerHTML = `
+            <div>
+              <div class="flex items-center justify-between gap-2 border-b border-[var(--border-color)] pb-1.5 mb-1.5">
+                <span class="text-xs font-bold text-[var(--fg-bright)] group-hover:text-[var(--accent)] truncate">📦 ${repo.name}</span>
+                <span class="text-[10px] text-[var(--accent)] font-bold shrink-0">⭐ ${repo.stars}</span>
+              </div>
+              <p class="text-[11px] text-[var(--fg-dim)] line-clamp-2 leading-tight">${repo.description}</p>
+            </div>
+            <div class="flex flex-wrap items-center justify-between text-[10px] text-[var(--fg-dim)] pt-2 mt-2 border-t border-[var(--border-color)] gap-1">
+              <span class="font-bold text-[var(--violet)]">${repo.language}</span>
+              <span class="truncate">Updated ${repo.updatedAt} ↗</span>
+            </div>
+          `;
+          reposListEl.appendChild(card);
+        });
+      }
+    }
+
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const nameInput = document.getElementById(
+        "contact-name",
+      ) as HTMLInputElement;
+      const emailInput = document.getElementById(
+        "contact-email",
+      ) as HTMLInputElement;
+      const messageInput = document.getElementById(
+        "contact-message",
+      ) as HTMLTextAreaElement;
+
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const message = messageInput.value.trim();
+
+      if (!name || !email || !message) return;
+
+      // Loading state
+      if (submitBtn) submitBtn.disabled = true;
+      if (btnText) btnText.textContent = "Sending…";
+      if (statusMsg) {
+        statusMsg.className = "text-xs font-bold text-yellow-400 block";
+        statusMsg.textContent = "Sending your message…";
+      }
+
+      try {
+        const response = await fetch(
+          `https://formsubmit.co/ajax/${recipientEmail}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              name,
+              email,
+              message,
+              _subject: `Portfolio Contact from ${name}`,
+              _captcha: "false",
+            }),
+          },
+        );
+
+        if (response.ok) {
+          playSuccessSound();
+
+          confetti({
+            particleCount: 80,
+            spread: 60,
+            origin: { y: 0.7 },
+            colors: ["#00ff66", "#00f0ff", "#ffb000", "#bd93f9"],
+          });
+
+          if (statusMsg) {
+            statusMsg.className = "text-xs font-bold text-emerald-400 block";
+            statusMsg.textContent =
+              "✓ Sent! I'll get back to you soon.";
+            setTimeout(() => {
+              statusMsg.className = "text-xs font-bold hidden";
+              statusMsg.textContent = "";
+            }, 7000);
+          }
+          form.reset();
+        } else {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      } catch (err) {
+        if (statusMsg) {
+          statusMsg.className = "text-xs font-bold text-rose-400 block";
+          statusMsg.textContent =
+            "✖ Transmission failed. Please try again later.";
+        }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (btnText) btnText.textContent = "Send message →";
+      }
+    });
+
+    const bindLaunchBtn = (id: string, callback: () => void) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      let lastTrigger = 0;
+      const handler = (e: Event) => {
+        const now = Date.now();
+        if (now - lastTrigger < 300) return; // Prevent double trigger
+        lastTrigger = now;
+        callback();
+      };
+      el.addEventListener("click", handler);
+      el.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        handler(e);
+      }, { passive: false });
+    };
+
+    bindLaunchBtn("gui-launch-pong", () => {
+      const win = window as unknown as { togglePong?: (f?: boolean) => void };
+      if (win.togglePong) {
+        win.togglePong(true);
+        playSuccessSound();
+      }
+    });
+
+    bindLaunchBtn("gui-launch-snake", () => {
+      const win = window as unknown as { toggleSnake?: (f?: boolean) => void };
+      if (win.toggleSnake) {
+        win.toggleSnake(true);
+        playSuccessSound();
+      }
+    });
+
+    bindLaunchBtn("gui-launch-radio", () => {
+      const win = window as unknown as { radioEngine?: { toggleModal: (f?: boolean) => void } };
+      if (win.radioEngine) {
+        win.radioEngine.toggleModal(true);
+        playSuccessSound();
+      }
+    });
+  });
+</script>
+
+<script>
+  // Experience tabs
+  document.addEventListener("DOMContentLoaded", () => {
+    const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>("[role='tab'][id^='xp-tab-']"));
+    const select = (tab: HTMLButtonElement) => {
+      tabs.forEach((t) => {
+        const selected = t === tab;
+        t.setAttribute("aria-selected", String(selected));
+        const panel = document.getElementById(t.getAttribute("aria-controls") ?? "");
+        if (panel) panel.hidden = !selected;
+      });
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener("click", () => select(tab));
+      tab.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+        e.preventDefault();
+        const next = tabs[(i + (e.key === "ArrowDown" || e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+        next.focus();
+        select(next);
+      });
+    });
+
+    document.getElementById("gui-launch-matrix")?.addEventListener("click", () => {
+      (window as unknown as { toggleMatrix?: (f?: boolean) => void }).toggleMatrix?.(true);
+    });
+  });
+</script>
+
+<script>
+  // goprOS: notch, theme, draggable widgets, active dock icon.
+  document.addEventListener("DOMContentLoaded", () => {
+    const os = document.querySelector<HTMLElement>(".os");
+    if (!os) return;
+
+    // Theme: remember choice, default to system preference.
+    let saved: string | null = null;
+    try { saved = localStorage.getItem("goopros_mode"); } catch {}
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    os.dataset.mode = saved ?? (prefersDark ? "dark" : "light");
+    document.getElementById("mode-toggle")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      os.dataset.mode = os.dataset.mode === "dark" ? "light" : "dark";
+      try { localStorage.setItem("goopros_mode", os.dataset.mode); } catch {}
+    });
+
+    // Notch: clock, rotating status, expand on hover/tap.
+    const notch = document.getElementById("notch");
+    const clock = document.getElementById("notch-clock");
+    const tickClock = () => {
+      if (clock) clock.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    };
+    tickClock();
+    setInterval(tickClock, 15000);
+
+    const msgs = Array.from(document.querySelectorAll<HTMLElement>(".notch-msg span"));
+    let current = 0;
+    setInterval(() => {
+      if (notch?.classList.contains("open") || msgs.length < 2) return;
+      const prev = msgs[current];
+      current = (current + 1) % msgs.length;
+      prev.classList.remove("on");
+      prev.classList.add("off");
+      msgs[current].classList.remove("off");
+      msgs[current].classList.add("on");
+      setTimeout(() => prev.classList.remove("off"), 600);
+    }, 3200);
+
+    const setOpen = (open: boolean) => {
+      notch?.classList.toggle("open", open);
+      notch?.setAttribute("aria-expanded", String(open));
+    };
+    if (notch) {
+      const canHover = window.matchMedia("(hover: hover)").matches;
+      if (canHover) {
+        notch.addEventListener("mouseenter", () => setOpen(true));
+        notch.parentElement?.addEventListener("mouseleave", () => setOpen(false));
+      }
+      notch.addEventListener("click", (e) => {
+        if ((e.target as HTMLElement).closest("a, button")) return;
+        setOpen(!notch.classList.contains("open"));
+      });
+      notch.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(!notch.classList.contains("open")); }
+        if (e.key === "Escape") setOpen(false);
+      });
+      notch.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+      document.addEventListener("click", (e) => { if (!notch.contains(e.target as Node)) setOpen(false); });
+    }
+
+    // Draggable widgets (desktop layout only).
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    let z = 10;
+    document.querySelectorAll<HTMLElement>("[data-widget]").forEach((widget) => {
+      const handle = widget.querySelector<HTMLElement>(".widget-head");
+      if (!handle) return;
+      let startX = 0, startY = 0, baseX = 0, baseY = 0, dragging = false;
+      handle.addEventListener("pointerdown", (e) => {
+        if (!desktop.matches) return;
+        dragging = true;
+        widget.classList.add("dragging");
+        widget.style.zIndex = String(++z);
+        startX = e.clientX; startY = e.clientY;
+        baseX = parseFloat(widget.dataset.x ?? "0");
+        baseY = parseFloat(widget.dataset.y ?? "0");
+        handle.setPointerCapture(e.pointerId);
+      });
+      handle.addEventListener("pointermove", (e) => {
+        if (!dragging) return;
+        const x = baseX + e.clientX - startX;
+        const y = baseY + e.clientY - startY;
+        widget.dataset.x = String(x);
+        widget.dataset.y = String(y);
+        widget.style.translate = `${x}px ${y}px`;
+      });
+      const end = () => { dragging = false; widget.classList.remove("dragging"); };
+      handle.addEventListener("pointerup", end);
+      handle.addEventListener("pointercancel", end);
+    });
+
+    // Dock: mark the app for the section in view.
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>(".dock a.dock-link"));
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        links.forEach((l) => l.classList.toggle("active", l.getAttribute("href") === `#${entry.target.id}`));
+      });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    links.forEach((l) => {
+      const target = document.querySelector(l.getAttribute("href") ?? "");
+      if (target) observer.observe(target);
+    });
+  });
+</script>
+
+<script>
+  // Principles carousel: dots, arrows, swipe, gentle auto-advance until touched.
+  document.addEventListener("DOMContentLoaded", () => {
+    const box = document.getElementById("principles");
+    if (!box) return;
+    const slides = Array.from(box.querySelectorAll<HTMLElement>(".pr-slide"));
+    const dots = Array.from(box.querySelectorAll<HTMLButtonElement>(".pr-dot"));
+    const bar = box.querySelector<HTMLElement>(".pr-progress i");
+    let index = 0;
+    let timer: number | undefined;
+    const go = (next: number) => {
+      index = (next + slides.length) % slides.length;
+      slides.forEach((s, i) => s.classList.toggle("on", i === index));
+      dots.forEach((d, i) => { d.classList.toggle("on", i === index); d.setAttribute("aria-selected", String(i === index)); });
+      if (bar) { bar.style.animation = "none"; void bar.offsetWidth; bar.style.animation = ""; }
+    };
+    const stop = () => { window.clearInterval(timer); box.classList.add("paused"); };
+    dots.forEach((d) => d.addEventListener("click", () => { stop(); go(Number(d.dataset.i)); }));
+    box.querySelectorAll<HTMLButtonElement>(".pr-nav").forEach((b) => b.addEventListener("click", () => { stop(); go(index + Number(b.dataset.dir)); }));
+    let startX = 0;
+    box.addEventListener("pointerdown", (e) => { startX = e.clientX; });
+    box.addEventListener("pointerup", (e) => { const dx = e.clientX - startX; if (Math.abs(dx) > 50) { stop(); go(index + (dx < 0 ? 1 : -1)); } });
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      timer = window.setInterval(() => { if (!box.classList.contains("hovering")) go(index + 1); }, 6000);
+      box.addEventListener("mouseenter", () => box.classList.add("hovering"));
+      box.addEventListener("mouseleave", () => box.classList.remove("hovering"));
+    }
+  });
+</script>

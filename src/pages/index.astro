@@ -1,20 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import TerminalWindow from '../components/TerminalWindow.astro';
-import MobileNotice from '../components/MobileNotice.astro';
-import CLI from '../components/CLI.astro';
-import GUIView from '../components/GUIView.astro';
+import OS from '../components/os/OS.astro';
 ---
 
-<Layout title="Gopinath // AI & ML Engineer Portfolio">
-  <TerminalWindow>
-    <!-- Mobile Notice Banner -->
-    <MobileNotice />
-
-    <!-- CLI Mode View -->
-    <CLI />
-
-    <!-- GUI Visual Dashboard Mode View -->
-    <GUIView />
-  </TerminalWindow>
+<Layout title="Gopinath R — Full-Stack & AI Engineer" variant="site">
+  <OS />
 </Layout>
