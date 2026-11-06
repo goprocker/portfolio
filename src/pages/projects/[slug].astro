@@ -1,140 +1,86 @@
 ---
+import "../../styles/os.css";
 import Layout from "../../layouts/Layout.astro";
-import ScrollReveal from "../../components/ScrollReveal.astro";
-import { getCollection, render } from "astro:content";
+import { PORTFOLIO_DATA } from "../../data/portfolio";
 
-export async function getStaticPaths() {
-  const projects = await getCollection("projects");
-  return projects.map((project) => ({
-    params: { slug: project.data.slug },
-    props: { project },
+export function getStaticPaths() {
+  const { collabs } = PORTFOLIO_DATA;
+  return collabs.map((project, index) => ({
+    params: { slug: project.id },
+    props: { project, next: collabs[(index + 1) % collabs.length] },
   }));
 }
 
-const { project } = Astro.props;
-const { Content } = await render(project);
-const { title, description, category, tags, images, liveUrl, repoUrl, date } =
-  project.data;
-
-const categoryLabels: Record<string, string> = {
-  design: "Design",
-  code: "Code",
-  websites: "Websites",
-};
-
-const formattedDate = date.toLocaleDateString("en-US", {
-  year: "numeric",
-  month: "long",
-});
+const { project, next } = Astro.props;
+const { developer } = PORTFOLIO_DATA;
 ---
 
-<Layout title={title} description={description}>
-  <article class="px-6 pt-16 pb-24">
-    <div class="max-w-4xl mx-auto">
-      <ScrollReveal>
-        <a
-          href="/projects"
-          class="inline-flex items-center text-sm text-text-muted hover:text-accent transition-colors mb-8"
-        >
-          &larr; Back to Projects
-        </a>
-      </ScrollReveal>
+<Layout title={`${project.title} — Gopinath R`} description={project.description} variant="site">
+  <div class="os" data-site>
+    <div class="wallpaper" aria-hidden="true"><span></span><span></span><span></span></div>
 
-      <ScrollReveal delay={1}>
-        <div class="mb-6">
-          <span class="text-xs font-medium px-3 py-1 rounded-full bg-accent/20 text-accent">
-            {categoryLabels[category]}
-          </span>
-        </div>
-        <h1 class="font-display text-4xl sm:text-5xl font-extrabold mb-4">
-          {title}
-        </h1>
-        <p class="text-text-muted text-lg leading-relaxed mb-6">
-          {description}
-        </p>
-        <div class="flex flex-wrap items-center gap-4 mb-8">
-          <span class="text-sm text-text-muted">{formattedDate}</span>
-          {
-            liveUrl && (
-              <a
-                href={liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-sm text-accent hover:underline"
-              >
-                Live Demo &rarr;
-              </a>
-            )
-          }
-          {
-            repoUrl && (
-              <a
-                href={repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-sm text-accent hover:underline"
-              >
-                View Code &rarr;
-              </a>
-            )
-          }
-        </div>
-        {
-          tags.length > 0 && (
-            <div class="flex flex-wrap gap-2 mb-12">
-              {tags.map((tag) => (
-                <span class="text-xs text-text-muted bg-bg-elevated px-3 py-1.5 rounded-md border border-border">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )
-        }
-      </ScrollReveal>
+    <main class="os-wrap py-8 sm:py-12">
+      <a href="/#work" class="ob" data-boot>← Projects</a>
 
-      {
-        images.length > 0 && (
-          <ScrollReveal delay={2}>
-            <div class="space-y-6 mb-16">
-              {images.map((img) => (
-                <img
-                  src={img}
-                  alt={`${title} screenshot`}
-                  class="w-full rounded-2xl border border-border"
-                  loading="lazy"
-                />
-              ))}
-            </div>
-          </ScrollReveal>
-        )
-      }
-
-      <ScrollReveal delay={3}>
-        <div class="prose prose-invert prose-lg max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-accent">
-          <Content />
+      <article class="win glass mt-6" data-boot style="--d:.1s">
+        <div class="win-bar">
+          <span class="win-title"><i aria-hidden="true">📁</i>Projects / {project.title}</span>
+          <span class="win-ctl" aria-hidden="true"><span>—</span><span>▢</span><span>✕</span></span>
         </div>
-      </ScrollReveal>
-    </div>
-  </article>
+        <div class="win-body">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="pill pill-blue">{project.partnerType}</span>
+            <span class="pill">{project.status.toLowerCase()}</span>
+            <span class="os-mono text-xs text-[var(--muted)]">{project.period}</span>
+          </div>
+          <h1 class="hello mt-5">{project.title}</h1>
+          <p class="os-mono mt-3 text-sm text-[var(--blue)]">{project.role} · {project.partner}</p>
+          <p class="mt-5 max-w-3xl text-lg leading-relaxed text-[var(--ink-2)]">{project.description}</p>
+          <div class="mt-7 flex flex-wrap gap-3">
+            {project.link && <a href={project.link} target="_blank" rel="noopener noreferrer" class="ob ob-primary">Visit live site ↗</a>}
+            {project.repo && <a href={project.repo} target="_blank" rel="noopener noreferrer" class="ob">View source ↗</a>}
+            <a href="/#contact" class="ob">✉️ Ask me about it</a>
+          </div>
+
+          <figure class="mt-10 overflow-hidden rounded-2xl border border-[var(--hair)] bg-[var(--ink)]" data-reveal>
+            {project.image ? (
+              <img src={project.image} alt={`Screenshot of ${project.title}`} class="block w-full" />
+            ) : (
+              <div class="cover-gen aspect-[16/7]"><strong>{project.title}</strong><small>{project.partnerType}</small></div>
+            )}
+          </figure>
+
+          <div class="mt-10 grid gap-8 md:grid-cols-12">
+            <section class="md:col-span-8" data-reveal>
+              <h2 class="os-mono mb-4 text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">What I did</h2>
+              <ul class="space-y-3">
+                {project.contributions.map((c) => <li class="tile p-4 text-[var(--ink)]"><span class="text-[var(--blue)]">✓</span> {c}</li>)}
+              </ul>
+            </section>
+            <section class="md:col-span-4" data-reveal>
+              <h2 class="os-mono mb-4 text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">Stack</h2>
+              <div class="flex flex-wrap gap-2">{project.techStack.map((t) => <span class="pill">{t}</span>)}</div>
+            </section>
+          </div>
+        </div>
+      </article>
+
+      <a href={`/projects/${next.id}`} class="tile mt-6 block p-6 sm:p-8" data-spot data-reveal>
+        <span class="os-mono text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">Next project →</span>
+        <span class="mt-2 block text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-4xl">{next.title}</span>
+      </a>
+
+      <p class="os-mono mt-10 text-center text-xs text-[var(--muted)]">goprOS · <a href="/" class="hover:text-[var(--ink)]">home</a> · <a href={developer.github} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--ink)]">github</a></p>
+    </main>
+  </div>
+
+  <script>
+    // Match the theme chosen on the home page.
+    const os = document.querySelector<HTMLElement>(".os");
+    if (os) {
+      let saved: string | null = null;
+      try { saved = localStorage.getItem("goopros_mode"); } catch {}
+      os.dataset.mode = saved ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    }
+  </script>
 </Layout>
-
-<style is:global>
-  .prose h2 {
-    margin-top: 2.5rem;
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-  }
-  .prose p {
-    color: var(--color-text-muted);
-    line-height: 1.75;
-  }
-  .prose ul {
-    color: var(--color-text-muted);
-  }
-  .prose li {
-    margin-bottom: 0.5rem;
-  }
-  .prose strong {
-    color: var(--color-text);
-  }
-</style>
