@@ -1,50 +1,34 @@
-# GOPINATH — AI & ML Engineer Portfolio
+# goprOS — Gopinath R
 
-Retro terminal-style portfolio for GOPINATH: CSE (AI) student, Co-Founder at LoopFound, founder of the AI Foundry '29 student community, and active AI/frontend intern.
+The portfolio of **Gopinath R**: full-stack developer and AI engineer from Chennai, co-founder of [LoopFound](https://loopfound.in), and Tech Lead at Redrox Industries.
 
-Built with Astro 7, Tailwind CSS 4, and TypeScript 6.
+**Live:** [gopinath.loopfound.in](https://gopinath.loopfound.in)
 
-## Current roles
+The site is built as a small desktop OS, inspired by my own desktop apps [Islet](https://github.com/goprocker/Islet) and [Orbi](https://github.com/goprocker/Orbi):
 
-- **AI Engineer Intern** — Redrox Industries PVT Limited (August 2026 – Present)
-- **Frontend/UI Developer Intern** — SynosAI (2026 – Present)
-- **Co-Founder & CMO** — LoopFound (August 2025 – Present)
-- **Founder & Lead** — AI Foundry '29 (2025 – Present)
+- **Boot intro:** a beam of light becomes the notch and says hello in Tamil, Hindi and English
+- **Islet-style notch:** live status, clock, quick launcher and light/dark theme
+- **Dock** navigation, draggable desktop widgets, and every section as an app window
+- **Live from GitHub:** what I'm building now, the bench, project push times and the contribution graph
+- **Terminal** at [`/terminal`](https://gopinath.loopfound.in/terminal): the whole portfolio from a command line
 
-Recent ambassador work includes serving as an **IIT Delhi Rendezvous Campus Ambassador** from August 2026 to October 2026.
+## Stack
 
-## Features
+Astro 7 · TypeScript · Tailwind CSS 4 · deployed on Vercel
 
-- Interactive terminal and GUI dashboard modes
-- Projects, experience, internships, ambassador work, and events
-- GitHub contribution graph and visitor-name greeting
-- CRT effects, Matrix rain, sound effects, and terminal themes
-- Responsive mobile dashboard and contact form
-
-## Development
+## Run locally
 
 ```bash
 npm install
-npm run astro -- dev --background
+npm run dev
 ```
 
-Manage the background server with `npm run astro -- dev status`, `npm run astro -- dev logs`, and `npm run astro -- dev stop`.
+`npm run check` type-checks the project and `npm run build` creates the production build in `dist/`.
 
-Production checks:
+## Editing content
 
-```bash
-npm run build
-npm run check
-```
-
-## Content
-
-Portfolio roles, internships, projects, events, and profile details are managed in [src/data/portfolio.ts](src/data/portfolio.ts). Project case studies live in `src/content/projects/`.
-
-## Credits
-
-Based on the MIT-licensed [astro-tui-portfolio](https://github.com/nivinvysakh/astro-tui-portfolio) template and extensively customized for this portfolio.
+Everything shown on the site lives in [`src/data/portfolio.ts`](src/data/portfolio.ts): projects, roles, organizations, events, stack and principles. Events are sorted by date automatically, and roles with `status: "COMPLETED"` move to "Past roles".
 
 ## License
 
-MIT. See [LICENSE.MD](LICENSE.MD).
+[MIT](LICENSE) © 2026 Gopinath R
