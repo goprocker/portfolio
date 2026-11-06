@@ -1,0 +1,24 @@
+---
+import Legal from "../components/os/Legal.astro";
+import { PORTFOLIO_DATA } from "../data/portfolio";
+const { email } = PORTFOLIO_DATA.developer;
+---
+
+<Legal title="Terms" description="The ground rules for using this site." updated="6 November 2026">
+  <p>By using this site you agree to these terms. They're short because there isn't much to agree to.</p>
+
+  <h2>The content</h2>
+  <p>The writing, photos and project images here are mine unless credited otherwise. Please don't republish them without asking. The site's source code is open under the <a href="https://github.com/goprocker/portfolio/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT license</a>.</p>
+
+  <h2>Links and live data</h2>
+  <p>Project cards link to other sites and show live data from GitHub. I'm not responsible for third-party sites, and live numbers can be out of date.</p>
+
+  <h2>No warranty</h2>
+  <p>The site is provided as is. I try to keep it accurate, but I don't promise it's error-free or always online.</p>
+
+  <h2>Using the mail form</h2>
+  <p>Don't use it to send spam or anything unlawful. How messages are handled is covered in the <a href="/privacy">privacy policy</a>.</p>
+
+  <h2>Changes</h2>
+  <p>I may update these terms; the date at the top shows the latest version. Questions go to <a href={`mailto:${email}`}>{email}</a>.</p>
+</Legal>

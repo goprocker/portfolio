@@ -1,0 +1,30 @@
+---
+import Legal from "../components/os/Legal.astro";
+import { PORTFOLIO_DATA } from "../data/portfolio";
+const { email } = PORTFOLIO_DATA.developer;
+---
+
+<Legal title="Privacy" description="What this site collects and what it doesn't." updated="6 November 2026">
+  <p>This is a personal portfolio. It has no accounts, no ads and no analytics or tracking scripts.</p>
+
+  <h2>What you send me</h2>
+  <p>If you use the mail form, your name, email address and message are delivered to my inbox through <a href="https://formspree.io/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Formspree</a>. I use them only to reply to you, and I'll delete them if you ask.</p>
+
+  <h2>Stored in your browser</h2>
+  <ul>
+    <li>Your light or dark theme choice (<code>goopros_mode</code>).</li>
+    <li>A copy of my public GitHub data, cached for five minutes so the page loads faster.</li>
+  </ul>
+  <p>Nothing here leaves your device, and clearing site data removes it.</p>
+
+  <h2>Other services the page talks to</h2>
+  <ul>
+    <li>Vercel hosts the site and keeps standard server logs.</li>
+    <li>Your browser fetches my public repos from the GitHub API and my contribution graph from github-contributions-api.jogruber.de.</li>
+    <li>Fonts load from Google Fonts.</li>
+  </ul>
+  <p>Each of these sees your IP address as part of a normal web request and has its own privacy policy.</p>
+
+  <h2>Questions</h2>
+  <p>Email <a href={`mailto:${email}`}>{email}</a>.</p>
+</Legal>

@@ -1,0 +1,33 @@
+---
+import "../../styles/os.css";
+import Layout from "../../layouts/Layout.astro";
+import AppIcon from "./AppIcon.astro";
+
+interface Props { title: string; description: string; updated: string }
+const { title, description, updated } = Astro.props;
+---
+
+<Layout title={`${title} — Gopinath R`} description={description}>
+  <div class="os min-h-screen px-4 py-16" data-site>
+    <div class="wallpaper" aria-hidden="true"><span></span><span></span><span></span></div>
+    <article class="win glass mx-auto w-full max-w-2xl">
+      <div class="win-bar">
+        <span class="win-title"><AppIcon name="resume" size={20} />{title}</span>
+        <span class="win-ctl" aria-hidden="true"><span>—</span><span>▢</span><span>✕</span></span>
+      </div>
+      <div class="win-body legal">
+        <h1 class="win-h">{title}</h1>
+        <p class="win-sub">Last updated {updated}</p>
+        <slot />
+        <p class="mt-10"><a href="/" class="ob">Back to desktop</a></p>
+      </div>
+    </article>
+  </div>
+</Layout>
+
+<style>
+  .legal :global(h2) { margin-top: 2rem; font-size: 1.15rem; font-weight: 650; color: var(--ink); }
+  .legal :global(p), .legal :global(li) { margin-top: 0.6rem; max-width: 62ch; line-height: 1.65; color: var(--ink-2); }
+  .legal :global(ul) { padding-left: 1.2rem; list-style: disc; }
+  .legal :global(a:not(.ob)) { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+</style>
