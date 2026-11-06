@@ -1,30 +1,35 @@
-// GitHub REST API Integration & Stats Aggregator
+// Live GitHub data for the site: profile totals plus own repos, newest push first.
 import { PORTFOLIO_DATA } from "../data/portfolio";
 
-export interface GitHubStats {
-  username: string;
+export interface Repo {
   name: string;
-  avatarUrl: string;
-  bio: string;
-  publicRepos: number;
-  followers: number;
-  following: number;
-  totalStars: number;
-  totalForks: number;
-  topLanguages: Array<{ name: string; count: number; percentage: number }>;
-  featuredRepos: Array<{
-    name: string;
-    description: string;
-    stars: number;
-    forks: number;
-    language: string;
-    url: string;
-    updatedAt: string;
-    pushedAt: string;
-  }>;
-  // Every own repo keyed by lowercase "owner/name", for live badges elsewhere.
-  repoIndex: Record<string, { stars: number; pushedAt: string; description: string; language: string }>;
+  fullName: string;
+  url: string;
+  description: string;
+  language: string;
+  stars: number;
+  forks: number;
+  pushedAt: string;
 }
+
+export interface GitHubSnapshot {
+  login: string;
+  followers: number;
+  publicRepos: number;
+  stars: number;
+  forks: number;
+  languages: { name: string; share: number }[];
+  /** Own, non-fork, non-archived repos sorted by most recent push. */
+  repos: Repo[];
+  /** Same repos keyed by lowercase "owner/name". */
+  byFullName: Record<string, Repo>;
+}
+
+const STORE_KEY = "goopros:github:v1";
+const MAX_AGE_MS = 5 * 60 * 1000;
+
+export const githubLogin = (): string =>
+  PORTFOLIO_DATA.developer.github.match(/github\.com\/([\w-]+)/i)?.[1] ?? PORTFOLIO_DATA.developer.handle;
 
 export function timeAgo(iso: string): string {
   const days = Math.floor((Date.now() - Date.parse(iso)) / 86_400_000);
@@ -37,161 +42,78 @@ export function timeAgo(iso: string): string {
   return `${years} year${years === 1 ? "" : "s"} ago`;
 }
 
-function extractUsername(): string {
-  const raw = (PORTFOLIO_DATA.developer.github || "").trim().replace(/^@/, "");
-  if (!raw) return "goprocker";
-
-  // Extract owner username from github.com/username or github.com/username/repo
-  const match = raw.match(/github\.com\/([a-zA-Z0-9_-]+)/i);
-  if (match && match[1]) {
-    return match[1];
-  }
-
-  // If user entered just their username directly (e.g. "goprocker")
-  return raw.replace(/\/$/, "");
-}
-
-const CACHE_KEY = "tui_github_stats_cache_v5";
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
-function formatRepository(repo: any, username: string) {
-  const owner = repo.owner?.login || username;
-
-  return {
-    name: owner.toLowerCase() === username.toLowerCase() ? repo.name : repo.full_name,
-    description: repo.description || "No description provided",
-    stars: repo.stargazers_count || 0,
-    forks: repo.forks_count || 0,
-    language: repo.language || "Plain Text",
-    url: repo.html_url,
-    updatedAt: new Date(repo.pushed_at || repo.updated_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }),
-    pushedAt: repo.pushed_at || repo.updated_at,
-  };
-}
-
-export async function fetchGitHubStats(): Promise<GitHubStats | null> {
-  const username = extractUsername();
-
-  // 1. Check LocalStorage Cache
-  if (typeof window !== "undefined") {
-    try {
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (cached) {
-        const { data, timestamp } = JSON.parse(cached);
-        if (Date.now() - timestamp < CACHE_TTL_MS && data.username === username) {
-          return data;
-        }
-      }
-    } catch {}
-  }
-
+function readStore(login: string): GitHubSnapshot | null {
   try {
-    // 2. Fetch User Profile
-    const userRes = await fetch(`https://api.github.com/users/${username}`);
-    if (!userRes.ok) return null;
-    const userData = await userRes.json();
-
-    // 3. Fetch Repositories
-    const reposRes = await fetch(
-      `https://api.github.com/users/${username}/repos?sort=pushed&per_page=100`
-    );
-    if (!reposRes.ok) return null;
-    const reposData = await reposRes.json();
-
-    let totalStars = 0;
-    let totalForks = 0;
-    const langCounts: Record<string, number> = {};
-
-    reposData
-      .filter((repo: any) => !repo.fork)
-      .forEach((repo: any) => {
-        totalStars += repo.stargazers_count || 0;
-        totalForks += repo.forks_count || 0;
-
-        if (repo.language) {
-          langCounts[repo.language] = (langCounts[repo.language] || 0) + 1;
-        }
-      });
-
-    const repositoriesByName = new Map(
-      reposData.map((repo: any) => [String(repo.full_name).toLowerCase(), repo]),
-    );
-    const pinnedRepositories = PORTFOLIO_DATA.developer.pinnedRepositories;
-    const missingPinnedRepositories = pinnedRepositories.filter(
-      (fullName) => !repositoriesByName.has(fullName.toLowerCase()),
-    );
-
-    const fetchedPinnedRepositories = await Promise.all(
-      missingPinnedRepositories.map(async (fullName) => {
-        const response = await fetch(`https://api.github.com/repos/${fullName}`);
-        return response.ok ? response.json() : null;
-      }),
-    );
-
-    fetchedPinnedRepositories.forEach((repo) => {
-      if (repo?.full_name) {
-        repositoriesByName.set(String(repo.full_name).toLowerCase(), repo);
-      }
-    });
-
-    // Show what's actually being worked on: the most recently pushed own repos,
-    // skipping forks and the profile README repo.
-    const recentRepos = reposData
-      .filter((repo: any) => !repo.fork && !repo.archived && repo.name.toLowerCase() !== username.toLowerCase())
-      .sort((a: any, b: any) => Date.parse(b.pushed_at) - Date.parse(a.pushed_at))
-      .slice(0, 12)
-      .map((repo: any) => formatRepository(repo, username));
-    const featuredRepos = recentRepos.length
-      ? recentRepos
-      : pinnedRepositories.flatMap((fullName) => {
-          const repo = repositoriesByName.get(fullName.toLowerCase());
-          return repo ? [formatRepository(repo, username)] : [];
-        });
-
-    // Calculate language percentages
-    const totalLangs = Object.values(langCounts).reduce((a, b) => a + b, 0);
-    const topLanguages = Object.entries(langCounts)
-      .map(([name, count]) => ({
-        name,
-        count,
-        percentage: Math.round((count / totalLangs) * 100),
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-
-    const stats: GitHubStats = {
-      username,
-      name: userData.name || username,
-      avatarUrl: userData.avatar_url || "",
-      bio: userData.bio || "",
-      publicRepos: userData.public_repos || reposData.length,
-      followers: userData.followers || 0,
-      following: userData.following || 0,
-      totalStars,
-      totalForks,
-      topLanguages,
-      featuredRepos,
-      repoIndex: Object.fromEntries(
-        reposData.map((repo: any) => [
-          String(repo.full_name).toLowerCase(),
-          { stars: repo.stargazers_count || 0, pushedAt: repo.pushed_at || repo.updated_at, description: repo.description || "", language: repo.language || "" },
-        ]),
-      ),
-    };
-
-    // Save to Cache
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(
-          CACHE_KEY,
-          JSON.stringify({ data: stats, timestamp: Date.now() })
-        );
-      } catch {}
-    }
-
-    return stats;
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return null;
+    const { at, data } = JSON.parse(raw) as { at: number; data: GitHubSnapshot };
+    return Date.now() - at < MAX_AGE_MS && data.login === login ? data : null;
   } catch {
     return null;
   }
 }
 
+function writeStore(data: GitHubSnapshot) {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({ at: Date.now(), data }));
+  } catch {}
+}
+
+let inflight: Promise<GitHubSnapshot | null> | null = null;
+
+/** Fetches (or reuses) the snapshot. Resolves to null when GitHub is unreachable or rate-limited. */
+export function loadGitHub(): Promise<GitHubSnapshot | null> {
+  const login = githubLogin();
+  const cached = typeof window !== "undefined" ? readStore(login) : null;
+  if (cached) return Promise.resolve(cached);
+  inflight ??= (async () => {
+    try {
+      const [userRes, reposRes] = await Promise.all([
+        fetch(`https://api.github.com/users/${login}`),
+        fetch(`https://api.github.com/users/${login}/repos?per_page=100&sort=pushed`),
+      ]);
+      if (!userRes.ok || !reposRes.ok) return null;
+      const user = await userRes.json();
+      const raw: any[] = await reposRes.json();
+
+      const repos: Repo[] = raw
+        .filter((r) => !r.fork && !r.archived && r.name.toLowerCase() !== login.toLowerCase())
+        .map((r) => ({
+          name: r.name,
+          fullName: r.full_name,
+          url: r.html_url,
+          description: r.description ?? "",
+          language: r.language ?? "",
+          stars: r.stargazers_count ?? 0,
+          forks: r.forks_count ?? 0,
+          pushedAt: r.pushed_at ?? r.updated_at,
+        }))
+        .sort((a, b) => Date.parse(b.pushedAt) - Date.parse(a.pushedAt));
+
+      const tally = new Map<string, number>();
+      repos.forEach((r) => r.language && tally.set(r.language, (tally.get(r.language) ?? 0) + 1));
+      const counted = [...tally.values()].reduce((a, b) => a + b, 0) || 1;
+
+      const data: GitHubSnapshot = {
+        login,
+        followers: user.followers ?? 0,
+        publicRepos: user.public_repos ?? repos.length,
+        stars: repos.reduce((sum, r) => sum + r.stars, 0),
+        forks: repos.reduce((sum, r) => sum + r.forks, 0),
+        languages: [...tally.entries()]
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([name, n]) => ({ name, share: Math.round((n / counted) * 100) })),
+        repos,
+        byFullName: Object.fromEntries(repos.map((r) => [r.fullName.toLowerCase(), r])),
+      };
+      writeStore(data);
+      return data;
+    } catch {
+      return null;
+    } finally {
+      inflight = null;
+    }
+  })();
+  return inflight;
+}

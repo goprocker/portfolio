@@ -6,8 +6,6 @@ import AppIcon from "./AppIcon.astro";
 import Boot from "./Boot.astro";
 import AgentGraph from "../AgentGraph.astro";
 import RoleList from "../RoleList.astro";
-import SpotifyWidget from "../SpotifyWidget.astro";
-import GamesWidget from "../GamesWidget.astro";
 import GitHubActivity from "../GitHubActivity.astro";
 
 const {
@@ -457,19 +455,24 @@ const notchMessages = [
     <Win id="offclock" title="Off the clock" icon="music">
       <Fragment slot="heading">When I'm <span class="os-serif">not</span> shipping</Fragment>
       <div class="grid gap-4 md:grid-cols-3">
-        <div data-reveal><SpotifyWidget /></div>
-        <div data-reveal><GamesWidget /></div>
-        <div class="tile flex flex-col gap-3 p-5" data-reveal>
-          <h3 class="font-bold text-[var(--ink)]">Playground</h3>
-          <p class="text-sm text-[var(--muted)]">Little things hidden in this site.</p>
-          <div class="mt-auto grid grid-cols-2 gap-2">
-            <button type="button" id="gui-launch-pong" class="ob justify-center !px-2">Pong</button>
-            <button type="button" id="gui-launch-snake" class="ob justify-center !px-2">Snake</button>
-            <button type="button" id="gui-launch-radio" class="ob justify-center !px-2">Radio</button>
-            <button type="button" id="gui-launch-matrix" class="ob justify-center !px-2">Matrix</button>
-          </div>
-          <a href="/terminal" class="ob ob-primary justify-center">Open the terminal</a>
-        </div>
+        <a href={developer.instagram} target="_blank" rel="noopener noreferrer" class="tile group flex flex-col gap-3 p-6" data-spot data-reveal>
+          <AppIcon name="pin" size={40} />
+          <h3 class="text-lg font-bold text-[var(--ink)] group-hover:text-[var(--blue)]">Photography</h3>
+          <p class="text-sm text-[var(--ink-2)]">Streets, people and light around Chennai. I shoot when I'm not shipping.</p>
+          <span class="os-mono mt-auto text-xs text-[var(--blue)]">@goprocker_photography_ ↗</span>
+        </a>
+        <a href="/terminal" class="tile group flex flex-col gap-3 p-6" data-spot data-reveal>
+          <AppIcon name="terminal" size={40} />
+          <h3 class="text-lg font-bold text-[var(--ink)] group-hover:text-[var(--blue)]">The terminal</h3>
+          <p class="text-sm text-[var(--ink-2)]">Prefer a shell? The whole portfolio works from the command line too. Try <span class="os-mono">help</span>.</p>
+          <span class="os-mono mt-auto text-xs text-[var(--blue)]">open /terminal →</span>
+        </a>
+        <a href={developer.website} target="_blank" rel="noopener noreferrer" class="tile group flex flex-col gap-3 p-6" data-spot data-reveal>
+          <AppIcon name="orgs" size={40} />
+          <h3 class="text-lg font-bold text-[var(--ink)] group-hover:text-[var(--blue)]">LoopFound</h3>
+          <p class="text-sm text-[var(--ink-2)]">The web agency I co-founded — production sites for real businesses.</p>
+          <span class="os-mono mt-auto text-xs text-[var(--blue)]">loopfound.in ↗</span>
+        </a>
       </div>
     </Win>
 
@@ -513,269 +516,140 @@ const notchMessages = [
 </div>
 
 <script>
-  import confetti from "canvas-confetti";
-  import { playSuccessSound } from "../../utils/sound";
+  // Live GitHub data (now building, bench, hero widget, project badges, stats) and the mail form.
   import { PORTFOLIO_DATA } from "../../data/portfolio";
-  import { fetchGitHubStats, timeAgo } from "../../utils/github";
+  import { loadGitHub, timeAgo, type GitHubSnapshot, type Repo } from "../../utils/github";
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("contact-form") as HTMLFormElement;
-    const statusMsg = document.getElementById("form-status");
-    const submitBtn = document.getElementById(
-      "contact-submit-btn",
-    ) as HTMLButtonElement;
-    const btnText = document.getElementById("btn-text");
-    const recipientEmail = PORTFOLIO_DATA.developer.email;
+  const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
 
-    // Fetch and populate live GitHub stats
-    initGitHubStats();
+  // A repo without a GitHub "About" borrows the first sentence of the matching project blurb.
+  const blurbs = new Map(
+    PORTFOLIO_DATA.collabs
+      .filter((c) => c.repo)
+      .map((c) => [c.repo!.split("/").pop()!.toLowerCase(), c.description.split(/(?<=\.)\s/)[0]]),
+  );
+  const about = (r: Repo) => r.description || blurbs.get(r.name.toLowerCase()) || "Work in progress.";
 
-    // "Currently building": the repos pushed most recently, straight from GitHub.
-    function renderNowLive(stats: NonNullable<Awaited<ReturnType<typeof fetchGitHubStats>>>) {
-      const box = document.getElementById("now-live");
-      if (!box) return;
-      // When a repo has no GitHub "About", fall back to the portfolio's own project blurb.
-      const blurbs = new Map(PORTFOLIO_DATA.collabs.filter((c) => c.repo).map((c) => [c.repo!.split("/").pop()!.toLowerCase(), c.description.split(/(?<=\.)\s/)[0]]));
-      const about = (r: { name: string; description: string }) =>
-        r.description && r.description !== "No description provided" ? r.description : blurbs.get(r.name.toLowerCase()) ?? "";
-      const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
-      const active = stats.featuredRepos.filter((r) => r.name.toLowerCase() !== "portfolio");
-      const repos = active.slice(0, 4);
-      if (!repos.length) { box.innerHTML = ""; return; }
+  function nowCard(r: Repo) {
+    const days = Math.floor((Date.now() - Date.parse(r.pushedAt)) / 86_400_000);
+    const fresh = days <= 3;
+    return `<a href="${r.url}" target="_blank" rel="noopener noreferrer" class="tile now-card group flex flex-col p-5" data-spot>
+      <div class="flex items-center justify-between gap-2">
+        <span class="pill ${fresh ? "pill-mint" : "pill-blue"}">${fresh ? '<span class="live !h-1.5 !w-1.5"></span>' : ""}pushed ${timeAgo(r.pushedAt)}</span>
+        <span class="text-[var(--muted)] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+      </div>
+      <h3 class="mt-5 text-xl font-bold tracking-tight text-[var(--ink)]">${esc(r.name)}</h3>
+      <p class="mt-1 line-clamp-2 text-sm text-[var(--ink-2)]">${esc(about(r))}</p>
+      <div class="mt-auto pt-4">
+        <div class="flex items-center justify-between text-[11px] text-[var(--muted)]"><span class="os-mono">${esc(r.language)}</span><span class="os-mono">★ ${r.stars}</span></div>
+        <div class="heat mt-2"><i style="width:${Math.max(8, 100 - days * 6)}%"></i></div>
+      </div>
+    </a>`;
+  }
 
-      // The next four most recently pushed repos.
-      // Hero widget + notch follow the same live list.
-      const widget = document.getElementById("widget-now");
-      if (widget) {
-        widget.innerHTML = active.slice(0, 5).map((r) => `<li class="flex items-center justify-between gap-3"><a href="${r.url}" target="_blank" rel="noopener noreferrer" class="truncate font-medium text-[var(--ink)] hover:text-[var(--blue)]">${esc(r.name)}</a><span class="os-mono shrink-0 text-[11px] text-[var(--muted)]">${timeAgo(r.pushedAt)}</span></li>`).join("");
-      }
+  function benchCard(r: Repo) {
+    return `<a href="${r.url}" target="_blank" rel="noopener noreferrer" class="tile now-card group block !min-h-0 p-4" data-spot>
+      <div class="flex items-center justify-between gap-2"><h3 class="truncate font-bold tracking-tight text-[var(--ink)]">${esc(r.name)}</h3><span class="text-[var(--muted)] group-hover:text-[var(--blue)]">↗</span></div>
+      <p class="mt-1 truncate text-sm text-[var(--ink-2)]">${esc(about(r))}</p>
+      <p class="os-mono mt-2 flex justify-between text-[11px] text-[var(--muted)]"><span>${esc(r.language)}</span><span>pushed ${timeAgo(r.pushedAt)}</span></p>
+    </a>`;
+  }
+
+  function repoCard(r: Repo) {
+    return `<a href="${r.url}" target="_blank" rel="noopener noreferrer" class="tile group flex flex-col p-4" data-spot>
+      <div class="flex items-center justify-between gap-2">
+        <span class="truncate text-sm font-bold text-[var(--ink)] group-hover:text-[var(--blue)]">${esc(r.name)}</span>
+        <span class="shrink-0 text-[11px] text-[var(--muted)]">★ ${r.stars}</span>
+      </div>
+      <p class="mt-2 line-clamp-2 text-xs leading-relaxed text-[var(--ink-2)]">${esc(about(r))}</p>
+      <div class="mt-auto flex justify-between pt-3 text-[11px] text-[var(--muted)]">
+        <span class="font-semibold text-[var(--violet)]">${esc(r.language || "—")}</span><span>${timeAgo(r.pushedAt)} ↗</span>
+      </div>
+    </a>`;
+  }
+
+  function render(gh: GitHubSnapshot) {
+    const active = gh.repos.filter((r) => r.name.toLowerCase() !== "portfolio");
+    const set = (id: string, html: string) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+    const text = (id: string, value: string | number) => { const el = document.getElementById(id); if (el) el.textContent = String(value); };
+
+    if (active.length) {
+      set("now-live", active.slice(0, 4).map(nowCard).join(""));
+      set("now-bench", active.slice(4, 8).map(benchCard).join(""));
+      set("widget-now", active.slice(0, 5).map((r) =>
+        `<li class="flex items-center justify-between gap-3"><a href="${r.url}" target="_blank" rel="noopener noreferrer" class="truncate font-medium text-[var(--ink)] hover:text-[var(--blue)]">${esc(r.name)}</a><span class="os-mono shrink-0 text-[11px] text-[var(--muted)]">${timeAgo(r.pushedAt)}</span></li>`).join(""));
       const notchBuilding = document.querySelectorAll<HTMLElement>(".notch-msg span")[1];
-      if (notchBuilding) notchBuilding.textContent = `Building ${repos[0].name}`;
-
-      const bench = document.getElementById("now-bench");
-      if (bench) {
-        const next = active.slice(4, 8);
-        bench.innerHTML = next.length
-          ? next.map((r) => `<a href="${r.url}" target="_blank" rel="noopener noreferrer" class="tile now-card group block !min-h-0 p-4" data-spot>
-              <div class="flex items-center justify-between gap-2"><h3 class="truncate font-bold tracking-tight text-[var(--ink)]">${esc(r.name)}</h3><span class="text-[var(--muted)] group-hover:text-[var(--blue)]">↗</span></div>
-              <p class="mt-1 truncate text-sm text-[var(--ink-2)]">${esc(about(r)) || "Work in progress."}</p>
-              <p class="os-mono mt-2 flex justify-between text-[11px] text-[var(--muted)]"><span>${esc(r.language)}</span><span>pushed ${timeAgo(r.pushedAt)}</span></p>
-            </a>`).join("")
-          : "";
-      }
-      box.innerHTML = repos.map((r) => {
-        const days = Math.floor((Date.now() - Date.parse(r.pushedAt)) / 86_400_000);
-        const heat = Math.max(8, 100 - days * 6);
-        const fresh = days <= 3;
-        return `<a href="${r.url}" target="_blank" rel="noopener noreferrer" class="tile now-card group flex flex-col p-5" data-spot>
-          <div class="flex items-center justify-between gap-2">
-            <span class="pill ${fresh ? "pill-mint" : "pill-blue"}">${fresh ? '<span class="live !h-1.5 !w-1.5"></span>' : ""}pushed ${timeAgo(r.pushedAt)}</span>
-            <span class="text-[var(--muted)] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
-          </div>
-          <h3 class="mt-5 text-xl font-bold tracking-tight text-[var(--ink)]">${esc(r.name)}</h3>
-          <p class="mt-1 line-clamp-2 text-sm text-[var(--ink-2)]">${esc(about(r)) || "Work in progress."}</p>
-          <div class="mt-auto pt-4">
-            <div class="flex items-center justify-between text-[11px] text-[var(--muted)]"><span class="os-mono">${esc(r.language)}</span><span class="os-mono">★ ${r.stars}</span></div>
-            <div class="heat mt-2"><i style="width:${heat}%"></i></div>
-          </div>
-        </a>`;
-      }).join("");
+      if (notchBuilding) notchBuilding.textContent = `Building ${active[0].name}`;
     }
 
-    // Project cards with a repo get live stars + last-push time.
-    function decorateProjects(stats: NonNullable<Awaited<ReturnType<typeof fetchGitHubStats>>>) {
-      document.querySelectorAll<HTMLElement>("[data-repo]").forEach((card) => {
-        const info = stats.repoIndex[card.dataset.repo ?? ""];
-        const meta = card.querySelector<HTMLElement>(".live-meta");
-        if (!info || !meta) return;
-        meta.textContent = `${info.stars ? `★ ${info.stars} · ` : ""}pushed ${timeAgo(info.pushedAt)}`;
-        meta.classList.add("text-[var(--blue)]");
-      });
-    }
-
-    async function initGitHubStats() {
-      const loadingEl = document.getElementById("gui-gh-loading");
-      const contentEl = document.getElementById("gui-gh-content");
-      const starsEl = document.getElementById("gui-gh-stars");
-      const forksEl = document.getElementById("gui-gh-forks");
-      const reposEl = document.getElementById("gui-gh-repos");
-      const followersEl = document.getElementById("gui-gh-followers");
-      const langListEl = document.getElementById("gui-gh-lang-list");
-      const reposListEl = document.getElementById("gui-gh-repos-list");
-
-      const stats = await fetchGitHubStats();
-      if (!stats) {
-        if (loadingEl) loadingEl.textContent = "GitHub metrics temporarily offline / rate-limited.";
-        return;
-      }
-
-      renderNowLive(stats);
-      decorateProjects(stats);
-      if (loadingEl) loadingEl.classList.add("hidden");
-      if (contentEl) contentEl.classList.remove("hidden");
-
-      if (starsEl) starsEl.textContent = String(stats.totalStars);
-      if (forksEl) forksEl.textContent = String(stats.totalForks);
-      if (reposEl) reposEl.textContent = String(stats.publicRepos);
-      if (followersEl) followersEl.textContent = String(stats.followers);
-
-      if (langListEl) {
-        langListEl.innerHTML = "";
-        stats.topLanguages.forEach((lang) => {
-          const badge = document.createElement("span");
-          badge.className = "px-2 py-1 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--fg-bright)] flex items-center gap-1.5";
-          badge.innerHTML = `<span class="text-[var(--accent)] font-bold">${lang.name}</span> <span class="text-[var(--fg-dim)] text-[10px]">(${lang.percentage}%)</span>`;
-          langListEl.appendChild(badge);
-        });
-      }
-
-      if (reposListEl) {
-        reposListEl.innerHTML = "";
-        stats.featuredRepos.slice(0, 6).forEach((repo) => {
-          const card = document.createElement("a");
-          card.href = repo.url;
-          card.target = "_blank";
-          card.rel = "noopener noreferrer";
-          card.className = "border border-[var(--border-color)] bg-[var(--bg-main)] p-3 hover:border-[var(--accent)] transition-all flex flex-col justify-between block group";
-          card.innerHTML = `
-            <div>
-              <div class="flex items-center justify-between gap-2 border-b border-[var(--border-color)] pb-1.5 mb-1.5">
-                <span class="text-xs font-bold text-[var(--fg-bright)] group-hover:text-[var(--accent)] truncate">📦 ${repo.name}</span>
-                <span class="text-[10px] text-[var(--accent)] font-bold shrink-0">⭐ ${repo.stars}</span>
-              </div>
-              <p class="text-[11px] text-[var(--fg-dim)] line-clamp-2 leading-tight">${repo.description}</p>
-            </div>
-            <div class="flex flex-wrap items-center justify-between text-[10px] text-[var(--fg-dim)] pt-2 mt-2 border-t border-[var(--border-color)] gap-1">
-              <span class="font-bold text-[var(--violet)]">${repo.language}</span>
-              <span class="truncate">Updated ${repo.updatedAt} ↗</span>
-            </div>
-          `;
-          reposListEl.appendChild(card);
-        });
-      }
-    }
-
-    form?.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const nameInput = document.getElementById(
-        "contact-name",
-      ) as HTMLInputElement;
-      const emailInput = document.getElementById(
-        "contact-email",
-      ) as HTMLInputElement;
-      const messageInput = document.getElementById(
-        "contact-message",
-      ) as HTMLTextAreaElement;
-
-      const name = nameInput.value.trim();
-      const email = emailInput.value.trim();
-      const message = messageInput.value.trim();
-
-      if (!name || !email || !message) return;
-
-      // Loading state
-      if (submitBtn) submitBtn.disabled = true;
-      if (btnText) btnText.textContent = "Sending…";
-      if (statusMsg) {
-        statusMsg.className = "text-xs font-bold text-yellow-400 block";
-        statusMsg.textContent = "Sending your message…";
-      }
-
-      try {
-        const response = await fetch(
-          `https://formsubmit.co/ajax/${recipientEmail}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify({
-              name,
-              email,
-              message,
-              _subject: `Portfolio Contact from ${name}`,
-              _captcha: "false",
-            }),
-          },
-        );
-
-        if (response.ok) {
-          playSuccessSound();
-
-          confetti({
-            particleCount: 80,
-            spread: 60,
-            origin: { y: 0.7 },
-            colors: ["#00ff66", "#00f0ff", "#ffb000", "#bd93f9"],
-          });
-
-          if (statusMsg) {
-            statusMsg.className = "text-xs font-bold text-emerald-400 block";
-            statusMsg.textContent =
-              "✓ Sent! I'll get back to you soon.";
-            setTimeout(() => {
-              statusMsg.className = "text-xs font-bold hidden";
-              statusMsg.textContent = "";
-            }, 7000);
-          }
-          form.reset();
-        } else {
-          throw new Error(`HTTP ${response.status}`);
-        }
-      } catch (err) {
-        if (statusMsg) {
-          statusMsg.className = "text-xs font-bold text-rose-400 block";
-          statusMsg.textContent =
-            "✖ Transmission failed. Please try again later.";
-        }
-      } finally {
-        if (submitBtn) submitBtn.disabled = false;
-        if (btnText) btnText.textContent = "Send message →";
-      }
+    document.querySelectorAll<HTMLElement>("[data-repo]").forEach((card) => {
+      const repo = gh.byFullName[card.dataset.repo ?? ""];
+      const meta = card.querySelector<HTMLElement>(".live-meta");
+      if (!repo || !meta) return;
+      meta.textContent = `${repo.stars ? `★ ${repo.stars} · ` : ""}pushed ${timeAgo(repo.pushedAt)}`;
+      meta.classList.add("text-[var(--blue)]");
     });
 
-    const bindLaunchBtn = (id: string, callback: () => void) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      let lastTrigger = 0;
-      const handler = (e: Event) => {
-        const now = Date.now();
-        if (now - lastTrigger < 300) return; // Prevent double trigger
-        lastTrigger = now;
-        callback();
-      };
-      el.addEventListener("click", handler);
-      el.addEventListener("touchstart", (e) => {
-        e.preventDefault();
-        handler(e);
-      }, { passive: false });
+    text("gui-gh-stars", gh.stars);
+    text("gui-gh-forks", gh.forks);
+    text("gui-gh-repos", gh.publicRepos);
+    text("gui-gh-followers", gh.followers);
+    set("gui-gh-lang-list", gh.languages.map((l) => `<span class="pill pill-blue">${esc(l.name)} <span class="text-[var(--muted)]">${l.share}%</span></span>`).join(""));
+    set("gui-gh-repos-list", gh.repos.slice(0, 6).map(repoCard).join(""));
+    document.getElementById("gui-gh-loading")?.classList.add("hidden");
+    document.getElementById("gui-gh-content")?.classList.remove("hidden");
+  }
+
+  async function initLive() {
+    const gh = await loadGitHub();
+    if (gh) return render(gh);
+    const loading = document.getElementById("gui-gh-loading");
+    if (loading) loading.textContent = "GitHub is rate-limiting right now — try again in a few minutes.";
+    ["now-live", "now-bench"].forEach((id) => document.getElementById(id)?.replaceChildren());
+  }
+
+  // Mail form: posts to FormSubmit, shows inline status.
+  function initMail() {
+    const form = document.getElementById("contact-form") as HTMLFormElement | null;
+    const status = document.getElementById("form-status");
+    const button = document.getElementById("contact-submit-btn") as HTMLButtonElement | null;
+    const label = document.getElementById("btn-text");
+    if (!form) return;
+
+    const say = (msg: string, tone: "info" | "ok" | "err") => {
+      if (!status) return;
+      status.textContent = msg;
+      status.className = `text-xs font-bold ${tone === "ok" ? "text-[var(--mint)]" : tone === "err" ? "text-[var(--rose)]" : "text-[var(--muted)]"}`;
     };
 
-    bindLaunchBtn("gui-launch-pong", () => {
-      const win = window as unknown as { togglePong?: (f?: boolean) => void };
-      if (win.togglePong) {
-        win.togglePong(true);
-        playSuccessSound();
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+      if (!data.name?.trim() || !data.email?.trim() || !data.message?.trim()) return;
+      if (button) button.disabled = true;
+      if (label) label.textContent = "Sending…";
+      say("Sending your message…", "info");
+      try {
+        const res = await fetch(`https://formsubmit.co/ajax/${form.dataset.recipientEmail}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ ...data, _subject: `Portfolio message from ${data.name}`, _captcha: "false" }),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        say("✓ Sent — I'll get back to you soon.", "ok");
+        form.reset();
+      } catch {
+        say("Couldn't send right now. Email me directly instead.", "err");
+      } finally {
+        if (button) button.disabled = false;
+        if (label) label.textContent = "Send message →";
       }
     });
+  }
 
-    bindLaunchBtn("gui-launch-snake", () => {
-      const win = window as unknown as { toggleSnake?: (f?: boolean) => void };
-      if (win.toggleSnake) {
-        win.toggleSnake(true);
-        playSuccessSound();
-      }
-    });
-
-    bindLaunchBtn("gui-launch-radio", () => {
-      const win = window as unknown as { radioEngine?: { toggleModal: (f?: boolean) => void } };
-      if (win.radioEngine) {
-        win.radioEngine.toggleModal(true);
-        playSuccessSound();
-      }
-    });
+  document.addEventListener("DOMContentLoaded", () => {
+    initLive();
+    initMail();
   });
 </script>
 
@@ -800,10 +674,6 @@ const notchMessages = [
         next.focus();
         select(next);
       });
-    });
-
-    document.getElementById("gui-launch-matrix")?.addEventListener("click", () => {
-      (window as unknown as { toggleMatrix?: (f?: boolean) => void }).toggleMatrix?.(true);
     });
   });
 </script>
