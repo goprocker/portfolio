@@ -1,0 +1,195 @@
+<!-- goprOS boot: beam → dot → notch blooms → greetings roll → iris opens onto the desktop. -->
+<div id="boot" class="boot" aria-hidden="true">
+  <div class="boot-aurora"></div>
+  <div class="boot-beam"></div>
+  <div class="boot-stage">
+    <div class="boot-orbit"><i></i><i></i><i></i></div>
+    <div class="boot-pill" id="boot-pill">
+      <span class="boot-dot"></span>
+      <span class="boot-reel" id="boot-reel">
+        <span>goprOS</span>
+        <span lang="ta">வணக்கம்</span>
+        <span lang="hi">नमस्ते</span>
+        <span>hello.</span>
+      </span>
+    </div>
+  </div>
+  <p class="boot-caption" id="boot-caption"><span>Gopinath R</span> · full-stack &amp; AI engineer</p>
+  <button type="button" class="boot-skip" id="boot-skip">skip</button>
+</div>
+
+<style>
+  @property --hole { syntax: "<percentage>"; inherits: false; initial-value: -8%; }
+  .boot {
+    position: fixed; inset: 0; z-index: 200;
+    background: #050509;
+    --hole: -8%;
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole), #000 calc(var(--hole) + 6%));
+    mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole), #000 calc(var(--hole) + 6%));
+    font-family: "Geist", "Noto Sans Tamil", "Noto Sans Devanagari", system-ui, sans-serif;
+  }
+  /* Iris: a hole grows from the centre and reveals the desktop underneath */
+  .boot.opening { --hole: 110%; transition: --hole 0.95s cubic-bezier(0.76, 0, 0.24, 1); }
+  .boot.done { display: none; }
+
+  /* Soft colour wash that breathes in behind the notch */
+  .boot-aurora {
+    position: absolute; inset: -20%;
+    background:
+      radial-gradient(40% 30% at 35% 45%, rgb(61 107 255 / 0.35), transparent 70%),
+      radial-gradient(35% 30% at 65% 55%, rgb(124 92 246 / 0.32), transparent 70%),
+      radial-gradient(30% 25% at 50% 60%, rgb(18 184 134 / 0.18), transparent 70%);
+    filter: blur(40px);
+    opacity: 0;
+    animation: aurora 3.4s ease-out 0.5s forwards, auroraSpin 14s linear infinite;
+  }
+  @keyframes aurora { to { opacity: 1; } }
+  @keyframes auroraSpin { to { transform: rotate(360deg); } }
+
+  /* 1. Beam of light draws across, then collapses to the centre */
+  .boot-beam {
+    position: absolute; left: 50%; top: 50%;
+    width: 70vw; height: 1px; margin-left: -35vw;
+    background: linear-gradient(90deg, transparent, #9db6ff 30%, #fff 50%, #c4b5fd 70%, transparent);
+    box-shadow: 0 0 18px 2px rgb(140 170 255 / 0.6);
+    transform: scaleX(0);
+    animation: beam 0.95s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  }
+  @keyframes beam {
+    0% { transform: scaleX(0); opacity: 1; }
+    55% { transform: scaleX(1); opacity: 1; }
+    100% { transform: scaleX(0); opacity: 0; }
+  }
+
+  .boot-stage { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+
+  /* 2. Dot blooms into the notch pill */
+  .boot-pill {
+    position: absolute; left: 0; top: 0;
+    width: 10px; height: 10px; margin: -5px 0 0 -5px;
+    border-radius: 999px;
+    background: #0a0a10;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 0 30px 4px rgb(110 140 255 / 0.45);
+    display: flex; align-items: center; gap: 10px; padding: 0 16px;
+    overflow: hidden; opacity: 0;
+    animation: dotIn 0.35s ease-out 0.8s forwards;
+    transition: width 0.75s cubic-bezier(0.34, 1.45, 0.5, 1), height 0.6s cubic-bezier(0.34, 1.45, 0.5, 1), margin 0.75s cubic-bezier(0.34, 1.45, 0.5, 1), transform 0.85s cubic-bezier(0.7, 0, 0.2, 1), box-shadow 0.6s;
+  }
+  .boot-pill.bloom { width: 290px; height: 52px; margin: -26px 0 0 -145px; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 20px 60px -10px rgb(80 110 255 / 0.55); }
+  .boot-pill.dock { box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.55); }
+  @keyframes dotIn { from { opacity: 0; transform: scale(0.2); } to { opacity: 1; transform: none; } }
+
+  /* Ripple when it blooms */
+  .boot-pill::after {
+    content: ""; position: absolute; inset: -2px; border-radius: inherit;
+    border: 1px solid rgb(160 185 255 / 0.7); opacity: 0;
+  }
+  .boot-pill.bloom::after { animation: ripple 0.9s ease-out 0.15s; }
+  @keyframes ripple { from { opacity: 0.9; transform: scale(1); } to { opacity: 0; transform: scale(1.35, 1.9); } }
+
+  .boot-dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 999px; background: #12b886; box-shadow: 0 0 10px #12b886; opacity: 0; transition: opacity 0.4s 0.3s; }
+  .bloom .boot-dot { opacity: 1; }
+
+  /* 3. Slot-reel of words */
+  .boot-reel { position: relative; flex: 1; height: 28px; overflow: hidden; opacity: 0; transition: opacity 0.4s 0.35s; }
+  .bloom .boot-reel { opacity: 1; }
+  .boot-reel span {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: transparent;
+    background: linear-gradient(100deg, #e9ecff 40%, #fff 50%, #e9ecff 60%) 0 0 / 250% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    font-size: 21px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap;
+    transform: translateY(110%); filter: blur(6px); opacity: 0;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), filter 0.55s, opacity 0.45s;
+  }
+  .boot-reel span.on { transform: none; filter: none; opacity: 1; animation: sheen 1.1s ease-out 0.2s; }
+  .boot-reel span.out { transform: translateY(-110%); filter: blur(6px); opacity: 0; }
+  .boot-reel span:first-child { font-family: "Geist Mono", monospace; font-size: 16px; letter-spacing: 0.25em; text-transform: lowercase; }
+  @keyframes sheen { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+  /* Orbiting sparks */
+  .boot-orbit { position: absolute; left: -110px; top: -110px; width: 220px; height: 220px; opacity: 0; transition: opacity 0.6s; animation: orbit 6s linear infinite; }
+  .boot.blooming .boot-orbit { opacity: 1; }
+  .boot-orbit i { position: absolute; width: 4px; height: 4px; border-radius: 999px; background: #c4d3ff; box-shadow: 0 0 10px #8fa8ff; }
+  .boot-orbit i:nth-child(1) { left: 50%; top: 0; }
+  .boot-orbit i:nth-child(2) { left: 6%; top: 70%; background: #d8ccff; }
+  .boot-orbit i:nth-child(3) { right: 6%; top: 70%; background: #a6f4d6; }
+  @keyframes orbit { to { transform: rotate(360deg) scaleY(0.42); } }
+
+  .boot-caption {
+    position: absolute; left: 50%; top: calc(50% + 52px); transform: translate(-50%, 8px);
+    font: 400 12px "Geist Mono", monospace; letter-spacing: 0.08em; color: rgb(255 255 255 / 0.45); white-space: nowrap;
+    opacity: 0; transition: opacity 0.6s, transform 0.6s;
+  }
+  .boot-caption span { color: #fff; }
+  .boot.blooming .boot-caption { opacity: 1; transform: translate(-50%, 0); transition-delay: 0.5s; }
+  .boot.leaving .boot-caption, .boot.leaving .boot-orbit, .boot.leaving .boot-skip { opacity: 0; transition-delay: 0s; }
+
+  .boot-skip { position: absolute; bottom: 24px; right: 24px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgb(255 255 255 / 0.12); color: rgb(255 255 255 / 0.45); font: 500 11px "Geist Mono", monospace; transition: color 0.2s, border-color 0.2s, opacity 0.3s; }
+  .boot-skip:hover { color: #fff; border-color: rgb(255 255 255 / 0.4); }
+</style>
+
+<script>
+  const boot = document.getElementById("boot");
+  const pill = document.getElementById("boot-pill");
+  const reel = Array.from(document.querySelectorAll<HTMLElement>("#boot-reel span"));
+
+  let finished = false;
+  const finish = () => {
+    if (!boot || finished) return;
+    finished = true;
+    boot.classList.add("leaving", "opening");
+    document.documentElement.classList.remove("booting");
+    setTimeout(() => boot.classList.add("done"), 950);
+  };
+
+  if (boot && pill && reel.length) {
+    document.documentElement.classList.add("booting");
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    let current = -1;
+    const show = (i: number) => {
+      if (current >= 0) {
+        const prev = reel[current];
+        prev.classList.remove("on");
+        prev.classList.add("out");
+        setTimeout(() => prev.classList.remove("out"), 600);
+      }
+      reel[i].classList.add("on");
+      current = i;
+    };
+
+    (async () => {
+      await wait(1100);              // beam + dot
+      if (finished) return;
+      pill.classList.add("bloom");
+      boot.classList.add("blooming");
+      await wait(420);
+      for (let i = 0; i < reel.length && !finished; i++) {
+        show(i);
+        await wait(i === 0 ? 700 : 620);
+      }
+      if (finished) return;
+      await wait(250);
+
+      // Shoot the pill up to the real notch while the screen irises open.
+      const target = document.getElementById("notch")?.getBoundingClientRect();
+      boot.classList.add("leaving");
+      reel[current]?.classList.remove("on");
+      if (target) {
+        const pr = pill.getBoundingClientRect();
+        const dx = target.left + target.width / 2 - (pr.left + pr.width / 2);
+        const dy = target.top + target.height / 2 - (pr.top + pr.height / 2);
+        pill.classList.add("dock");
+        pill.style.width = `${target.width}px`;
+        pill.style.height = `${target.height}px`;
+        pill.style.margin = `${-target.height / 2}px 0 0 ${-target.width / 2}px`;
+        pill.style.transform = `translate(${dx}px, ${dy}px)`;
+      }
+      await wait(380);
+      finish();
+    })();
+
+    document.getElementById("boot-skip")?.addEventListener("click", finish);
+    window.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === "Escape" || e.key === " ") finish(); }, { once: true });
+  }
+</script>
