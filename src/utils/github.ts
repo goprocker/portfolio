@@ -20,7 +20,21 @@ export interface GitHubStats {
     language: string;
     url: string;
     updatedAt: string;
+    pushedAt: string;
   }>;
+  // Every own repo keyed by lowercase "owner/name", for live badges elsewhere.
+  repoIndex: Record<string, { stars: number; pushedAt: string; description: string; language: string }>;
+}
+
+export function timeAgo(iso: string): string {
+  const days = Math.floor((Date.now() - Date.parse(iso)) / 86_400_000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 30) return `${days} days ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months} month${months === 1 ? "" : "s"} ago`;
+  const years = Math.floor(months / 12);
+  return `${years} year${years === 1 ? "" : "s"} ago`;
 }
 
 function extractUsername(): string {
@@ -37,8 +51,8 @@ function extractUsername(): string {
   return raw.replace(/\/$/, "");
 }
 
-const CACHE_KEY = "tui_github_stats_cache_v2";
-const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+const CACHE_KEY = "tui_github_stats_cache_v5";
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 function formatRepository(repo: any, username: string) {
   const owner = repo.owner?.login || username;
@@ -50,7 +64,8 @@ function formatRepository(repo: any, username: string) {
     forks: repo.forks_count || 0,
     language: repo.language || "Plain Text",
     url: repo.html_url,
-    updatedAt: new Date(repo.pushed_at || repo.updated_at).toLocaleDateString(),
+    updatedAt: new Date(repo.pushed_at || repo.updated_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }),
+    pushedAt: repo.pushed_at || repo.updated_at,
   };
 }
 
@@ -119,10 +134,19 @@ export async function fetchGitHubStats(): Promise<GitHubStats | null> {
       }
     });
 
-    const featuredRepos = pinnedRepositories.flatMap((fullName) => {
-      const repo = repositoriesByName.get(fullName.toLowerCase());
-      return repo ? [formatRepository(repo, username)] : [];
-    });
+    // Show what's actually being worked on: the most recently pushed own repos,
+    // skipping forks and the profile README repo.
+    const recentRepos = reposData
+      .filter((repo: any) => !repo.fork && !repo.archived && repo.name.toLowerCase() !== username.toLowerCase())
+      .sort((a: any, b: any) => Date.parse(b.pushed_at) - Date.parse(a.pushed_at))
+      .slice(0, 12)
+      .map((repo: any) => formatRepository(repo, username));
+    const featuredRepos = recentRepos.length
+      ? recentRepos
+      : pinnedRepositories.flatMap((fullName) => {
+          const repo = repositoriesByName.get(fullName.toLowerCase());
+          return repo ? [formatRepository(repo, username)] : [];
+        });
 
     // Calculate language percentages
     const totalLangs = Object.values(langCounts).reduce((a, b) => a + b, 0);
@@ -147,6 +171,12 @@ export async function fetchGitHubStats(): Promise<GitHubStats | null> {
       totalForks,
       topLanguages,
       featuredRepos,
+      repoIndex: Object.fromEntries(
+        reposData.map((repo: any) => [
+          String(repo.full_name).toLowerCase(),
+          { stars: repo.stargazers_count || 0, pushedAt: repo.pushed_at || repo.updated_at, description: repo.description || "", language: repo.language || "" },
+        ]),
+      ),
     };
 
     // Save to Cache
