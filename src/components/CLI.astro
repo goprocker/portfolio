@@ -2,7 +2,7 @@
 import { PORTFOLIO_DATA } from "../data/portfolio";
 ---
 
-<div id="view-cli" class="flex flex-col flex-1 font-mono text-xs md:text-sm">
+<div id="view-cli" class="hidden flex flex-col flex-1 font-mono text-xs md:text-sm">
   <!-- Terminal Welcome Message & Banner -->
   <div class="mb-4 space-y-1.5 text-[var(--fg-main)]">
     <div class="text-[var(--accent)] font-bold">
@@ -788,7 +788,7 @@ Mode                 LastWriteTime         Length Name
       appendOutput(`
         <div class="border-l-2 border-emerald-400 bg-[var(--bg-card)] p-3 my-2 font-mono text-xs space-y-1">
           <div class="text-emerald-400 font-bold text-sm">Building things that matter...</div>
-          <div class="text-[var(--fg-main)]">CSE (AI) @ Sathyabama · Co-founder @ LoopFound · Lead @ AI Foundry '29 · Intern @ SynosAI</div>
+          <div class="text-[var(--fg-main)]">CSE (AI) @ Sathyabama · Co-founder @ LoopFound · Lead @ AI Foundry '29 · AI Engineer &amp; Tech Lead @ Redrox · Frontend Dev @ Anaxly</div>
           <div class="text-[10px] text-[var(--fg-dim)] pt-0.5">${PORTFOLIO_DATA.developer.status}</div>
         </div>
       `);
@@ -1129,18 +1129,11 @@ Mode                 LastWriteTime         Length Name
               <span>${cat.icon}</span>
               <span>${cat.category}</span>
             </div>
-            <div class="space-y-1.5">
+            <div class="flex flex-wrap gap-1.5">
         `;
         cat.skills.forEach((s) => {
-          const filledCount = Math.round(s.level / 10);
-          const bar = "█".repeat(filledCount) + "░".repeat(10 - filledCount);
-          html += `
-            <div class="grid grid-cols-12 gap-2 items-center">
-              <span class="col-span-4 sm:col-span-3 text-[var(--fg-bright)] font-bold truncate">${s.name}</span>
-              <span class="col-span-6 sm:col-span-7 text-[var(--fg-main)] text-[11px] font-mono">[${bar}] ${s.level}%</span>
-              <span class="col-span-2 text-right text-[var(--fg-dim)] text-[10px]">${s.experience}</span>
-            </div>
-          `;
+          const core = s.tag === "CORE";
+          html += `<span class="px-1.5 py-0.5 border text-[11px] ${core ? "border-[var(--accent)] text-[var(--fg-bright)] font-bold" : "border-[var(--border-color)] text-[var(--fg-main)]"}">${s.name}</span>`;
         });
         html += `</div></div>`;
       });
@@ -1302,7 +1295,8 @@ Mode                 LastWriteTime         Length Name
               <div class="text-[var(--accent)] font-bold">💼 TOP HIGHLIGHTS</div>
               <div>• Co-founder &amp; CMO @ <span class="text-[var(--fg-bright)] font-bold">LoopFound</span></div>
               <div>• Founder &amp; Lead @ <span class="text-[var(--fg-bright)] font-bold">AI Foundry '29</span></div>
-              <div>• Frontend Intern @ <span class="text-[var(--fg-bright)] font-bold">SynosAI</span></div>
+              <div>• AI Engineer Intern &amp; Tech Lead @ <span class="text-[var(--fg-bright)] font-bold">Redrox Industries</span></div>
+              <div>• Frontend Developer @ <span class="text-[var(--fg-bright)] font-bold">Anaxly</span></div>
               <div>• Google Gemini Student Ambassador</div>
             </div>
           </div>
@@ -1429,8 +1423,9 @@ Mode                 LastWriteTime         Length Name
 │   ├── 🤝 responsesync/       <span class="text-[var(--fg-dim)]">[Flood response multi-agent system]</span>
 │   ├── 🌐 digital-horizon/    <span class="text-[var(--fg-dim)]">[Symposium site with WebGL hero]</span>
 │   ├── ⏱️ habitloop/          <span class="text-[var(--fg-dim)]">[Habit tracker with Supabase]</span>
-│   ├── 📝 sist-form-maker/    <span class="text-[var(--fg-dim)]">[Event form builder tool]</span>
-│   └── 🔄 p2pskill/           <span class="text-[var(--fg-dim)]">[Peer-to-peer skill exchange]</span>
+│   ├── 🏠 livora/             <span class="text-[var(--fg-dim)]">[Household OS — HackExpress]</span>
+│   ├── 🏝️ islet/              <span class="text-[var(--fg-dim)]">[Dynamic Island for Windows]</span>
+│   └── 📝 sist-form-maker/    <span class="text-[var(--fg-dim)]">[Event form builder tool]</span>
 ├── 📁 <span class="text-cyan-400 font-bold">experience/</span>
 │   ├── 🚀 loopfound/          <span class="text-[var(--fg-dim)]">[Co-founder &amp; CMO]</span>
 │   ├── 🤖 ai-foundry-29/      <span class="text-[var(--fg-dim)]">[Founder &amp; 60+ member lead]</span>
