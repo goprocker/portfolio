@@ -6,16 +6,6 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
 <div
   class="w-full min-h-screen border border-[var(--border-active)] bg-[var(--bg-main)] shadow-2xl relative transition-all duration-200"
 >
-  <div id="visitor-name-gate" class="absolute inset-0 z-50 flex items-center justify-center bg-[var(--bg-main)]/95 p-5 backdrop-blur-sm">
-    <form id="visitor-name-form" class="w-full max-w-md border border-[var(--border-active)] bg-[var(--bg-card)] p-6 font-mono shadow-[0_0_35px_var(--glow-color)]">
-      <p class="mb-2 text-xs font-bold text-[var(--accent)]">// CONNECTION INITIALIZED</p>
-      <h1 class="text-lg font-bold text-[var(--fg-bright)]">WHO'S EXPLORING?</h1>
-      <p class="mt-2 text-xs leading-relaxed text-[var(--fg-dim)]">Enter your name to personalize this terminal session.</p>
-      <label for="visitor-name-input" class="mt-5 block text-xs font-bold text-[var(--fg-main)]">VISITOR NAME:</label>
-      <input id="visitor-name-input" required maxlength="40" autocomplete="name" placeholder="e.g. Ada" class="mt-2 w-full border border-[var(--border-color)] bg-[var(--bg-main)] p-3 text-sm text-[var(--fg-bright)] outline-none focus:border-[var(--border-active)]" />
-      <button type="submit" class="mt-4 w-full border border-[var(--border-active)] bg-[var(--border-color)] px-4 py-3 text-xs font-bold text-[var(--fg-bright)] transition-colors hover:bg-[var(--border-active)] hover:text-[var(--bg-main)]">ENTER PORTFOLIO ↵</button>
-    </form>
-  </div>
   <header
     class="bg-[var(--status-bar-bg)] border-b border-[var(--border-color)] px-3 py-2 flex flex-wrap items-center justify-between gap-2 select-none"
   >
@@ -56,15 +46,15 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
     >
       <button
         id="tab-cli"
-        class="hidden md:inline-block px-3 py-1 font-bold text-[var(--fg-bright)] bg-[var(--border-color)] border-b-2 border-[var(--accent)] cursor-pointer transition-colors"
+        class="hidden md:inline-block px-3 py-1 font-bold text-[var(--fg-dim)] hover:text-[var(--fg-bright)] cursor-pointer transition-colors"
       >
         >_ CLI Mode
       </button>
       <button
         id="tab-gui"
-        class="px-3 py-1 font-bold text-[var(--fg-dim)] hover:text-[var(--fg-bright)] cursor-pointer transition-colors"
+        class="px-3 py-1 font-bold text-[var(--fg-bright)] bg-[var(--border-color)] border-b-2 border-[var(--accent)] cursor-pointer transition-colors"
       >
-        [#] GUI Dashboard
+        ← Back to site
       </button>
     </div>
 
@@ -152,7 +142,7 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
       </span>
       <span class="hidden sm:inline">UTF-8</span>
       <span class="hidden md:inline"
-        >MODE: <span id="mode-status-text">CLI</span></span
+        >MODE: <span id="mode-status-text">GUI</span></span
       >
     </div>
 
@@ -188,28 +178,6 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
   document.addEventListener("DOMContentLoaded", () => {
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    const nameGate = document.getElementById("visitor-name-gate");
-    const nameForm = document.getElementById("visitor-name-form") as HTMLFormElement | null;
-    const nameInput = document.getElementById("visitor-name-input") as HTMLInputElement | null;
-    function setVisitorName(name: string) {
-      sessionStorage.setItem("portfolio_visitor_name", name);
-      document.querySelectorAll<HTMLElement>("[data-visitor-name]").forEach((element) => { element.textContent = name; });
-      window.dispatchEvent(new CustomEvent("portfolio:visitor-name", { detail: name }));
-      nameGate?.classList.add("hidden");
-      window.setTimeout(() => {
-        (window as unknown as { switchTuiMode?: (mode: "cli" | "gui") => void }).switchTuiMode?.("gui");
-        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-      }, 0);
-    }
-
-    setTimeout(() => nameInput?.focus(), 100);
-
-    nameForm?.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const name = nameInput?.value.trim();
-      if (name) setVisitorName(name);
-    });
-
     const isMobile =
       window.innerWidth < 768 ||
       /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
@@ -363,7 +331,12 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
     const modeStatusText = document.getElementById("mode-status-text");
 
     function switchMode(mode: "cli" | "gui") {
-      const targetMode = isMobile ? "gui" : mode;
+      // The GUI is the main site now; leaving the terminal goes home.
+      if (mode === "gui" && !guiView) {
+        window.location.href = "/";
+        return;
+      }
+      const targetMode = isMobile && guiView ? "gui" : mode;
       playBeep(targetMode === "cli" ? 500 : 700, 0.05);
 
       if (targetMode === "cli") {
@@ -416,7 +389,9 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
       }
     }
 
-    if (isMobile) {
+    if (!guiView && cliView) {
+      switchMode("cli");
+    } else if (isMobile) {
       switchMode("gui");
     }
 

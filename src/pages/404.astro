@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import TerminalWindow from "../components/TerminalWindow.astro";
-import MobileNotice from "../components/MobileNotice.astro";
 import { PORTFOLIO_DATA } from "../data/portfolio";
 ---
 
@@ -10,8 +9,6 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
   description="404 Error: The requested virtual terminal address was not found."
 >
   <TerminalWindow>
-    <!-- Mobile Notice Banner -->
-    <MobileNotice />
 
     <div class="space-y-6 text-xs sm:text-sm font-mono py-2 select-text">
       <!-- Top Alert Bar -->
