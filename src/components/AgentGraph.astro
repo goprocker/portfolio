@@ -1,0 +1,109 @@
+---
+import { PORTFOLIO_DATA } from "../data/portfolio";
+
+const { nowBuilding } = PORTFOLIO_DATA;
+
+// Orbit nodes: what the "orchestrator" is currently routing work to.
+const nodes = [
+  ...nowBuilding.slice(0, 3).map((p) => ({ label: p.name, sub: p.context, kind: "build" })),
+  { label: "Redrox", sub: "AI Eng & Tech Lead", kind: "role" },
+  { label: "Anaxly", sub: "Frontend Dev", kind: "role" },
+  { label: "LoopFound", sub: "Co-founder", kind: "role" },
+  { label: "AI Foundry", sub: "60+ builders", kind: "community" },
+];
+
+const cx = 260;
+const cy = 260;
+const radius = 190;
+const placed = nodes.map((n, i) => {
+  const angle = (i / nodes.length) * Math.PI * 2 - Math.PI / 2;
+  return { ...n, x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius, i };
+});
+---
+
+<figure class="agent-graph" aria-label="Agent network: Gopinath orchestrating current projects and roles">
+  <svg viewBox="0 0 520 520" role="img">
+    <defs>
+      <radialGradient id="ag-core" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#c8ff3e" stop-opacity="0.55" />
+        <stop offset="100%" stop-color="#c8ff3e" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+
+    <circle cx={cx} cy={cy} r={radius} class="ag-orbit" />
+    <circle cx={cx} cy={cy} r={radius * 0.55} class="ag-orbit ag-orbit-inner" />
+
+    {placed.map((n) => (
+      <g class="ag-link" style={`--i:${n.i}`}>
+        <path id={`ag-path-${n.i}`} d={`M ${cx} ${cy} L ${n.x} ${n.y}`} />
+        <circle r="3.5" class={`ag-signal ag-${n.kind}`}>
+          <animateMotion dur={`${2.4 + (n.i % 3) * 0.7}s`} begin={`${n.i * 0.45}s`} repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear">
+            <mpath href={`#ag-path-${n.i}`} />
+          </animateMotion>
+        </circle>
+      </g>
+    ))}
+
+    <circle cx={cx} cy={cy} r="90" fill="url(#ag-core)" class="ag-glow" />
+    <g class="ag-core">
+      <circle cx={cx} cy={cy} r="46" />
+      <text x={cx} y={cy - 4} text-anchor="middle" class="ag-core-label">GOPINATH</text>
+      <text x={cx} y={cy + 13} text-anchor="middle" class="ag-core-sub">orchestrator</text>
+    </g>
+
+    {placed.map((n) => (
+      <g class={`ag-node ag-${n.kind}`} tabindex="0" style={`--i:${n.i}`}>
+        <title>{n.label} — {n.sub}</title>
+        <circle cx={n.x} cy={n.y} r="7" />
+        <circle cx={n.x} cy={n.y} r="16" class="ag-halo" />
+        <text x={n.x} y={n.y + (n.y > cy ? 34 : -24)} text-anchor="middle" class="ag-label">{n.label}</text>
+        <text x={n.x} y={n.y + (n.y > cy ? 49 : -10)} text-anchor="middle" class="ag-sub">{n.sub}</text>
+      </g>
+    ))}
+  </svg>
+  <figcaption class="mono">
+    <span><i class="ag-key ag-build"></i>building</span>
+    <span><i class="ag-key ag-role"></i>roles</span>
+    <span><i class="ag-key ag-community"></i>community</span>
+  </figcaption>
+</figure>
+
+<style>
+  .agent-graph { position: relative; width: 100%; max-width: 520px; margin-inline: auto; }
+  .agent-graph svg { width: 100%; height: auto; overflow: visible; }
+  .ag-orbit { fill: none; stroke: var(--line); stroke-dasharray: 2 6; animation: spin 80s linear infinite; transform-origin: 260px 260px; }
+  .ag-orbit-inner { animation-direction: reverse; animation-duration: 50s; }
+  .ag-link path { stroke: var(--line); stroke-width: 1; fill: none; stroke-dasharray: 4 5; animation: flow 1.6s linear infinite; }
+  .ag-signal { fill: var(--lime); filter: drop-shadow(0 0 5px var(--lime)); }
+  .ag-signal.ag-role { fill: var(--orange); filter: drop-shadow(0 0 5px var(--orange)); }
+  .ag-signal.ag-community { fill: #7cc7ff; filter: drop-shadow(0 0 5px #7cc7ff); }
+  .ag-glow { animation: breathe 3.5s ease-in-out infinite; transform-origin: 260px 260px; }
+  .ag-core circle { fill: var(--panel); stroke: var(--lime); stroke-width: 1.5; }
+  .ag-core-label { fill: var(--text); font: 800 13px "Bricolage Grotesque", sans-serif; letter-spacing: 0.04em; }
+  .ag-core-sub { fill: var(--lime); font: 500 9px "JetBrains Mono", monospace; letter-spacing: 0.12em; }
+  .ag-node { cursor: pointer; outline: none; }
+  .ag-node > circle:first-of-type { fill: var(--lime); }
+  .ag-node.ag-role > circle:first-of-type { fill: var(--orange); }
+  .ag-node.ag-community > circle:first-of-type { fill: #7cc7ff; }
+  .ag-halo { fill: none; stroke: currentColor; color: var(--lime); opacity: 0; transition: opacity 0.3s, r 0.3s; }
+  .ag-node.ag-role .ag-halo { color: var(--orange); }
+  .ag-node.ag-community .ag-halo { color: #7cc7ff; }
+  .ag-node:hover .ag-halo, .ag-node:focus-visible .ag-halo { opacity: 0.8; r: 22; }
+  .ag-label { fill: var(--text); font: 700 13px "Bricolage Grotesque", sans-serif; transition: fill 0.2s; }
+  .ag-node:hover .ag-label { fill: var(--lime); }
+  .ag-sub { fill: var(--muted); font: 500 9.5px "JetBrains Mono", monospace; }
+  .ag-node { opacity: 0; animation: nodeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: calc(0.6s + var(--i) * 0.09s); }
+  figcaption { display: flex; justify-content: center; gap: 1.25rem; margin-top: 0.5rem; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .ag-key { display: inline-block; width: 7px; height: 7px; border-radius: 999px; margin-right: 6px; background: var(--lime); }
+  .ag-key.ag-role { background: var(--orange); }
+  .ag-key.ag-community { background: #7cc7ff; }
+  @keyframes flow { to { stroke-dashoffset: -18; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes breathe { 50% { opacity: 0.55; transform: scale(1.12); } }
+  @keyframes nodeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .ag-orbit, .ag-link path, .ag-glow { animation: none; }
+    .ag-node { opacity: 1; animation: none; }
+    .ag-signal { display: none; }
+  }
+</style>
