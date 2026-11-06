@@ -1,11 +1,212 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import TerminalWindow from '../components/TerminalWindow.astro';
-import CLI from '../components/CLI.astro';
+import "../styles/os.css";
+import Layout from "../layouts/Layout.astro";
+import { PORTFOLIO_DATA } from "../data/portfolio";
+
+const { developer } = PORTFOLIO_DATA;
 ---
 
-<Layout title="Gopinath // Terminal">
-  <TerminalWindow>
-    <CLI />
-  </TerminalWindow>
+<Layout title="Terminal — Gopinath R" description="Explore Gopinath's portfolio from a command line.">
+  <div class="os min-h-screen" data-mode="dark" data-site>
+    <div class="wallpaper" aria-hidden="true"><span></span><span></span><span></span></div>
+
+    <main class="os-wrap flex min-h-screen flex-col py-6 sm:py-10">
+      <div class="term glass win flex flex-1 flex-col" data-boot>
+        <div class="win-bar">
+          <span class="win-title">
+            <span class="flex gap-1.5" aria-hidden="true"><i class="tdot bg-[#ff5f57]"></i><i class="tdot bg-[#febc2e]"></i><i class="tdot bg-[#28c840]"></i></span>
+            <span class="os-mono ml-2 text-xs">{developer.handle}@goopros: ~</span>
+          </span>
+          <a href="/" class="ob ml-auto !px-3 !py-1.5 text-xs">← Back to desktop</a>
+        </div>
+
+        <div id="term-out" class="term-out os-mono flex-1 overflow-y-auto p-5 text-[13.5px] leading-relaxed sm:p-7" aria-live="polite"></div>
+
+        <form id="term-form" class="term-line os-mono flex items-center gap-2 border-t border-[var(--hair)] px-5 py-4 sm:px-7" autocomplete="off">
+          <label for="term-input" class="shrink-0 text-[var(--mint)]">{developer.handle}<span class="text-[var(--muted)]">:</span><span class="text-[var(--blue)]">~</span><span class="text-[var(--muted)]">$</span></label>
+          <input id="term-input" class="term-input flex-1 bg-transparent text-[var(--ink)] outline-none" spellcheck="false" autocapitalize="off" aria-label="Type a command" />
+        </form>
+      </div>
+      <p class="os-mono mt-4 text-center text-[11px] text-[var(--muted)]">tab completes · ↑ ↓ history · ctrl+l clears</p>
+    </main>
+  </div>
 </Layout>
+
+<style>
+  .term { min-height: calc(100vh - 7rem); background: rgb(8 11 22 / 0.82); }
+  .tdot { width: 11px; height: 11px; border-radius: 999px; display: inline-block; }
+  .term-out :global(.ln) { white-space: pre-wrap; word-break: break-word; animation: lnIn 0.25s ease-out both; }
+  .term-out :global(.cmd) { color: var(--ink); margin-top: 0.9rem; }
+  .term-out :global(.dim) { color: var(--muted); }
+  .term-out :global(.hi) { color: var(--blue); }
+  .term-out :global(.ok) { color: var(--mint); }
+  .term-out :global(.warn) { color: var(--amber); }
+  .term-out :global(.err) { color: var(--rose); }
+  .term-out :global(.h) { color: var(--ink); font-weight: 700; }
+  .term-out :global(a) { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+  .term-out :global(.grid2) { display: grid; grid-template-columns: minmax(9rem, max-content) 1fr; column-gap: 1.5rem; row-gap: 0.15rem; }
+  .term-out :global(button.chip) { border: 1px solid var(--hair); border-radius: 7px; padding: 0 0.45rem; margin: 0 0.25rem 0.3rem 0; color: var(--ink-2); }
+  .term-out :global(button.chip:hover) { color: var(--ink); border-color: var(--blue); }
+  .term-input { caret-color: var(--mint); }
+  @keyframes lnIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+</style>
+
+<script>
+  import { PORTFOLIO_DATA, eventDateValue } from "../data/portfolio";
+  import { loadGitHub, timeAgo } from "../utils/github";
+
+  const D = PORTFOLIO_DATA;
+  const out = document.getElementById("term-out")!;
+  const form = document.getElementById("term-form") as HTMLFormElement;
+  const input = document.getElementById("term-input") as HTMLInputElement;
+
+  const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
+  const print = (html: string, cls = "") => {
+    const line = document.createElement("div");
+    line.className = `ln ${cls}`;
+    line.innerHTML = html;
+    out.appendChild(line);
+    out.scrollTop = out.scrollHeight;
+  };
+  const rows = (pairs: [string, string][]) =>
+    print(`<div class="grid2">${pairs.map(([k, v]) => `<span class="hi">${k}</span><span>${v}</span>`).join("")}</div>`);
+  const link = (href: string, label = href) => `<a href="${href}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`;
+
+  type Command = { help: string; run: (args: string[]) => void | Promise<void> };
+
+  const commands: Record<string, Command> = {
+    help: {
+      help: "list commands",
+      run: () => {
+        print('<span class="h">Commands</span>');
+        rows(Object.entries(commands).map(([name, c]) => [name, esc(c.help)]));
+        print('<span class="dim">Tip: click a command below, or press Tab to complete.</span>');
+        chips(["about", "now", "projects", "experience", "contact"]);
+      },
+    },
+    about: {
+      help: "who I am",
+      run: () => {
+        print(`<span class="h">${esc(D.profile.fullName)}</span> <span class="dim">· ${esc(D.developer.location)}</span>`);
+        print(esc(D.developer.bio));
+        print(`<span class="hi">${esc(D.developer.quote)}</span>`);
+      },
+    },
+    whoami: { help: "short version", run: () => print(`${esc(D.developer.title)} · co-founder @ LoopFound · ${esc(D.developer.status.trim().toLowerCase())}`) },
+    now: {
+      help: "what I'm building right now (live from GitHub)",
+      run: async () => {
+        print('<span class="dim">fetching github.com/' + esc(D.developer.handle) + " …</span>");
+        const gh = await loadGitHub();
+        if (!gh) return print("GitHub is rate-limiting right now. Try again in a minute.", "warn");
+        rows(gh.repos.filter((r) => r.name !== "portfolio").slice(0, 6).map((r) => [esc(r.name), `${esc(r.description || "work in progress")} <span class="dim">· ${timeAgo(r.pushedAt)}</span>`]));
+      },
+    },
+    projects: {
+      help: "shipped work — `projects <name>` for details",
+      run: ([name]) => {
+        if (name) {
+          const p = D.collabs.find((c) => c.id === name.toLowerCase() || c.title.toLowerCase() === name.toLowerCase());
+          if (!p) return print(`No project called "${esc(name)}". Try \`projects\`.`, "err");
+          print(`<span class="h">${esc(p.title)}</span> <span class="dim">· ${esc(p.partnerType)} · ${esc(p.period)}</span>`);
+          print(esc(p.description));
+          p.contributions.forEach((c) => print(`<span class="ok">✓</span> ${esc(c)}`));
+          print(`<span class="dim">${esc(p.techStack.join(" · "))}</span>`);
+          print([p.link && link(p.link, "live ↗"), p.repo && link(p.repo, "source ↗"), `<a href="/projects/${p.id}">case study →</a>`].filter(Boolean).join("   "));
+          return;
+        }
+        rows(D.collabs.map((p) => [p.id, `${esc(p.title)} <span class="dim">— ${esc(p.partnerType)}</span>`]));
+        print('<span class="dim">e.g. projects islet</span>');
+      },
+    },
+    experience: {
+      help: "industry roles",
+      run: () => rows(D.internships.map((x) => [esc(x.organization), `${esc(x.role)} <span class="dim">· ${esc(x.period.split(" · ")[0])}</span>${x.status === "ACTIVE" ? ' <span class="ok">●</span>' : ""}`])),
+    },
+    orgs: { help: "organizations & leadership", run: () => rows(D.orgs.map((o) => [esc(o.name), `${esc(o.role)} <span class="dim">· ${esc(o.note)}</span>`])) },
+    talks: {
+      help: "talks & events, newest first",
+      run: () => rows([...D.events].sort((a, b) => eventDateValue(b.date) - eventDateValue(a.date)).map((e) => [esc(e.date), `${esc(e.name)} <span class="dim">· ${esc(e.role)}</span>`])),
+    },
+    stack: { help: "tools I use", run: () => rows(D.skills.map((c) => [esc(c.category), esc(c.skills.map((s) => s.name).join(", "))])) },
+    principles: { help: "how I work", run: () => D.principles.forEach((p, i) => print(`<span class="hi">${String(i + 1).padStart(2, "0")}</span> <span class="h">${esc(p.title.toLowerCase())}</span><br><span class="dim">${esc(p.description)}</span>`)) },
+    contact: {
+      help: "ways to reach me",
+      run: () => rows([
+        ["email", `<a href="mailto:${D.developer.email}">${D.developer.email}</a>`],
+        ["linkedin", link(D.developer.linkedin)],
+        ["github", link(D.developer.github)],
+        ["x", link(D.developer.twitter)],
+        ["web", link(D.developer.website)],
+      ]),
+    },
+    resume: { help: "open my resume", run: () => { window.open("/resume.pdf", "_blank", "noopener"); print("opening resume.pdf ↗", "ok"); } },
+    open: {
+      help: "jump to a desktop section — open work|now|about|contact…",
+      run: ([section]) => {
+        if (!section) return print("usage: open <section>", "warn");
+        print(`opening ${esc(section)} on the desktop…`, "ok");
+        setTimeout(() => (location.href = `/#${encodeURIComponent(section.toLowerCase())}`), 350);
+      },
+    },
+    echo: { help: "print text", run: (args) => print(esc(args.join(" "))) },
+    date: { help: "local date & time", run: () => print(new Date().toString()) },
+    history: { help: "previous commands", run: () => history.forEach((h, i) => print(`<span class="dim">${String(i + 1).padStart(3)}</span>  ${esc(h)}`)) },
+    clear: { help: "clear the screen", run: () => { out.innerHTML = ""; } },
+    exit: { help: "back to the desktop", run: () => { print("bye 👋", "ok"); setTimeout(() => (location.href = "/"), 350); } },
+  };
+  const aliases: Record<string, string> = { ls: "projects", work: "projects", cls: "clear", gui: "exit", cv: "resume", events: "talks", skills: "stack", mail: "contact", "?": "help" };
+
+  function chips(names: string[]) {
+    print(names.map((n) => `<button type="button" class="chip" data-run="${n}">${n}</button>`).join(""));
+  }
+
+  const history: string[] = [];
+  let cursor = 0;
+
+  async function run(raw: string) {
+    const line = raw.trim();
+    print(`<span class="ok">${esc(D.developer.handle)}</span><span class="dim">:~$</span> ${esc(line)}`, "cmd");
+    if (!line) return;
+    history.push(line);
+    cursor = history.length;
+    const [first, ...args] = line.split(/\s+/);
+    const name = aliases[first.toLowerCase()] ?? first.toLowerCase();
+    const cmd = commands[name];
+    if (!cmd) return print(`command not found: ${esc(first)} — type <span class="hi">help</span>`, "err");
+    await cmd.run(args);
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const value = input.value;
+    input.value = "";
+    run(value);
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp" && history.length) { e.preventDefault(); cursor = Math.max(0, cursor - 1); input.value = history[cursor]; }
+    else if (e.key === "ArrowDown") { e.preventDefault(); cursor = Math.min(history.length, cursor + 1); input.value = history[cursor] ?? ""; }
+    else if (e.key === "Tab") {
+      e.preventDefault();
+      const all = [...Object.keys(commands), ...Object.keys(aliases)];
+      const matches = all.filter((c) => c.startsWith(input.value.trim().toLowerCase()));
+      if (matches.length === 1) input.value = `${matches[0]} `;
+      else if (matches.length > 1) print(`<span class="dim">${matches.join("  ")}</span>`);
+    } else if (e.key === "l" && e.ctrlKey) { e.preventDefault(); out.innerHTML = ""; }
+  });
+
+  out.addEventListener("click", (e) => {
+    const chip = (e.target as HTMLElement).closest<HTMLElement>("[data-run]");
+    if (chip) { run(chip.dataset.run!); input.focus(); }
+  });
+  document.addEventListener("click", (e) => {
+    if (!(e.target as HTMLElement).closest("a, button, .term-out .ln")) input.focus();
+  });
+
+  // Greeting
+  print(`<span class="h">goprOS terminal</span> <span class="dim">· ${new Date().toDateString()}</span>`);
+  print(`Hi, I'm ${esc(D.profile.fullName.split(" (")[0])}. Type <span class="hi">help</span> to look around.`);
+  chips(["help", "about", "now", "projects", "contact"]);
+  input.focus();
+</script>
