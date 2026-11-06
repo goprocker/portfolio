@@ -235,8 +235,14 @@ body:has(.os[data-mode="dark"]) { background: #070b18; }
 
 /* Hold the desktop's own entrance until the boot finishes */
 .booting [data-boot] { animation-play-state: paused; }
-.booting .notch-wrap { opacity: 0; }
-.notch-wrap { transition: opacity 0.3s 0.1s; }
+/* Real notch stays hidden during boot, then appears exactly where the boot pill lands */
+.booting:not(.notch-landed) .notch-wrap { opacity: 0; }
+.notch-landed .notch { animation: notchLand 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes notchLand {
+  0% { transform: scale(1.12, 0.86); box-shadow: 0 0 0 0 rgb(110 140 255 / 0.7), 0 10px 30px -10px rgb(0 0 0 / 0.55); }
+  45% { transform: scale(0.96, 1.06); }
+  100% { transform: none; box-shadow: 0 0 0 14px rgb(110 140 255 / 0), 0 10px 30px -10px rgb(0 0 0 / 0.55); }
+}
 
 /* Live GitHub cards */
 .skeleton { position: relative; overflow: hidden; }
@@ -259,3 +265,40 @@ body:has(.os[data-mode="dark"]) { background: #070b18; }
 #principles.paused .pr-progress { opacity: 0; }
 @keyframes prBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @media (prefers-reduced-motion: reduce) { .pr-progress { display: none; } }
+
+/* ---------- Scroll motion ---------- */
+/* Windows rise, scale and un-tilt as they scroll into view (scroll-linked where supported). */
+@supports (animation-timeline: view()) {
+  .fx-ready .win[data-reveal] { opacity: 1; filter: none; transform: none; transition: none; }
+  .os .win {
+    animation: winScroll linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 28%;
+    transform-origin: 50% 100%;
+  }
+  @keyframes winScroll {
+    from { opacity: 0.15; transform: perspective(1400px) translateY(90px) rotateX(10deg) scale(0.92); filter: blur(6px); }
+    to { opacity: 1; transform: none; filter: none; }
+  }
+  /* Tiles inside a window cascade in a beat later */
+  .os .win-body .tile {
+    animation: tileScroll linear both;
+    animation-timeline: view();
+    animation-range: entry 5% cover 25%;
+  }
+  @keyframes tileScroll { from { opacity: 0; transform: translateY(36px) scale(0.97); } to { opacity: 1; transform: none; } }
+  .fx-ready .os [data-reveal].tile:not(.is-visible) { opacity: 1; transform: none; }
+}
+
+/* Wallpaper blobs drift with scroll depth */
+.wallpaper span:nth-child(1) { translate: 0 calc(var(--scroll, 0) * -0.08px); }
+.wallpaper span:nth-child(2) { translate: 0 calc(var(--scroll, 0) * -0.14px); }
+.wallpaper span:nth-child(3) { translate: 0 calc(var(--scroll, 0) * -0.05px); }
+
+/* Dock hides while scrolling down, returns on the way up */
+.dock { transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s; }
+.scrolling-down .dock { transform: translateX(-50%) translateY(140%); opacity: 0; }
+
+/* Notch tucks in a little once you leave the hero */
+.notch-wrap { transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.5, 1), opacity 0.3s; }
+.scrolled .notch:not(.open) { width: 210px; }

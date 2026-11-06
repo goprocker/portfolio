@@ -24,12 +24,14 @@
     position: fixed; inset: 0; z-index: 200;
     background: #050509;
     --hole: -8%;
-    -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole), #000 calc(var(--hole) + 6%));
-    mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole), #000 calc(var(--hole) + 6%));
+    --ox: 50%; --oy: 50%;
+    -webkit-mask-image: radial-gradient(circle at var(--ox) var(--oy), transparent var(--hole), #000 calc(var(--hole) + 6%));
+    mask-image: radial-gradient(circle at var(--ox) var(--oy), transparent var(--hole), #000 calc(var(--hole) + 6%));
     font-family: "Geist", "Noto Sans Tamil", "Noto Sans Devanagari", system-ui, sans-serif;
   }
   /* Iris: a hole grows from the centre and reveals the desktop underneath */
-  .boot.opening { --hole: 110%; transition: --hole 0.95s cubic-bezier(0.76, 0, 0.24, 1); }
+  .boot.opening { --hole: 140%; transition: --hole 1.05s cubic-bezier(0.65, 0, 0.25, 1); }
+  .boot-pill.landed { opacity: 0; transition: opacity 0.12s; }
   .boot.done { display: none; }
 
   /* Soft colour wash that breathes in behind the notch */
@@ -138,9 +140,10 @@
   const finish = () => {
     if (!boot || finished) return;
     finished = true;
+    document.documentElement.classList.add("notch-landed");
     boot.classList.add("leaving", "opening");
     document.documentElement.classList.remove("booting");
-    setTimeout(() => boot.classList.add("done"), 950);
+    setTimeout(() => boot.classList.add("done"), 1100);
   };
 
   if (boot && pill && reel.length) {
@@ -185,7 +188,14 @@
         pill.style.margin = `${-target.height / 2}px 0 0 ${-target.width / 2}px`;
         pill.style.transform = `translate(${dx}px, ${dy}px)`;
       }
-      await wait(380);
+      await wait(860);
+      // Hand over to the real notch in the same frame, then open the screen from it.
+      if (target) {
+        boot.style.setProperty("--ox", `${target.left + target.width / 2}px`);
+        boot.style.setProperty("--oy", `${target.top + target.height / 2}px`);
+      }
+      document.documentElement.classList.add("notch-landed");
+      pill.classList.add("landed");
       finish();
     })();
 

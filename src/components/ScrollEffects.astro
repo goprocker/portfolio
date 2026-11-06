@@ -140,16 +140,40 @@
     });
   }
 
+  // Scroll direction + depth drive the dock, notch and wallpaper.
+  function initScrollState() {
+    const root = document.documentElement;
+    let last = window.scrollY;
+    let ticking = false;
+    const update = () => {
+      const y = window.scrollY;
+      root.classList.toggle("scrolled", y > window.innerHeight * 0.6);
+      if (Math.abs(y - last) > 6) {
+        root.classList.toggle("scrolling-down", y > last && y > 200);
+        last = y;
+      }
+      root.style.setProperty("--scroll", String(y));
+      ticking = false;
+    };
+    window.addEventListener("scroll", () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    update();
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     initScrollProgress();
     initActiveNav();
-    if (reduceMotion) return;
+    initScrollState();
+    // Reveal and count-up always run (they are short and subtle); the heavier
+    // pointer effects stay off when the OS asks for reduced motion.
     document.documentElement.classList.add("fx-ready");
     initReveal();
-    initScramble();
     initCountUp();
-    initSpotlight();
     initParallax();
+    if (reduceMotion) return;
+    initScramble();
+    initSpotlight();
     initCursor();
   });
 </script>
