@@ -302,3 +302,19 @@ body:has(.os[data-mode="dark"]) { background: #070b18; }
 /* Notch tucks in a little once you leave the hero */
 .notch-wrap { transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.5, 1), opacity 0.3s; }
 .scrolled .notch:not(.open) { width: 210px; }
+
+
+/* ---------- Hero, plainer ---------- */
+.hello { font-size: clamp(2.2rem, 4.1vw, 3.6rem); line-height: 1.04; letter-spacing: -0.035em; font-weight: 650; max-width: 14ch; text-wrap: balance; }
+.lede { max-width: 34rem; font-size: 1.125rem; line-height: 1.6; color: var(--ink-2); text-wrap: pretty; }
+.avatar { width: 64px; height: 64px; border-radius: 20px; }
+.who { display: grid; gap: 2px; font-size: 15px; color: var(--ink); }
+.who > span { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--muted); }
+.elsewhere { font-size: 15px; color: var(--muted); }
+.elsewhere a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--hair); text-underline-offset: 4px; transition: text-decoration-color 0.2s; }
+.elsewhere a:hover { text-decoration-color: currentColor; }
+.os .widget-head { justify-content: flex-start; gap: 8px; font: 600 13px "Geist", sans-serif; letter-spacing: 0; text-transform: none; color: var(--ink); }
+.note { cursor: grab; }
+.facts { display: grid; gap: 6px; font-size: 14.5px; color: var(--ink-2); }
+.facts b { font-weight: 700; color: var(--ink); }
+.ob:focus-visible, .elsewhere a:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }

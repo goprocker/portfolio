@@ -97,71 +97,59 @@ const notchMessages = [
     <section id="desktop" class="desktop os-wrap grid gap-10 lg:grid-cols-12 lg:items-center">
       <div class="lg:col-span-6">
         <div class="flex items-center gap-4" data-boot style="--d:.05s">
-          <img src="/images/gopinath.jpg" alt="Gopinath R" class="avatar" width="96" height="96" />
-          <div>
-            <p class="text-sm font-semibold text-[var(--ink)]">Gopinath R <span class="font-normal text-[var(--muted)]">@{developer.handle}</span></p>
-            <span class="status-pill glass mt-2"><span class="live"></span>{developer.status.trim().toLowerCase()}</span>
-          </div>
+          <img src="/images/gopinath.jpg" alt="Gopinath R" class="avatar" width="64" height="64" />
+          <p class="who">
+            <b>Gopinath R</b>
+            <span><span class="live"></span>Open to internships and collaborations</span>
+          </p>
         </div>
-        <h1 class="hello mt-8" data-boot style="--d:.15s">
-          I'd rather <span class="os-serif">ship</span><br />than talk about shipping.
-        </h1>
-        <p class="mt-6 max-w-md text-lg leading-relaxed text-[var(--ink-2)]" data-boot style="--d:.3s">
-          Full-stack developer &amp; AI engineer from {developer.location}. Co-founder at <b class="text-[var(--ink)]">LoopFound</b>, Tech Lead at <b class="text-[var(--ink)]">Redrox</b>, Frontend Developer at <b class="text-[var(--ink)]">Anaxly</b>. I build multi-agent AI tools at hackathons and in open source.
+        <h1 class="hello mt-8" data-boot style="--d:.15s">I build AI agents for the problems nobody wants to own.</h1>
+        <p class="lede mt-6" data-boot style="--d:.3s">
+          Flood response, grievance desks, student communities. Full-stack developer from {developer.location}; I co-founded LoopFound, lead tech at Redrox and write frontend at Anaxly. Most of what I ship starts at a hackathon and keeps going in open source.
         </p>
-        <div class="mt-8 flex flex-wrap gap-3" data-boot style="--d:.42s">
-          <a href="#work" class="ob ob-primary">Open projects <span class="k">↓</span></a>
-          <a href="#contact" class="ob">Mail me</a>
-          <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" class="ob">Resume ↗</a>
+        <div class="mt-8 flex flex-wrap items-center gap-3" data-boot style="--d:.42s">
+          <a href="#work" class="ob ob-primary">See projects</a>
+          <a href="#contact" class="ob">Email me</a>
+          <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" class="ob">Resume (PDF)</a>
         </div>
-        <div class="mt-6 flex flex-wrap gap-2" data-boot style="--d:.5s">
-          <a href={developer.github} target="_blank" rel="noopener noreferrer" class="pill">GitHub ↗</a>
-          <a href={developer.linkedin} target="_blank" rel="noopener noreferrer" class="pill">LinkedIn ↗</a>
-          <a href={developer.twitter} target="_blank" rel="noopener noreferrer" class="pill">X ↗</a>
-          <a href={developer.instagram} target="_blank" rel="noopener noreferrer" class="pill">Photography ↗</a>
-          <a href={developer.website} target="_blank" rel="noopener noreferrer" class="pill">loopfound.in ↗</a>
-        </div>
+        <p class="elsewhere mt-6" data-boot style="--d:.5s">
+          Also on <a href={developer.github} target="_blank" rel="noopener noreferrer">GitHub</a>, <a href={developer.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>, <a href={developer.twitter} target="_blank" rel="noopener noreferrer">X</a>, and I post <a href={developer.instagram} target="_blank" rel="noopener noreferrer">photography</a> too.
+        </p>
       </div>
 
       <!-- Draggable widgets -->
       <div class="widgets grid gap-4 lg:col-span-6 lg:block" id="widgets">
-        <div class="widget glass lg:left-0 lg:top-0 lg:w-[280px]" data-widget data-boot style="--d:.35s">
-          <div class="widget-head"><span class="flex items-center gap-2"><AppIcon name="stats" size={18} />Stats</span><span>⋮⋮</span></div>
-          <dl class="grid grid-cols-2 gap-3">
+        <div class="widget glass lg:left-0 lg:top-[2%] lg:w-[270px]" data-widget data-boot style="--d:.35s">
+          <div class="widget-head"><AppIcon name="stats" size={18} />So far</div>
+          <ul class="facts">
             {developer.headlineStats.map((s) => (
-              <div class="rounded-xl bg-[var(--glass-strong)] p-3">
-                <dd data-count={s.value} class="text-3xl font-bold tracking-tight text-[var(--ink)] tabular-nums">{s.value}</dd>
-                <dt class="mt-1 text-[11px] text-[var(--muted)]">{s.label}</dt>
-              </div>
+              <li><b data-count={s.value} class="tabular-nums">{s.value}</b> {s.label.toLowerCase()}</li>
             ))}
-          </dl>
+          </ul>
         </div>
 
-        <div class="widget glass lg:right-0 lg:top-[27%] lg:w-[300px]" data-widget data-boot style="--d:.45s">
-          <div class="widget-head"><span class="flex items-center gap-2"><AppIcon name="agents" size={18} />agents.app</span><span>⋮⋮</span></div>
+        <div class="widget glass lg:right-0 lg:top-[24%] lg:w-[300px]" data-widget data-boot style="--d:.45s">
+          <div class="widget-head"><AppIcon name="agents" size={18} />Agents I've built</div>
           <div class="-m-2"><AgentGraph /></div>
         </div>
 
-        <div class="widget glass lg:left-0 lg:top-[45%] lg:w-[285px]" data-widget data-boot style="--d:.55s">
-          <div class="widget-head"><span class="flex items-center gap-2"><AppIcon name="now" size={18} />Now building</span><span>⋮⋮</span></div>
+        <div class="widget glass lg:left-[4%] lg:top-[48%] lg:w-[285px]" data-widget data-boot style="--d:.55s">
+          <div class="widget-head"><AppIcon name="now" size={18} />Working on this week</div>
           <ul class="space-y-2 text-sm" id="widget-now">
             {nowBuilding.slice(0, 5).map((p) => (
               <li class="flex items-center justify-between gap-3">
                 <span class="font-medium text-[var(--ink)]">{p.name}</span>
-                <span class="os-mono text-[11px] text-[var(--muted)]">{p.context}</span>
+                <span class="text-[12px] text-[var(--muted)]">{p.context}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div class="widget note lg:right-[2%] lg:top-0 lg:w-[225px] lg:rotate-[2deg]" data-widget data-boot style="--d:.65s">
-          <div class="widget-head"><span class="flex items-center gap-2"><AppIcon name="pin" size={18} />Note</span><span>⋮⋮</span></div>
-          <p class="text-[15px] font-medium leading-snug">Have something worth building? Products, freelance, hackathon teams — or a good argument about AI.</p>
-          <a href="#contact" class="mt-3 inline-block text-sm font-bold underline underline-offset-4">My inbox is open →</a>
+        <div class="widget note lg:right-[3%] lg:top-[-2%] lg:w-[215px] lg:rotate-[2deg]" data-widget data-boot style="--d:.65s">
+          <p class="text-[15px] font-medium leading-snug">Building something? I take on products, freelance work and hackathon teams.</p>
+          <a href="#contact" class="mt-3 inline-block text-sm font-bold underline underline-offset-4">Write to me</a>
         </div>
       </div>
-
-      <p class="os-mono col-span-full hidden text-center text-[11px] text-[var(--muted)] lg:block" data-boot style="--d:.9s">psst — drag the widgets around, or hover the notch.</p>
     </section>
 
     <!-- SIGNAL STRIP -->
@@ -743,7 +731,7 @@ const notchMessages = [
     const desktop = window.matchMedia("(min-width: 1024px)");
     let z = 10;
     document.querySelectorAll<HTMLElement>("[data-widget]").forEach((widget) => {
-      const handle = widget.querySelector<HTMLElement>(".widget-head");
+      const handle = widget.querySelector<HTMLElement>(".widget-head") ?? widget;
       if (!handle) return;
       let startX = 0, startY = 0, baseX = 0, baseY = 0, dragging = false;
       handle.addEventListener("pointerdown", (e) => {
