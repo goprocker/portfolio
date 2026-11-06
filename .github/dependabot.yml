@@ -12,6 +12,10 @@ updates:
     labels:
       - "dependencies"
       - "javascript"
+    ignore:
+      # @astrojs/check only supports TypeScript 5 and 6; v7 breaks npm install.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # Enable version updates for GitHub Actions workflows
   - package-ecosystem: "github-actions"
