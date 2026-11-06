@@ -479,7 +479,7 @@ const notchMessages = [
             <a href={developer.website} target="_blank" rel="noopener noreferrer" class="pill">loopfound.in ↗</a>
           </div>
         </div>
-        <form id="contact-form" data-recipient-email={developer.email} class="tile p-5 sm:p-6 lg:col-span-7" data-reveal>
+        <form id="contact-form" data-formspree={import.meta.env.PUBLIC_FORMSPREE_ID ?? ""} data-recipient-email={developer.email} class="tile p-5 sm:p-6 lg:col-span-7" data-reveal>
           <div class="mail-field"><label>To</label><span class="text-[15px] text-[var(--ink)]">Gopinath R &lt;{developer.email}&gt;</span></div>
           <div class="mail-field"><label for="contact-name">From</label><input id="contact-name" name="name" type="text" required placeholder="Your name" /></div>
           <div class="mail-field"><label for="contact-email">Reply-to</label><input id="contact-email" name="email" type="email" required placeholder="you@company.com" /></div>
@@ -596,7 +596,7 @@ const notchMessages = [
     ["now-live", "now-bench"].forEach((id) => document.getElementById(id)?.replaceChildren());
   }
 
-  // Mail form: posts to FormSubmit, shows inline status.
+  // Mail form: posts to Formspree, shows inline status. Without a form ID it opens the mail app instead.
   function initMail() {
     const form = document.getElementById("contact-form") as HTMLFormElement | null;
     const status = document.getElementById("form-status");
@@ -618,10 +618,16 @@ const notchMessages = [
       if (label) label.textContent = "Sending…";
       say("Sending your message…", "info");
       try {
-        const res = await fetch(`https://formsubmit.co/ajax/${form.dataset.recipientEmail}`, {
+        const id = form.dataset.formspree;
+        if (!id) {
+          location.href = `mailto:${form.dataset.recipientEmail}?subject=${encodeURIComponent(`Portfolio message from ${data.name}`)}&body=${encodeURIComponent(data.message)}`;
+          say("Opening your mail app…", "info");
+          return;
+        }
+        const res = await fetch(`https://formspree.io/f/${id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ ...data, _subject: `Portfolio message from ${data.name}`, _captcha: "false" }),
+          body: JSON.stringify({ ...data, _replyto: data.email, _subject: `Portfolio message from ${data.name}` }),
         });
         if (!res.ok) throw new Error(String(res.status));
         say("✓ Sent — I'll get back to you soon.", "ok");
