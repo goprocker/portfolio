@@ -2,34 +2,9 @@
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 
-// https://astro.build/config
 export default defineConfig({
-  devToolbar: {
-    enabled: false,
-  },
-  server: {
-    host: true,
-    port: 4321,
-  },
-  vite: {
-    // @ts-ignore
-    plugins: [
-      tailwindcss(),
-      {
-        name: "portfolio:content-dependency-interop",
-        configEnvironment(name) {
-          if (name === "astro") {
-            return {
-              optimizeDeps: {
-                include: ["picomatch", "yaml"],
-              },
-            };
-          }
-        },
-      },
-    ],
-    server: {
-      allowedHosts: ["tui-portfolio-dev.tuiportfolio.orb.local", ".orb.local"],
-    },
-  },
+  site: "https://gopinath.loopfound.in",
+  devToolbar: { enabled: false },
+  server: { host: true, port: 4321 },
+  vite: { plugins: [tailwindcss()] },
 });

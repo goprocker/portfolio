@@ -1,7 +1,11 @@
 {
-  "name": "tuiportfolio",
+  "name": "gopinath-portfolio",
+  "version": "1.0.0",
+  "description": "goprOS — the portfolio of Gopinath R, full-stack developer and AI engineer.",
+  "author": "Gopinath R <gopinath2638@gmail.com>",
+  "license": "MIT",
+  "private": true,
   "type": "module",
-  "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
     "check": "astro check",
@@ -10,13 +14,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.4.5",
-    "canvas-confetti": "1.9.4"
+    "astro": "^7.4.5"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
     "@tailwindcss/vite": "^4.3.4",
-    "@types/canvas-confetti": "1.9.0",
     "@types/node": "^26.6.6",
     "tailwindcss": "^4.3.4",
     "typescript": "^6.0.3"
