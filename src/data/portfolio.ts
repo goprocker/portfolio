@@ -200,9 +200,12 @@ export const PORTFOLIO_DATA = {
   ] as ExperienceItem[],
   events: [
     { name: "Gen AI Unleashed", role: "Organizer & Speaker", date: "October 30, 2026", contribution: "Conducted the event and gave the talk on generative AI — how today's models work, what they're good at, and how to start building with them." },
+    { name: "Expert System AI BootCamp", role: "Speaker", date: "October 1, 2026", contribution: "Spoke at the Expert System AI BootCamp." },
     { name: "Expert System for First-Year AI Students", role: "Lead Event Coordinator", date: "October 1, 2026", contribution: "Led coordination for an expert system event for first-year AI students under WiCyS Sathyabama." },
     { name: "HackExpress — Train Hackathon", role: "Team Lead & Participant", date: "September 30, 2026", contribution: "Led the team through HackExpress and advanced to the second round as one of eight selected teams." },
+    { name: "Built With Gemini — Nano Banana", role: "Speaker", date: "September 28, 2026", contribution: "Spoke at Built With Gemini on Nano Banana." },
     { name: "Google Gemini Event", role: "Google Gemini Student Ambassador", date: "September 28, 2026", contribution: "Took part in a Google Gemini event as a Student Ambassador." },
+    { name: "Fund My Crazy", role: "Speaker", date: "August 31, 2026", contribution: "Spoke at Fund My Crazy." },
     { name: "Stratex — Technosummit Pitching Event", role: "Participant", date: "September 24, 2026", contribution: "Participated in Stratex, a pitching event under Technosummit." },
     { name: "Build with Gemini", role: "Main Speaker & Student Coordinator", date: "July 27, 2026", contribution: "Led the main talk and coordinated the session as a Google Student Ambassador." },
     { name: "RushHour Hackathon", role: "Participant", date: "July 24–25, 2026", contribution: "Built ResponSync, a three-agent Gemini-powered pipeline for real-time Chennai flood response coordination. Placed fourth with a special mention, leading to an internship offer from Astra Dyne Global." },
