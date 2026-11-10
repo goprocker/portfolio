@@ -744,6 +744,8 @@ const notchMessages = [
       let startX = 0, startY = 0, baseX = 0, baseY = 0, dragging = false;
       handle.addEventListener("pointerdown", (e) => {
         if (!desktop.matches) return;
+        // Let links and buttons inside a widget receive their click instead of starting a drag.
+        if ((e.target as HTMLElement).closest("a, button")) return;
         dragging = true;
         widget.classList.add("dragging");
         widget.style.zIndex = String(++z);
