@@ -11,11 +11,11 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
     <a href={PORTFOLIO_DATA.developer.github} target="_blank" rel="noopener noreferrer" class="gh-link">@{PORTFOLIO_DATA.developer.handle} ↗</a>
   </div>
 
-  <div id="github-contribution-graph" data-user={PORTFOLIO_DATA.developer.handle} aria-live="polite" class="gh-scroll">
+  <div id="github-contribution-graph" data-user={PORTFOLIO_DATA.developer.handle} role="region" tabindex="0" aria-label="GitHub contribution graph" aria-describedby="gh-summary" class="gh-scroll">
     <div class="gh-months" aria-hidden="true"></div>
-    <div class="github-graph-grid" aria-label="Loading GitHub contribution graph"></div>
+    <div class="github-graph-grid" aria-hidden="true"></div>
     <div class="gh-foot">
-      <p class="gh-status">Loading contribution activity…</p>
+      <p class="gh-status" id="gh-summary" aria-live="polite">Loading contribution activity…</p>
       <span class="gh-legend" aria-hidden="true">Less <i data-l="0"></i><i data-l="1"></i><i data-l="2"></i><i data-l="3"></i><i data-l="4"></i> More</span>
     </div>
   </div>
@@ -70,8 +70,7 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
 
       const sum = days.reduce((acc, d) => acc + d.count, 0);
       if (total) total.textContent = sum.toLocaleString();
-      graph.setAttribute("aria-label", `GitHub contribution graph for ${user}: ${sum} contributions in the last year`);
-      status.textContent = `${days.filter((d) => d.count > 0).length} active days`;
+      status.textContent = `${sum} contributions and ${days.filter((d) => d.count > 0).length} active days in the last year`;
       graph.classList.add("loaded");
     } catch {
       grid.innerHTML = "";
@@ -110,7 +109,8 @@ import { PORTFOLIO_DATA } from "../data/portfolio";
   .gh-card .gh-sub { font-size: 12px; color: var(--fg-dim, #6b7390); }
   .gh-card .gh-link { font-size: 12px; font-weight: 600; color: var(--accent, #3d6bff); }
   .gh-card .gh-link:hover { text-decoration: underline; }
-  .gh-card .gh-scroll { overflow-x: auto; padding-bottom: 4px; }
+  .gh-card .gh-scroll { overflow-x: auto; padding-bottom: 4px; border-radius: 8px; }
+  .gh-card .gh-scroll:focus-visible { outline: 2px solid var(--blue, #3d6bff); outline-offset: 3px; }
   .gh-card .gh-months { display: grid; gap: var(--gap); margin-bottom: 6px; font-size: 10px; color: var(--fg-dim, #6b7390); min-width: max-content; }
   .gh-card .gh-months span { white-space: nowrap; overflow: visible; width: var(--cell); }
   .gh-card .github-graph-grid { display: grid; grid-template-rows: repeat(7, var(--cell)); grid-auto-flow: column; grid-auto-columns: var(--cell); gap: var(--gap); min-width: max-content; }
