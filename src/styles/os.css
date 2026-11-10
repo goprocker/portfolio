@@ -95,6 +95,8 @@
   cursor: pointer;
 }
 .notch.open { width: min(420px, calc(100vw - 24px)); height: 248px; border-radius: 30px; cursor: default; }
+.notch-bar { width: 100%; border: 0; background: none; color: inherit; cursor: pointer; text-align: left; border-radius: 999px; }
+.notch-bar:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
 .notch-bar { height: 38px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; gap: 10px; font: 500 12px "Geist", sans-serif; }
 .notch-msg { position: relative; flex: 1; height: 16px; overflow: hidden; }
 .notch-msg span { position: absolute; inset: 0; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s; }

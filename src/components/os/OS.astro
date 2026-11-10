@@ -69,16 +69,16 @@ const headlines = [
 
   <!-- NOTCH: status + quick launcher -->
   <div class="notch-wrap">
-    <div class="notch" id="notch" role="button" tabindex="0" aria-expanded="false" aria-label="Status and quick menu">
-      <div class="notch-bar">
+    <div class="notch" id="notch">
+      <button type="button" class="notch-bar" id="notch-toggle" aria-expanded="false" aria-controls="notch-panel" aria-label="Status and quick menu">
         <span class="live" aria-hidden="true"></span>
         <span class="notch-msg" aria-live="polite">
           {notchMessages.map((m, i) => <span class:list={[i === 0 && "on"]}>{m}</span>)}
         </span>
         <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
         <span id="notch-clock" class="os-mono text-[11px] text-white/70">--:--</span>
-      </div>
-      <div class="notch-panel">
+      </button>
+      <div class="notch-panel" id="notch-panel">
         <div class="flex items-center justify-between pb-2 text-[11px] text-white/60">
           <span>{developer.alias}</span>
           <button type="button" id="mode-toggle" class="rounded-full bg-white/10 px-2.5 py-1 hover:bg-white/20" aria-label="Toggle light and dark mode">◐ Theme</button>
@@ -737,23 +737,23 @@ const headlines = [
       setTimeout(() => prev.classList.remove("off"), 600);
     }, 3200);
 
+    const toggle = document.getElementById("notch-toggle");
+    const panel = document.getElementById("notch-panel");
     const setOpen = (open: boolean) => {
       notch?.classList.toggle("open", open);
-      notch?.setAttribute("aria-expanded", String(open));
+      toggle?.setAttribute("aria-expanded", String(open));
+      panel?.toggleAttribute("inert", !open);
     };
-    if (notch) {
+    setOpen(false);
+    if (notch && toggle) {
       const canHover = window.matchMedia("(hover: hover)").matches;
       if (canHover) {
         notch.addEventListener("mouseenter", () => setOpen(true));
         notch.parentElement?.addEventListener("mouseleave", () => setOpen(false));
       }
-      notch.addEventListener("click", (e) => {
-        if ((e.target as HTMLElement).closest("a, button")) return;
-        setOpen(!notch.classList.contains("open"));
-      });
+      toggle.addEventListener("click", () => setOpen(!notch.classList.contains("open")));
       notch.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(!notch.classList.contains("open")); }
-        if (e.key === "Escape") setOpen(false);
+        if (e.key === "Escape" && notch.classList.contains("open")) { setOpen(false); toggle.focus(); }
       });
       notch.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
       document.addEventListener("click", (e) => { if (!notch.contains(e.target as Node)) setOpen(false); });
