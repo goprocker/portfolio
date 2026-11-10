@@ -630,8 +630,9 @@ const headlines = [
       try {
         const id = form.dataset.formspree;
         if (!id) {
-          location.href = `mailto:${form.dataset.recipientEmail}?subject=${encodeURIComponent(`Portfolio message from ${data.name}`)}&body=${encodeURIComponent(data.message)}`;
-          say("Opening your mail app…", "info");
+          const body = `From: ${data.name}\nReply-to: ${data.email}\n\n${data.message}`;
+          location.href = `mailto:${form.dataset.recipientEmail}?subject=${encodeURIComponent(`Portfolio message from ${data.name} <${data.email}>`)}&body=${encodeURIComponent(body)}`;
+          say("Opened your mail app with this message — press send there to deliver it.", "info");
           return;
         }
         const res = await fetch(`https://formspree.io/f/${id}`, {
