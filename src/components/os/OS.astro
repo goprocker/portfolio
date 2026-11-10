@@ -53,6 +53,14 @@ const notchMessages = [
   `${developer.headlineStats[0].value} users served`,
   "AI Eng & Tech Lead @ Redrox",
 ];
+
+// Hero headline rotates through these every 10 seconds.
+const headlines = [
+  "I build AI agents for the problems nobody wants to own.",
+  "I turn hackathon prototypes into products people use.",
+  "I build agents that coordinate, not just respond.",
+  "I pick problems with real stakes and ship the fix.",
+];
 ---
 
 <div class="os" data-site>
@@ -103,9 +111,9 @@ const notchMessages = [
             <span><span class="live"></span>Open to internships and collaborations</span>
           </p>
         </div>
-        <h1 class="hello mt-8" data-boot style="--d:.15s">I build AI agents for the problems nobody wants to own.</h1>
+        <h1 class="hello mt-8" data-boot style="--d:.15s"><span class="hello-text" data-headlines={JSON.stringify(headlines)} aria-live="polite">{headlines[0]}</span></h1>
         <p class="lede mt-6" data-boot style="--d:.3s">
-          Flood response, grievance desks, student communities. Full-stack developer from {developer.location}; I co-founded LoopFound, lead tech at Redrox and write frontend at Anaxly. Most of what I ship starts at a hackathon and keeps going in open source.
+          Full-stack developer from {developer.location}. Co-founder of LoopFound, building AI that ships.
         </p>
         <div class="mt-8 flex flex-wrap items-center gap-3" data-boot style="--d:.42s">
           <a href="#work" class="ob ob-primary">See projects</a>
@@ -642,6 +650,22 @@ const notchMessages = [
       }
     });
   }
+
+  // Rotate the hero headline every 10 seconds.
+  document.addEventListener("DOMContentLoaded", () => {
+    const el = document.querySelector<HTMLElement>(".hello-text");
+    if (!el) return;
+    const lines: string[] = JSON.parse(el.dataset.headlines ?? "[]");
+    if (lines.length < 2) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let i = 0;
+    setInterval(() => {
+      i = (i + 1) % lines.length;
+      if (reduce) { el.textContent = lines[i]; return; }
+      el.style.opacity = "0";
+      setTimeout(() => { el.textContent = lines[i]; el.style.opacity = "1"; }, 400);
+    }, 10000);
+  });
 
   document.addEventListener("DOMContentLoaded", () => {
     initLive();

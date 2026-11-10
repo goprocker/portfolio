@@ -333,3 +333,5 @@ body:has(.os[data-mode="dark"]) { background: #070b18; }
 /* Picking up a widget lifts it; letting go settles it with a small spring */
 .widget { transition: box-shadow 0.25s, translate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .widget.dragging { transition: box-shadow 0.25s, scale 0.2s; scale: 1.04; }
+
+.hello-text { display: inline-block; transition: opacity .4s ease; }
