@@ -23,6 +23,16 @@ const { title, description, updated } = Astro.props;
       </div>
     </article>
   </div>
+
+  <script>
+    // Match the theme chosen on the home page.
+    const os = document.querySelector<HTMLElement>(".os");
+    if (os) {
+      let saved: string | null = null;
+      try { saved = localStorage.getItem("goopros_mode"); } catch {}
+      os.dataset.mode = saved ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    }
+  </script>
 </Layout>
 
 <style>
