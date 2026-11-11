@@ -153,6 +153,8 @@
         last = y;
       }
       root.style.setProperty("--scroll", String(y));
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      root.style.setProperty("--scroll-p", (max > 0 ? Math.min(1, y / max) : 0).toFixed(3));
       ticking = false;
     };
     window.addEventListener("scroll", () => {
