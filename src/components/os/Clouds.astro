@@ -1,0 +1,92 @@
+---
+// A cloud-wipe transition point. Takes no space in the layout: as this marker scrolls through
+// the viewport, a wall of grainy cumulus rises from the bottom of the screen, swallows the view,
+// then lifts away to reveal what comes next. Two layers at different speeds give it depth.
+interface Props { bank?: 1 | 2 | 3 }
+const { bank = 1 } = Astro.props;
+---
+<div class="cloud-mark" data-bank={bank} aria-hidden="true"></div>
+
+<style>
+  .cloud-mark { height: 0; width: 0; pointer-events: none; }
+  :global(.cloud-wipe) { position: fixed; inset: 0; z-index: 60; pointer-events: none; overflow: hidden; visibility: hidden; }
+  :global(.cloud-wipe .band) { position: absolute; left: -15%; width: 130%; top: 0; will-change: transform; }
+  /* a band = bumpy top bank + mirrored bumpy bottom bank, so the cloud has two soft edges */
+  :global(.cloud-wipe .band img) { display: block; width: 100%; height: max(41vw, 72vh); object-fit: cover; user-select: none; }
+  :global(.cloud-wipe .band img + img) { transform: scaleY(-1) scaleX(-1); margin-top: -2px; }
+    :global(.cloud-wipe .back) { opacity: 0.8; }
+  :global([data-mode="dark"] .cloud-wipe .band) { filter: brightness(0.38) saturate(0.7) hue-rotate(12deg); }
+  
+  /* the sky fades in behind the clouds during a wipe, then fades back out */
+  :global(.cloud-wipe .sky) {
+    position: absolute; inset: 0; opacity: 0;
+    background:
+      radial-gradient(ellipse at 70% 20%, rgb(255 236 210 / 0.35), transparent 55%),
+      linear-gradient(180deg, #164f7d 0%, #2c6f9f 45%, #6fa3c8 80%, #b9d3e6 100%);
+  }
+  :global(.cloud-wipe .sky::after) {
+    content: ""; position: absolute; inset: 0; opacity: 0.08;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  :global([data-mode="dark"] .cloud-wipe .sky) {
+    background:
+      radial-gradient(ellipse at 70% 20%, rgb(180 200 255 / 0.18), transparent 55%),
+      linear-gradient(180deg, #050b1c 0%, #0c1d3b 50%, #1d3557 100%);
+  }
+  @media (prefers-reduced-motion: reduce) { :global(.cloud-wipe) { display: none; } }
+</style>
+
+<script>
+  // One shared overlay for every marker on the page (Astro bundles this script once).
+  const marks = [...document.querySelectorAll<HTMLElement>(".cloud-mark")];
+  if (marks.length && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const src = (n: number) => `/images/clouds/bank-${((n - 1) % 3) + 1}.webp`;
+    const wipe = document.createElement("div");
+    wipe.className = "cloud-wipe"; wipe.setAttribute("aria-hidden", "true");
+    const band = (cls: string) => {
+      const b = document.createElement("div"); b.className = `band ${cls}`;
+      b.innerHTML = `<img alt="" decoding="async"><img alt="" decoding="async">`;
+      wipe.appendChild(b); return b;
+    };
+    const sky = document.createElement("div"); sky.className = "sky"; wipe.appendChild(sky);
+    const back = band("back"), front = band("front");
+    document.body.appendChild(wipe);
+
+    let current = -1;
+    const setBank = (n: number) => {
+      if (n === current) return; current = n;
+      const [f1, f2] = front.querySelectorAll("img"), [b1, b2] = back.querySelectorAll("img");
+      f1.src = src(n); f2.src = src(n + 1); b1.src = src(n + 1); b2.src = src(n + 2);
+    };
+    // Preload so the first wipe isn't blank.
+    [1, 2, 3].forEach((n) => { const i = new Image(); i.src = src(n); });
+
+    const ease = (t: number) => t * t * (3 - 2 * t);
+    const tick = () => {
+      const vh = window.innerHeight;
+      let best: { t: number; n: number } | null = null;
+      for (const m of marks) {
+        const y = m.getBoundingClientRect().top;
+        // marker travels from 1.6 viewports down to 0.25 viewports down
+        // fully covered when the gap between sections is mid-screen; clear before the next section reaches the top
+        const t = (1.6 * vh - y) / (1.35 * vh);
+        if (t > 0 && t < 1) { best = { t, n: Number(m.dataset.bank) || 1 }; break; }
+      }
+      if (!best) { wipe.style.visibility = "hidden"; return; }
+      setBank(best.n);
+      wipe.style.visibility = "visible";
+      const t = best.t, e = ease(t);
+      sky.style.opacity = String(ease(Math.max(0, Math.min(1, (t - 0.08) / 0.25, (0.92 - t) / 0.25))));
+      const fh = front.offsetHeight || vh * 1.4, bh = back.offsetHeight || vh * 1.4;
+      // rise from below the screen to fully above it; front moves faster than back = depth
+      const fy = vh - e * (vh + fh) , by = vh - ease(Math.min(1, t * 1.1)) * (vh + bh);
+      front.style.transform = `translate3d(${(t - 0.5) * -6}%, ${fy}px, 0) scale(${1.12 - e * 0.12})`;
+      back.style.transform = `translate3d(${(t - 0.5) * 5}%, ${by}px, 0) scale(${1.05 - e * 0.05})`;
+    };
+    let raf = 0;
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; tick(); }); };
+    addEventListener("scroll", onScroll, { passive: true });
+    addEventListener("resize", onScroll);
+    tick();
+  }
+</script>
