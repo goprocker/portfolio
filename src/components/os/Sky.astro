@@ -1,0 +1,179 @@
+<div class="sky-bg" id="sky-bg" aria-hidden="true">
+  <div class="sky-l l0"></div><div class="sky-l l1"></div><div class="sky-l l2"></div><div class="sky-l l3"></div>
+  <div class="sky-sun"></div>
+  <div class="sky-stars"></div>
+  <img class="sky-cloud c1" src="/images/clouds/bank-2.webp" alt="" decoding="async" />
+  <img class="sky-cloud c2" src="/images/clouds/bank-1.webp" alt="" decoding="async" />
+  <img class="sky-cloud c3" src="/images/clouds/bank-3.webp" alt="" decoding="async" />
+  <div class="sky-moon"></div>
+  <div class="flock f1"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="flock f2"><i></i><i></i><i></i></div>
+  <svg class="plane" id="plane" viewBox="0 0 48 48" aria-hidden="true">
+    <path d="M3 22 45 5 31 43 23 28Z" fill="#fff" />
+    <path d="M23 28 45 5 17 31Z" fill="#d9e3f0" />
+    <path d="M17 31 23 28 20 37Z" fill="#b9c7da" />
+  </svg>
+</div>
+
+<style>
+  /* A sky that moves through the day as the page scrolls: morning → midday → sunset → night. */
+  .sky-bg { position: absolute; inset: 0; overflow: hidden; background: #1b5a92; }
+  .sky-l { position: absolute; inset: 0; opacity: 0; will-change: opacity; }
+  .l0 { opacity: 1; background: linear-gradient(180deg, #1b5a92, #4e8fc4 55%, #a9cbe6); }
+  .l1 { background: linear-gradient(180deg, #1c5f9e, #5596cc 55%, #b6d4ec); }
+  .l2 { background: linear-gradient(180deg, #33386f, #c9707a 55%, #f6b98a); }
+  .l3 { background: linear-gradient(180deg, #040817, #0c1a38 55%, #1d2f55); }
+  .sky-sun {
+    position: absolute; width: 50vmax; height: 50vmax; border-radius: 50%;
+    left: -25vmax; top: -25vmax; opacity: var(--sun-o, 1); will-change: transform;
+    transform: translate(calc(var(--sun-x, 72) * 1vw), calc(var(--sun-y, 12) * 1vh));
+    background: radial-gradient(circle, rgb(255 226 190 / 0.55) 0%, transparent 55%);
+  }
+  .sky-stars {
+    position: absolute; inset: 0; opacity: var(--stars, 0);
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 33% 8%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 58% 22%, #fff, transparent), radial-gradient(1px 1px at 77% 12%, #fff, transparent),
+      radial-gradient(1px 1px at 88% 35%, #fff, transparent), radial-gradient(1.5px 1.5px at 22% 40%, #fff, transparent),
+      radial-gradient(1px 1px at 46% 46%, #fff, transparent), radial-gradient(1px 1px at 68% 52%, #fff, transparent),
+      radial-gradient(1px 1px at 6% 62%, #fff, transparent), radial-gradient(1px 1px at 94% 66%, #fff, transparent);
+    background-size: 420px 420px;
+  }
+  .sky-cloud {
+    position: absolute; width: 46vw; min-width: 340px; height: auto; opacity: calc(0.9 - var(--stars, 0) * 0.65);
+    will-change: transform;
+    /* feather every edge so each cloud melts into the sky instead of showing the image's rectangle */
+    -webkit-mask-image: radial-gradient(ellipse 48% 46% at 50% 56%, #000 35%, transparent 75%);
+    mask-image: radial-gradient(ellipse 48% 46% at 50% 56%, #000 35%, transparent 75%);
+  }
+  .c1 { top: 6%; left: -8%; transform: translateX(calc(var(--drift, 0) * 30vw)) scale(0.7); }
+  .c2 { top: 30%; right: -12%; transform: translateX(calc(var(--drift, 0) * -24vw)) scale(0.55) scaleX(-1); }
+  .c3 { top: 58%; left: 20%; transform: translateX(calc(var(--drift, 0) * 18vw)) scale(0.45); opacity: calc(0.6 - var(--stars, 0) * 0.45); }
+  /* moon rises as night falls */
+  .sky-moon {
+    position: absolute; right: 14%; top: calc(34% - var(--stars, 0) * 22%); width: 64px; height: 64px; border-radius: 50%;
+    opacity: var(--stars, 0); background: radial-gradient(circle at 35% 35%, #fffdf2, #e9e4cf 60%, #cfc8ad);
+    box-shadow: 0 0 40px 10px rgb(255 250 225 / 0.25), inset -8px -6px 0 rgb(0 0 0 / 0.06);
+  }
+  /* birds: little flapping Vs crossing the sky, gone at night */
+  .flock { position: absolute; left: -12%; opacity: calc(0.75 - var(--stars, 0)); animation: fly 46s linear infinite; }
+  .f1 { top: 16%; }
+  .f2 { top: 40%; animation-duration: 64s; animation-delay: -30s; transform: scale(0.7); }
+  .flock i { position: absolute; width: 18px; height: 8px; animation: flap 0.9s ease-in-out infinite alternate; }
+  .flock i::before, .flock i::after { content: ""; position: absolute; top: 0; width: 10px; height: 2px; border-radius: 2px; background: #1f2d44; }
+  .flock i::before { left: 0; transform-origin: right center; transform: rotate(var(--w, 22deg)); }
+  .flock i::after { right: 0; transform-origin: left center; transform: rotate(calc(var(--w, 22deg) * -1)); }
+  .flock i:nth-child(1) { left: 0; top: 0; }
+  .flock i:nth-child(2) { left: -22px; top: 12px; animation-delay: -0.3s; }
+  .flock i:nth-child(3) { left: -20px; top: -12px; animation-delay: -0.6s; }
+  .flock i:nth-child(4) { left: -44px; top: 22px; animation-delay: -0.2s; }
+  .flock i:nth-child(5) { left: -42px; top: -22px; animation-delay: -0.5s; }
+  @keyframes fly { to { translate: 125vw -6vh; } }
+  @keyframes flap { from { --w: 28deg; } to { --w: -14deg; } }
+  @property --w { syntax: "<angle>"; inherits: false; initial-value: 22deg; }
+  /* the paper plane that travels down the page with you */
+  .plane { position: absolute; left: 0; top: 0; width: 76px; height: 76px; filter: drop-shadow(0 6px 8px rgb(10 30 60 / 0.25)); will-change: transform; }
+  /* plane + trail fly in their own layer above the windows, below the notch (90) and dock (80) */
+  :global(.plane-layer) { position: fixed; inset: 0; z-index: 70; pointer-events: none; overflow: hidden; }
+  @media (prefers-reduced-motion: reduce) { .flock, .flock i { animation: none; } }
+  @media (max-width: 700px) { .f2 { display: none; } .plane { width: 50px; height: 50px; } }
+  :global([data-mode="dark"]) .sky-bg { filter: brightness(0.55) saturate(0.85); }
+  @media (max-width: 700px) { .c3 { display: none; } }
+</style>
+
+<script>
+  const sky = document.getElementById("sky-bg");
+  if (sky) {
+    // Keyframes along page progress: [p, top, middle, bottom, sun rgba, sunX, sunY, stars, cloud brightness, cloud warmth]
+    type K = [number, string, string, string, [number, number, number, number], number, number, number, number, number];
+    const keys: K[] = [
+      [0.0, "#1b5a92", "#4e8fc4", "#a9cbe6", [255, 240, 215, 0.4], 72, 12, 0, 1, 0],    // morning
+      [0.35, "#1c5f9e", "#5596cc", "#b6d4ec", [255, 252, 240, 0.55], 55, 4, 0, 1.02, 0], // midday
+      [0.68, "#33386f", "#c9707a", "#f6b98a", [255, 170, 110, 0.85], 38, 78, 0, 0.92, 0.45], // sunset
+      [1.0, "#040817", "#0c1a38", "#1d2f55", [170, 190, 255, 0.25], 25, 20, 1, 0.45, 0], // night
+    ];
+    const mix = (a: number, b: number, t: number) => a + (b - a) * t;
+    const s = sky.style;
+    let raf = 0;
+    const layers = [...sky.querySelectorAll<HTMLElement>(".sky-l")];
+    let lastP = -1;
+    const paint = () => {
+      raf = 0;
+      const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+      const p = Math.min(1, Math.max(0, scrollY / max));
+      if (Math.abs(p - lastP) < 0.0008) return; lastP = p;
+      let i = 0; while (i < keys.length - 2 && p > keys[i + 1][0]) i++;
+      const A = keys[i], B = keys[i + 1], t = Math.min(1, (p - A[0]) / (B[0] - A[0]));
+      // crossfade the four sky layers (opacity only = no repaint)
+      layers.forEach((l, k) => { const o = k === i ? 1 : k === i + 1 ? t : 0; if (k) l.style.opacity = o.toFixed(3); });
+      s.setProperty("--sun-o", mix(A[4][3], B[4][3], t).toFixed(2));
+      s.setProperty("--sun-x", mix(A[5], B[5], t).toFixed(1));
+      s.setProperty("--sun-y", mix(A[6], B[6], t).toFixed(1));
+      s.setProperty("--stars", mix(A[7], B[7], t).toFixed(2));
+      s.setProperty("--drift", p.toFixed(3));
+    };
+    // Paper plane: follows a looping flight path keyed to scroll, eased, banking with its heading.
+    const plane = document.getElementById("plane");
+        if (plane) {
+      const layer = document.createElement("div"); layer.className = "plane-layer"; layer.setAttribute("aria-hidden", "true");
+      layer.append(plane); document.body.appendChild(layer);
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      // One flight per section: the plane crosses the screen each time a new section arrives,
+      // alternating direction, with a loop-the-loop on every other crossing.
+      const ids = ["desktop", "now", "work", "experience", "orgs", "gssoc", "stage", "stack", "about", "github", "offclock", "contact"];
+      let tops: number[] = [];
+      const measure = () => {
+        tops = ids.map((id) => document.getElementById(id)).filter(Boolean)
+          .map((el) => (el as HTMLElement).getBoundingClientRect().top + scrollY);
+        tops[0] = 0;
+      };
+      measure(); addEventListener("resize", measure); addEventListener("load", measure); setInterval(measure, 2500);
+      const leg = (y: number) => { // section index + progress through it
+        let i = 0; while (i < tops.length - 1 && y >= tops[i + 1]) i++;
+        const end = i < tops.length - 1 ? tops[i + 1] : document.documentElement.scrollHeight - innerHeight + 1;
+        return i + Math.min(1, Math.max(0, (y - tops[i]) / Math.max(1, end - tops[i])));
+      };
+      const route = (q: number, w: number, h: number) => {
+        const i = Math.floor(q), t = q - i, dir = i % 2 ? -1 : 1;
+        const e = t * 0.6 + t * t * (3 - 2 * t) * 0.4; // no dead stop at section edges
+        let x = 0.5 + dir * (e - 0.5) * 0.84;                // cross from one side to the other
+        let y = 0.22 + Math.sin(t * Math.PI) * 0.22 + (i % 3) * 0.08; // arc
+        if (i % 2 === 1) {                                   // loop-the-loop mid-crossing
+          const l = Math.max(0, Math.min(1, (t - 0.38) / 0.24)) * Math.PI * 2;
+          x += Math.sin(l) * 0.07 * dir; y -= (1 - Math.cos(l)) * 0.09;
+        }
+        return [x * w, y * h];
+      };
+      let cur = 0, px: number | null = null, py: number | null = null, heading = 0, bank = 0;
+      const fly = (t: number) => {
+        const target = leg(scrollY);
+        cur += (target - cur) * (reduce ? 1 : 0.045); // heavier ease = smoother glide
+        const w = innerWidth, h = innerHeight;
+        const [x, y] = route(cur, w, h); // moves only as you scroll
+        // face the direction it is actually travelling, smoothed, so turns are gradual
+        let turn = 0;
+        if (px !== null) {
+          const dx = x - px, dy = y - (py as number);
+          if (Math.hypot(dx, dy) > 0.3) {
+            const a = Math.atan2(dy, dx) * (180 / Math.PI);
+            turn = (((a - heading + 540) % 360) - 180) * 0.1;
+            heading += turn;
+          }
+        }
+        px = x; py = y;
+        bank += (Math.max(-1, Math.min(1, turn / 4)) - bank) * 0.1; // wings tilt into turns
+        const half = (plane.clientWidth || 76) / 2;
+        plane.style.transform = `translate(${(x - half).toFixed(1)}px, ${(y - half).toFixed(1)}px) rotate(${(heading + 20).toFixed(2)}deg) scaleY(${(1 - Math.abs(bank) * 0.3).toFixed(3)})`;
+        if (!reduce && Math.abs(target - cur) > 0.0004) requestAnimationFrame(fly); else flying = false;
+      };
+      let flying = true;
+      const wake = () => { if (!flying) { flying = true; requestAnimationFrame(fly); } };
+      addEventListener("scroll", wake, { passive: true }); addEventListener("resize", wake);
+      requestAnimationFrame(fly);
+    }
+
+    addEventListener("scroll", () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    addEventListener("resize", () => { if (!raf) raf = requestAnimationFrame(paint); });
+    paint();
+  }
+</script>

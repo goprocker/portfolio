@@ -4,6 +4,8 @@ import { PORTFOLIO_DATA, eventDateValue } from "../../data/portfolio";
 import Win from "./Win.astro";
 import AppIcon from "./AppIcon.astro";
 import Boot from "./Boot.astro";
+import Clouds from "./Clouds.astro";
+import Sky from "./Sky.astro";
 import AgentGraph from "../AgentGraph.astro";
 import RoleList from "../RoleList.astro";
 import GitHubActivity from "../GitHubActivity.astro";
@@ -65,7 +67,7 @@ const headlines = [
 
 <div class="os" data-site>
   <Boot />
-  <div class="wallpaper" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="wallpaper" aria-hidden="true"><span></span><span></span><span></span><Sky /></div>
 
   <!-- NOTCH: status + quick launcher -->
   <div class="notch-wrap">
@@ -185,6 +187,7 @@ const headlines = [
         {learning.map((l) => <span><b class="text-[var(--ink)]">{l.name}</b> <span class="text-[var(--muted)]">— {l.detail}</span></span>)}
       </div>
     </Win>
+    <Clouds bank={1} />
 
     <!-- PROJECTS -->
     <Win id="work" title="Projects — Explorer" icon="work" sub={`${collabs.length} shipped builds, ${labs.length} labs experiments. Click any card for the full story.`}>
@@ -275,6 +278,7 @@ const headlines = [
         </div>
       </div>
     </Win>
+    <Clouds bank={2} />
 
     <!-- ORGANIZATIONS & LEADERSHIP -->
     <Win id="orgs" title="Organizations" icon="orgs" sub="Places I started, run, or hang around in.">
@@ -361,6 +365,7 @@ const headlines = [
         </ul>
       </details>
     </Win>
+    <Clouds bank={3} />
 
     <!-- STACK -->
     <Win id="stack" title="Toolbox" icon="stack" sub="The bold ones are what I open first.">
@@ -426,6 +431,7 @@ const headlines = [
         </div>
       </div>
     </Win>
+    <Clouds bank={1} />
 
     <!-- GITHUB -->
     <Win id="github" title="GitHub — live" icon="github">
@@ -471,6 +477,7 @@ const headlines = [
         </a>
       </div>
     </Win>
+    <Clouds bank={2} />
 
     <!-- CONTACT: mail compose -->
     <Win id="contact" title="New message — Mail" icon="mail">
