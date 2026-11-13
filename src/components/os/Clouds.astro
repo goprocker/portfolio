@@ -1,14 +1,15 @@
 ---
-// A cloud-wipe transition point. Takes no space in the layout: as this marker scrolls through
-// the viewport, a wall of grainy cumulus rises from the bottom of the screen, swallows the view,
-// then lifts away to reveal what comes next. Two layers at different speeds give it depth.
+// A cloud-wipe transition gap between sections. The marker is real empty space; as it scrolls
+// through the viewport a wall of grainy cumulus rises, swallows the view, then lifts away.
+// The overlay is masked to the marker's on-screen box, so clouds never cover section content.
 interface Props { bank?: 1 | 2 | 3 }
 const { bank = 1 } = Astro.props;
 ---
 <div class="cloud-mark" data-bank={bank} aria-hidden="true"></div>
 
 <style>
-  .cloud-mark { height: 0; width: 0; pointer-events: none; }
+  .cloud-mark { height: 120vh; height: 120svh; width: 100%; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { .cloud-mark { height: 3rem; } }
   :global(.cloud-wipe) { position: fixed; inset: 0; z-index: 60; pointer-events: none; overflow: hidden; visibility: hidden; }
   :global(.cloud-wipe .band) { position: absolute; left: -15%; width: 130%; top: 0; will-change: transform; }
   /* a band = bumpy top bank + mirrored bumpy bottom bank, so the cloud has two soft edges */
@@ -65,14 +66,18 @@ const { bank = 1 } = Astro.props;
     const tick = () => {
       const vh = window.innerHeight;
       let best: { t: number; n: number } | null = null;
+      let top = 0, bottom = 0;
       for (const m of marks) {
-        const y = m.getBoundingClientRect().top;
-        // marker travels from 1.6 viewports down to 0.25 viewports down
-        // fully covered when the gap between sections is mid-screen; clear before the next section reaches the top
-        const t = (1.6 * vh - y) / (1.35 * vh);
-        if (t > 0 && t < 1) { best = { t, n: Number(m.dataset.bank) || 1 }; break; }
+        const r = m.getBoundingClientRect();
+        // progress runs from the gap's top entering at the bottom of the screen to its bottom leaving at the top
+        const t = (vh - r.top) / (vh + r.height);
+        if (t > 0 && t < 1) { best = { t, n: Number(m.dataset.bank) || 1 }; top = r.top; bottom = r.bottom; break; }
       }
       if (!best) { wipe.style.visibility = "hidden"; return; }
+      // only paint inside the gap (soft-edged), so the sections above and below always stay visible
+      const a = Math.max(0, top), b = Math.min(vh, bottom), f = Math.min(90, (b - a) / 3);
+      const mask = `linear-gradient(to bottom, transparent ${a}px, #000 ${a + (top > 0 ? f : 0)}px, #000 ${b - (bottom < vh ? f : 0)}px, transparent ${b}px)`;
+      wipe.style.maskImage = mask; wipe.style.setProperty("-webkit-mask-image", mask);
       setBank(best.n);
       wipe.style.visibility = "visible";
       const t = best.t, e = ease(t);
