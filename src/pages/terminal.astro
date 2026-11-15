@@ -27,6 +27,13 @@ const { developer } = PORTFOLIO_DATA;
           <input id="term-input" class="term-input flex-1 bg-transparent text-[var(--ink)] outline-none" spellcheck="false" autocapitalize="off" aria-label="Type a command" />
         </form>
       </div>
+      <div class="kbd" id="kbd" aria-hidden="true">
+        <div class="kbd-row"><span class="kbd-k" data-k="`">`</span><span class="kbd-k" data-k="1">1</span><span class="kbd-k" data-k="2">2</span><span class="kbd-k" data-k="3">3</span><span class="kbd-k" data-k="4">4</span><span class="kbd-k" data-k="5">5</span><span class="kbd-k" data-k="6">6</span><span class="kbd-k" data-k="7">7</span><span class="kbd-k" data-k="8">8</span><span class="kbd-k" data-k="9">9</span><span class="kbd-k" data-k="0">0</span><span class="kbd-k" data-k="-">-</span><span class="kbd-k" data-k="=">=</span><span class="kbd-k w2" data-k="backspace">⌫</span></div>
+        <div class="kbd-row"><span class="kbd-k w15" data-k="tab">tab</span><span class="kbd-k" data-k="q">q</span><span class="kbd-k" data-k="w">w</span><span class="kbd-k" data-k="e">e</span><span class="kbd-k" data-k="r">r</span><span class="kbd-k" data-k="t">t</span><span class="kbd-k" data-k="y">y</span><span class="kbd-k" data-k="u">u</span><span class="kbd-k" data-k="i">i</span><span class="kbd-k" data-k="o">o</span><span class="kbd-k" data-k="p">p</span><span class="kbd-k" data-k="[">[</span><span class="kbd-k" data-k="]">]</span></div>
+        <div class="kbd-row"><span class="kbd-k w18" data-k="capslock">caps</span><span class="kbd-k" data-k="a">a</span><span class="kbd-k" data-k="s">s</span><span class="kbd-k" data-k="d">d</span><span class="kbd-k" data-k="f">f</span><span class="kbd-k" data-k="g">g</span><span class="kbd-k" data-k="h">h</span><span class="kbd-k" data-k="j">j</span><span class="kbd-k" data-k="k">k</span><span class="kbd-k" data-k="l">l</span><span class="kbd-k" data-k=";">;</span><span class="kbd-k" data-k="'">'</span><span class="kbd-k w2" data-k="enter">↵</span></div>
+        <div class="kbd-row"><span class="kbd-k w23" data-k="shift">shift</span><span class="kbd-k" data-k="z">z</span><span class="kbd-k" data-k="x">x</span><span class="kbd-k" data-k="c">c</span><span class="kbd-k" data-k="v">v</span><span class="kbd-k" data-k="b">b</span><span class="kbd-k" data-k="n">n</span><span class="kbd-k" data-k="m">m</span><span class="kbd-k" data-k=",">,</span><span class="kbd-k" data-k=".">.</span><span class="kbd-k" data-k="/">/</span><span class="kbd-k" data-k="arrowup">↑</span></div>
+        <div class="kbd-row"><span class="kbd-k w15" data-k="control">ctrl</span><span class="kbd-k w6" data-k=" ">space</span><span class="kbd-k" data-k="arrowleft">←</span><span class="kbd-k" data-k="arrowdown">↓</span><span class="kbd-k" data-k="arrowright">→</span></div>
+      </div>
       <p class="os-mono mt-4 text-center text-[11px] text-[var(--muted)]">tab completes · ↑ ↓ history · ctrl+l clears</p>
     </main>
   </div>
@@ -48,10 +55,27 @@ const { developer } = PORTFOLIO_DATA;
   .term-out :global(button.chip) { border: 1px solid var(--hair); border-radius: 7px; padding: 0 0.45rem; margin: 0 0.25rem 0.3rem 0; color: var(--ink-2); }
   .term-out :global(button.chip:hover) { color: var(--ink); border-color: var(--blue); }
   .term-input { caret-color: var(--mint); }
+  /* Vengeance UI typing-keyboard: keys light up and press down as you type */
+  .kbd { margin: 14px auto 0; display: flex; flex-direction: column; gap: 5px; padding: 10px; width: fit-content; border-radius: 16px; border: 1px solid var(--hair); background: var(--glass); }
+  .kbd-row { display: flex; gap: 5px; }
+  .kbd-k { min-width: 30px; height: 30px; padding: 0 6px; display: grid; place-items: center; border-radius: 7px; font: 500 11px "Geist Mono", monospace; color: var(--muted); background: var(--glass-strong); border: 1px solid var(--hair); box-shadow: 0 2px 0 var(--hair); transition: transform 0.12s, box-shadow 0.12s, background 0.25s, color 0.25s; }
+  .kbd-k.w15 { min-width: 46px; } .kbd-k.w18 { min-width: 56px; } .kbd-k.w2 { min-width: 62px; } .kbd-k.w23 { min-width: 72px; } .kbd-k.w6 { min-width: 210px; }
+  .kbd-k.on { transform: translateY(2px); box-shadow: 0 0 0 var(--hair), 0 0 14px rgb(18 184 134 / 0.45); background: var(--mint); color: #fff; transition-duration: 0.04s; }
+  @media (max-width: 760px), (max-height: 720px), (hover: none) { .kbd { display: none; } }
   @keyframes lnIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
 </style>
 
 <script>
+  // Light up the on-screen keyboard as keys are pressed
+  {
+    const keys = new Map<string, HTMLElement>();
+    document.querySelectorAll<HTMLElement>("#kbd [data-k]").forEach((k) => keys.set(k.dataset.k!, k));
+    const find = (e: KeyboardEvent) => keys.get(e.key.toLowerCase()) ?? keys.get(e.key === " " ? " " : "");
+    document.addEventListener("keydown", (e) => find(e)?.classList.add("on"));
+    document.addEventListener("keyup", (e) => { const k = find(e); if (k) setTimeout(() => k.classList.remove("on"), 90); });
+    window.addEventListener("blur", () => keys.forEach((k) => k.classList.remove("on")));
+  }
+
   import { PORTFOLIO_DATA, eventDateValue } from "../data/portfolio";
   import { loadGitHub, timeAgo } from "../utils/github";
 
