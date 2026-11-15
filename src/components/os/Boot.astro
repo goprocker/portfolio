@@ -89,6 +89,20 @@
   .boot-pill.bloom::after { animation: ripple 0.9s ease-out 0.15s; }
   @keyframes ripple { from { opacity: 0.9; transform: scale(1); } to { opacity: 0; transform: scale(1.35, 1.9); } }
 
+  /* Vengeance UI border-beam: a spark of light circles the pill's edge while it blooms */
+  @property --pill-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+  .boot-pill::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none; opacity: 0;
+    background: conic-gradient(from var(--pill-a), transparent 0 70%, #9db6ff 82%, #fff 88%, #c4b5fd 94%, transparent 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    transition: opacity 0.5s 0.4s;
+    animation: pillBeam 2.2s linear infinite;
+  }
+  .boot-pill.bloom::before { opacity: 1; }
+  .boot-pill.dock::before { opacity: 0; transition-delay: 0s; }
+  @keyframes pillBeam { to { --pill-a: 360deg; } }
+
   .boot-dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 999px; background: #12b886; box-shadow: 0 0 10px #12b886; opacity: 0; transition: opacity 0.4s 0.3s; }
   .bloom .boot-dot { opacity: 1; }
 
