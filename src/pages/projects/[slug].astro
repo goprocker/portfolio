@@ -37,7 +37,7 @@ const { developer } = PORTFOLIO_DATA;
           <p class="os-mono mt-3 text-sm text-[var(--blue)]">{project.role} · {project.partner}</p>
           <p class="mt-5 max-w-3xl text-lg leading-relaxed text-[var(--ink-2)]">{project.description}</p>
           <div class="mt-7 flex flex-wrap gap-3">
-            {project.link && <a href={project.link} target="_blank" rel="noopener noreferrer" class="ob ob-primary">Visit live site ↗</a>}
+            {project.link && <a href={project.link} target="_blank" rel="noopener noreferrer" class="ob ob-primary"><span>Visit live site ↗</span></a>}
             {project.repo && <a href={project.repo} target="_blank" rel="noopener noreferrer" class="ob">View source ↗</a>}
             <a href="/#contact" class="ob">✉️ Ask me about it</a>
           </div>
