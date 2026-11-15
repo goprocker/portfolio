@@ -693,6 +693,24 @@ const headlines = [
     initMail();
   });
 
+  // Dock: stagger index for the intro pop, and neighbour magnification on hover
+  {
+    const dock = document.querySelector<HTMLElement>(".dock");
+    const icons = Array.from(dock?.querySelectorAll<HTMLElement>("a") ?? []);
+    icons.forEach((a, i) => a.style.setProperty("--n", String(i)));
+    if (dock && matchMedia("(hover: hover) and (min-width: 641px)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      dock.classList.add("mag");
+      dock.addEventListener("pointermove", (e) => {
+        icons.forEach((a) => {
+          const r = a.getBoundingClientRect();
+          const d = Math.abs(e.clientX - (r.left + r.width / 2));
+          a.style.setProperty("--m", Math.max(0, 1 - d / 130).toFixed(3));
+        });
+      });
+      dock.addEventListener("pointerleave", () => icons.forEach((a) => a.style.setProperty("--m", "0")));
+    }
+  }
+
   document.getElementById("copy-email")?.addEventListener("click", async (e) => {
     const b = e.currentTarget as HTMLButtonElement;
     try { await navigator.clipboard.writeText(b.dataset.copy ?? ""); b.classList.add("done"); b.setAttribute("aria-label", "Copied"); setTimeout(() => { b.classList.remove("done"); b.setAttribute("aria-label", "Copy email address"); }, 2000); } catch {}
