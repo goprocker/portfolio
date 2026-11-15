@@ -1,6 +1,8 @@
 ---
 import "../../styles/os.css";
 import { PORTFOLIO_DATA, eventDateValue } from "../../data/portfolio";
+import SocialFlip from "./SocialFlip.astro";
+import RevealPreview from "../RevealPreview.astro";
 import Win from "./Win.astro";
 import AppIcon from "./AppIcon.astro";
 import Boot from "./Boot.astro";
@@ -95,7 +97,7 @@ const headlines = [
 
   <!-- DOCK: main navigation -->
   <nav class="dock glass" aria-label="Sections">
-    {apps.map((a) => <a href={a.href} data-label={a.label} class="dock-link"><AppIcon name={a.icon as any} size={44} /><span class="sr-only">{a.label}</span></a>)}
+    {apps.map((a) => <a href={a.href} data-label={a.label} class="dock-link"><AppIcon name={a.icon as any} size={44} /><span class="sr-only">{a.label}</span><span class="dock-tip" aria-hidden="true"><span>{a.label}</span></span></a>)}
     <span class="sep" aria-hidden="true"></span>
     <a href={developer.github} target="_blank" rel="noopener noreferrer" data-label="GitHub"><AppIcon name="github" size={44} /><span class="sr-only">GitHub</span></a>
     <a href="/terminal" data-label="Terminal"><AppIcon name="terminal" size={44} /><span class="sr-only">Terminal</span></a>
@@ -113,12 +115,13 @@ const headlines = [
             <span><span class="live"></span>Open to internships and collaborations</span>
           </p>
         </div>
-        <h1 class="hello mt-8" data-boot style="--d:.15s"><span class="hello-text" data-headlines={JSON.stringify(headlines)} aria-live="polite">{headlines[0]}</span></h1>
+        <h1 class="hello mt-8" data-boot style="--d:.15s"><span class="hello-text" data-headlines={JSON.stringify(headlines)} aria-live="polite"><span class="morph-word">{headlines[0]}</span></span></h1>
+        <svg class="morph-defs" aria-hidden="true" focusable="false"><defs><filter id="morph-goo"><feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 25 -9" result="goo" /><feComposite in="SourceGraphic" in2="goo" operator="atop" /></filter></defs></svg>
         <p class="lede mt-6" data-boot style="--d:.3s">
           Full-stack developer from {developer.location}. Co-founder of LoopFound, building AI that ships.
         </p>
         <div class="mt-8 flex flex-wrap items-center gap-3" data-boot style="--d:.42s">
-          <a href="#work" class="ob ob-primary">See projects</a>
+          <a href="#work" class="ob ob-primary"><span>See projects</span></a>
           <a href="#contact" class="ob">Email me</a>
           <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" class="ob">Resume (PDF)</a>
         </div>
@@ -157,7 +160,7 @@ const headlines = [
 
         <div class="widget note lg:right-[3%] lg:top-[-2%] lg:w-[215px] lg:rotate-[2deg]" data-widget data-boot style="--d:.65s">
           <p class="text-[15px] font-medium leading-snug">Building something? I take on products, freelance work and hackathon teams.</p>
-          <a href="#contact" class="mt-3 inline-block text-sm font-bold underline underline-offset-4">Write to me</a>
+          <a href="#contact" class="ob mt-3 !px-3.5 !py-2 text-sm">Write to me →</a>
         </div>
       </div>
     </section>
@@ -175,7 +178,7 @@ const headlines = [
       <Fragment slot="heading">Currently <span class="os-serif">building</span></Fragment>
       <p class="os-mono mb-3 flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]"><span class="live !h-1.5 !w-1.5"></span>Pushed recently · live from GitHub</p>
       <div id="now-live" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-live="polite">
-        {[0, 1, 2, 3].map(() => <div class="tile skeleton h-[168px]"></div>)}
+        {[0, 1, 2, 3].map((n) => <div class="tile skeleton grid h-[168px] place-items-center">{n === 0 && <span class="kin" aria-label="Fetching live repos from GitHub">{"fetching from github".split("").map((ch, i) => <span aria-hidden="true" style={`--i:${i}`}>{ch === " " ? " " : ch}</span>)}</span>}</div>)}
       </div>
 
       <p class="os-mono mt-8 mb-3 text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">Also on the bench · next up on GitHub</p>
@@ -287,9 +290,13 @@ const headlines = [
         {orgs.map((o) => (
           <a href={o.link} target="_blank" rel="noopener noreferrer" class="tile group flex flex-col gap-4 p-5" data-spot data-reveal>
             <div class="flex items-start justify-between gap-3">
-              {o.logo
-                ? <img src={o.logo} alt="" class="h-12 w-12 rounded-2xl object-cover shadow-sm" loading="lazy" />
-                : <span class="grid h-12 w-12 place-items-center rounded-2xl bg-[var(--ink)] text-sm font-bold text-[var(--desk)]">{o.name.replace(/[^A-Za-z ]/g, "").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</span>}
+<span class="fold" aria-hidden="true">
+                <span class="fold-back"></span>
+                <span class="fold-paper">{o.logo
+                  ? <img src={o.logo} alt="" loading="lazy" />
+                  : <b>{o.name.replace(/[^A-Za-z ]/g, "").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</b>}</span>
+                <span class="fold-front"></span>
+              </span>
               <span class={`pill shrink-0 !text-[10px] ${o.badge === "Founder" ? "pill-blue" : o.badge === "Rare" ? "pill-amber" : o.badge === "Lead" ? "pill-violet" : ""}`}>{o.badge}</span>
             </div>
             <div>
@@ -486,15 +493,13 @@ const headlines = [
           <span class="status-pill glass"><span class="live"></span>available for new projects</span>
           <h2 class="win-h mt-5">Have something worth <span class="os-serif">building?</span></h2>
           <p class="mt-4 text-[var(--ink-2)]">Products, freelance work, hackathon teams, or a good argument about AI. My inbox is open — I usually reply within a day.</p>
-          <div class="mt-6 flex flex-wrap gap-2">
+          <div class="mt-6"><SocialFlip /></div>
+          <div class="mt-4 flex items-center gap-2">
             <a href={`mailto:${developer.email}`} class="pill pill-blue">{developer.email}</a>
-            <a href={developer.linkedin} target="_blank" rel="noopener noreferrer" class="pill">LinkedIn ↗</a>
-            <a href={developer.twitter} target="_blank" rel="noopener noreferrer" class="pill">X ↗</a>
-            <a href={developer.instagram} target="_blank" rel="noopener noreferrer" class="pill">Instagram ↗</a>
-            <a href={developer.website} target="_blank" rel="noopener noreferrer" class="pill">loopfound.in ↗</a>
+            <button type="button" class="copy-btn" id="copy-email" data-copy={developer.email} aria-label="Copy email address"><span class="copy-ic" aria-hidden="true">⧉</span><span class="copy-ok" aria-hidden="true">✓</span></button>
           </div>
         </div>
-        <form id="contact-form" data-formspree={import.meta.env.PUBLIC_FORMSPREE_ID ?? ""} data-recipient-email={developer.email} class="tile p-5 sm:p-6 lg:col-span-7" data-reveal>
+        <form id="contact-form" data-formspree={import.meta.env.PUBLIC_FORMSPREE_ID ?? ""} data-recipient-email={developer.email} class="tile beam p-5 sm:p-6 lg:col-span-7" data-reveal>
           <div class="mail-field"><label>To</label><span class="text-[15px] text-[var(--ink)]">Gopinath R &lt;{developer.email}&gt;</span></div>
           <div class="mail-field"><label for="contact-name">From</label><input id="contact-name" name="name" type="text" required placeholder="Your name" /></div>
           <div class="mail-field"><label for="contact-email">Reply-to</label><input id="contact-email" name="email" type="email" required placeholder="you@company.com" /></div>
@@ -507,15 +512,16 @@ const headlines = [
       </div>
     </Win>
   </main>
+  <RevealPreview />
 
   <footer class="os-wrap flex flex-wrap items-center justify-between gap-4 pt-6 pb-28 text-xs text-[var(--muted)]">
     <span class="os-mono">goprOS v1 · © {new Date().getFullYear()} Gopinath R · Chennai</span>
     <span class="flex gap-4">
-      <a href={developer.github} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--ink)]">GitHub</a>
-      <a href={developer.linkedin} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--ink)]">LinkedIn</a>
-      <a href="/terminal" class="hover:text-[var(--ink)]">Terminal</a>
-      <a href="/privacy" class="hover:text-[var(--ink)]">Privacy</a>
-      <a href="/terms" class="hover:text-[var(--ink)]">Terms</a>
+      <a href={developer.github} target="_blank" rel="noopener noreferrer" class="lhl hover:text-[var(--ink)]">GitHub</a>
+      <a href={developer.linkedin} target="_blank" rel="noopener noreferrer" class="lhl hover:text-[var(--ink)]">LinkedIn</a>
+      <a href="/terminal" class="lhl hover:text-[var(--ink)]">Terminal</a>
+      <a href="/privacy" class="lhl hover:text-[var(--ink)]">Privacy</a>
+      <a href="/terms" class="lhl hover:text-[var(--ink)]">Terms</a>
     </span>
   </footer>
 </div>
@@ -666,18 +672,30 @@ const headlines = [
     const lines: string[] = JSON.parse(el.dataset.headlines ?? "[]");
     if (lines.length < 2) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Vengeance UI morph-text: old line melts out while the new one condenses in, through a goo threshold filter
     let i = 0;
     setInterval(() => {
       i = (i + 1) % lines.length;
-      if (reduce) { el.textContent = lines[i]; return; }
-      el.style.opacity = "0";
-      setTimeout(() => { el.textContent = lines[i]; el.style.opacity = "1"; }, 400);
-    }, 10000);
+      if (reduce) { el.firstElementChild!.textContent = lines[i]; return; }
+      const old = el.querySelector<HTMLElement>(".morph-word:not(.out)");
+      const next = document.createElement("span");
+      next.className = "morph-word in";
+      next.textContent = lines[i];
+      el.classList.add("morphing");
+      old?.classList.add("out");
+      el.appendChild(next);
+      setTimeout(() => { old?.remove(); next.classList.remove("in"); el.classList.remove("morphing"); }, 1100);
+    }, 7000);
   });
 
   document.addEventListener("DOMContentLoaded", () => {
     initLive();
     initMail();
+  });
+
+  document.getElementById("copy-email")?.addEventListener("click", async (e) => {
+    const b = e.currentTarget as HTMLButtonElement;
+    try { await navigator.clipboard.writeText(b.dataset.copy ?? ""); b.classList.add("done"); b.setAttribute("aria-label", "Copied"); setTimeout(() => { b.classList.remove("done"); b.setAttribute("aria-label", "Copy email address"); }, 2000); } catch {}
   });
 </script>
 

@@ -119,11 +119,20 @@
 .dock a { position: relative; display: grid; place-items: center; border-radius: 12px; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .dock .app-icon { display: block; filter: drop-shadow(0 4px 8px rgb(36 52 110 / 0.25)); }
 .dock a:hover { transform: translateY(-8px) scale(1.18); }
-.dock a::after { content: attr(data-label); position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%) translateY(4px); padding: 4px 8px; border-radius: 7px; background: var(--notch); color: #fff; font: 500 11px "Geist", sans-serif; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; }
-.dock a:hover::after { opacity: 1; transform: translateX(-50%); }
+/* Dock tooltip — Vengeance UI animated-tooltip ("smaug"): bubble tips in from a tilt, label springs in after */
+.dock-tip { position: absolute; bottom: calc(100% + 12px); left: 50%; translate: -50% 0; padding: 5px 11px; border-radius: 9px; background: var(--notch); color: #fff; font: 600 11.5px "Geist", sans-serif; white-space: nowrap; pointer-events: none; box-shadow: 0 10px 24px -10px rgb(0 0 0 / 0.5); transform-origin: 50% 100%; opacity: 0; rotate: 35deg; transition: opacity 0.2s ease-in, rotate 0.2s ease-in; }
+.dock-tip::after { content: ""; position: absolute; top: 100%; left: 50%; translate: -50% -1px; border: 6px solid transparent; border-top-color: var(--notch); }
+.dock-tip > span { display: inline-block; opacity: 0; transform: translateX(-30px) rotate(-6deg); transition: opacity 0.2s, transform 0.2s ease-in; }
+.dock a:hover .dock-tip, .dock a:focus-visible .dock-tip { opacity: 1; rotate: 0deg; transition: opacity 0.2s ease-out, rotate 0.2s ease-out; }
+.dock a:hover .dock-tip > span, .dock a:focus-visible .dock-tip > span { opacity: 1; transform: none; transition: opacity 0.2s 0.05s, transform 0.45s 0.05s cubic-bezier(0.34, 1.8, 0.5, 1); }
+/* entering from the right: start the label off to the right */
+.dock a:not(:hover):not(:focus-visible) .dock-tip > span { transform: translateX(-30px) rotate(-6deg); }
+.dock a:hover .dock-tip > span { animation: tipIn 0.45s 0.05s cubic-bezier(0.34, 1.8, 0.5, 1) both; }
+@keyframes tipIn { from { opacity: 0; transform: translateX(40px) rotate(6deg); } }
+@media (prefers-reduced-motion: reduce) { .dock-tip, .dock-tip > span { rotate: 0deg; transform: none !important; animation: none !important; } }
 .dock a.active::before { content: ""; position: absolute; bottom: -6px; width: 4px; height: 4px; border-radius: 999px; background: var(--ink); }
 .dock .sep { width: 1px; height: 32px; background: var(--hair); margin: 0 4px 6px; }
-@media (max-width: 640px) { .dock { gap: 2px; padding: 6px; max-width: calc(100vw - 16px); overflow-x: auto; } .dock .app-icon { width: 34px; height: 34px; } .dock a::after { display: none; } }
+@media (max-width: 640px) { .dock { gap: 2px; padding: 6px; max-width: calc(100vw - 16px); overflow-x: auto; } .dock .app-icon { width: 34px; height: 34px; } .dock-tip { display: none; } }
 
 /* ---------- Desktop hero ---------- */
 .desktop { min-height: 92vh; padding-top: 88px; padding-bottom: 40px; }
@@ -145,9 +154,23 @@
 .os[data-mode="dark"] .note .widget-head { color: rgb(255 234 160 / 0.6); }
 
 /* ---------- Buttons ---------- */
-.ob { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 12px; font: 600 14px "Geist", sans-serif; color: var(--ink); background: var(--glass-strong); border: 1px solid var(--hair); box-shadow: 0 1px 2px rgb(0 0 0 / 0.06); transition: transform 0.2s, box-shadow 0.2s, background 0.2s; }
-.ob:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -12px rgb(36 52 110 / 0.5); }
-.ob-primary { background: var(--ink); color: var(--desk); border-color: var(--ink); }
+/* Buttons — ported from Vengeance UI "Button Kit" (animated-button): spring hover/press,
+   a light band that sweeps the hairline border, and a shine that runs across primary labels. */
+@property --mask-x { syntax: "<percentage>"; inherits: true; initial-value: 100%; }
+.ob { --shine: rgb(0 0 0 / 0.55); position: relative; isolation: isolate; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 18px; border-radius: 12px; font: 600 14px "Geist", sans-serif; letter-spacing: 0.01em; color: var(--ink); background: var(--glass-strong); border: 1px solid var(--hair); box-shadow: 0 1px 2px rgb(0 0 0 / 0.06); transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, background 0.2s; }
+.os[data-mode="dark"] .ob { --shine: rgb(255 255 255 / 0.6); }
+.ob::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; padding: 1px; pointer-events: none; background: linear-gradient(-75deg, transparent 30%, var(--shine) 50%, transparent 70%) 100% 0 / 200% 100%; -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#fff 0 0) content-box exclude, linear-gradient(#fff 0 0); opacity: 0; }
+.ob:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 10px 24px -12px rgb(36 52 110 / 0.5); }
+.ob:hover::before { animation: obBorder 1s linear; }
+.ob:active { transform: scale(0.97); transition-duration: 0.12s; }
+.ob:disabled, .ob[aria-disabled="true"] { pointer-events: none; opacity: 0.5; }
+.ob-primary { --shine: rgb(255 255 255 / 0.7); background: var(--ink); color: var(--desk); border-color: var(--ink); }
+.os[data-mode="dark"] .ob-primary { --shine: rgb(0 0 0 / 0.5); }
+.ob-primary::before { animation: obBorder 1s linear 1s infinite; }
+.ob-primary > span { -webkit-mask-image: linear-gradient(-75deg, #fff calc(var(--mask-x) + 20%), transparent calc(var(--mask-x) + 30%), #fff calc(var(--mask-x) + 100%)); mask-image: linear-gradient(-75deg, #fff calc(var(--mask-x) + 20%), transparent calc(var(--mask-x) + 30%), #fff calc(var(--mask-x) + 100%)); animation: obText 2s linear infinite; }
+@keyframes obBorder { 0% { background-position: 100% 0; opacity: 0; } 50% { opacity: 1; } 100% { background-position: 0 0; opacity: 0; } }
+@keyframes obText { 0% { --mask-x: 100%; } 50%, 100% { --mask-x: -100%; } }
+@media (prefers-reduced-motion: reduce) { .ob::before, .ob-primary > span { animation: none !important; } .ob:hover { transform: none; } }
 .ob .k { font: 500 11px "Geist Mono", monospace; padding: 1px 6px; border-radius: 6px; background: rgb(255 255 255 / 0.16); }
 
 /* ---------- Windows ---------- */
@@ -364,4 +387,82 @@ body:has(.os[data-mode="dark"]) { background: #070b18; }
 .widget { transition: box-shadow 0.25s, translate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .widget.dragging { transition: box-shadow 0.25s, scale 0.2s; scale: 1.04; }
 
-.hello-text { display: inline-block; transition: opacity .4s ease; }
+.hello-text { display: inline-grid; }
+.morph-word { grid-area: 1 / 1; }
+.morph-defs { position: absolute; width: 0; height: 0; pointer-events: none; }
+.hello-text.morphing { filter: url(#morph-goo); }
+.morph-word.out { animation: morphOut 1.1s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+.morph-word.in { animation: morphIn 1.1s cubic-bezier(0.65, 0, 0.35, 1) both; }
+@keyframes morphOut { to { opacity: 0; filter: blur(12px); } }
+@keyframes morphIn { from { opacity: 0; filter: blur(12px); } }
+
+/* ---------- Vengeance UI ports ---------- */
+/* copy-button: copy email, swaps to a check for 2s */
+.copy-btn { position: relative; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--hair); color: var(--muted); background: var(--glass-strong); font-size: 13px; transition: color 0.2s, border-color 0.2s, transform 0.15s; }
+.copy-btn:hover { color: var(--ink); border-color: var(--blue); }
+.copy-btn:active { transform: scale(0.92); }
+.copy-btn > span { grid-area: 1 / 1; transition: opacity 0.2s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.copy-btn .copy-ok { opacity: 0; transform: scale(0.5); color: var(--mint); font-weight: 700; }
+.copy-btn.done .copy-ic { opacity: 0; transform: scale(0.5); }
+.copy-btn.done .copy-ok { opacity: 1; transform: none; }
+.copy-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* line-hover-link (double): two underlines draw in from opposite sides */
+.lhl { position: relative; display: inline-flex; }
+.lhl::before, .lhl::after { content: ""; position: absolute; left: 0; width: 100%; height: 1px; background: currentColor; pointer-events: none; transform: scale3d(0, 1, 1); transition: transform 0.3s cubic-bezier(0.7, 0, 0.2, 1); }
+.lhl::before { top: 100%; transform-origin: 100% 50%; }
+.lhl::after { top: calc(100% + 3px); transform-origin: 0 50%; }
+.lhl:hover::before, .lhl:focus-visible::before { transform: none; transform-origin: 0 50%; transition-timing-function: cubic-bezier(0.4, 1, 0.8, 1); }
+.lhl:hover::after, .lhl:focus-visible::after { transform: none; transform-origin: 100% 50%; transition-timing-function: cubic-bezier(0.4, 1, 0.8, 1); }
+
+/* border-beam: a coloured light travels around the contact form's edge */
+.beam { position: relative; }
+.beam::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; padding: 1.5px; background: conic-gradient(from var(--beam-a), transparent 0 80%, var(--violet) 88%, var(--blue) 94%, transparent 100%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#fff 0 0) content-box exclude, linear-gradient(#fff 0 0); animation: beamSpin 8s linear infinite; }
+@property --beam-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes beamSpin { to { --beam-a: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .beam::after { animation: none; } .lhl::before, .lhl::after { transition: none; } }
+
+/* glow-border-card: an aurora gradient ring that lights the card edge nearest the cursor */
+@property --glow-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.os .tile[data-spot]::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 2px; pointer-events: none; opacity: 0; transition: opacity 0.35s; filter: saturate(1.4) drop-shadow(0 0 6px rgb(96 239 255 / 0.5));
+  background: conic-gradient(from var(--glow-a), #3d6bff, #60efff, #12b886, #7c5cf6, #f0487a, #3d6bff);
+  -webkit-mask: radial-gradient(300px circle at var(--mx, 50%) var(--my, 50%), #000 0%, transparent 70%), linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: source-in, xor;
+  mask: radial-gradient(300px circle at var(--mx, 50%) var(--my, 50%), #000 0%, transparent 70%) intersect, linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: glowSpin 4s linear infinite paused; }
+.os .tile[data-spot]:hover::after { opacity: 1; animation-play-state: running; }
+@keyframes glowSpin { to { --glow-a: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .os .tile[data-spot]::after { animation: none; } }
+
+[data-reveal-row] { cursor: default; border-radius: 8px; transition: background 0.2s; }
+[data-reveal-row]:hover { background: rgb(61 107 255 / 0.06); }
+
+/* stats-counter odometer */
+.odo { display: inline-block; height: 1.15em; overflow: hidden; vertical-align: bottom; line-height: 1.15; }
+.odo-reel { display: flex; flex-direction: column; transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1); }
+.odo-reel > span { height: 1.15em; }
+@media (prefers-reduced-motion: reduce) { .odo-reel { transition: none; } }
+
+/* stagger-text headings (replaces the blur focus once split into letters) */
+.os .win-h.stg { animation: none; }
+.stg-w { display: inline-block; white-space: nowrap; }
+.stg-c { display: inline-block; opacity: 0; transform: translateY(0.45em) rotate(4deg); filter: blur(6px); transition: opacity 0.5s, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), filter 0.5s; transition-delay: calc(var(--i) * 28ms); }
+.stg-in .stg-c { opacity: 1; transform: none; filter: none; }
+
+/* kinetic-text-loader: letters ripple while live data loads */
+.kin { display: inline-flex; font: 500 11px "Geist Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.kin > span { display: inline-block; animation: kinWave 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; animation-delay: calc(var(--i) * 60ms); }
+@keyframes kinWave { 0%, 60%, 100% { transform: none; opacity: 0.45; } 25% { transform: translateY(-5px); opacity: 1; color: var(--blue); } }
+@media (prefers-reduced-motion: reduce) { .kin > span { animation: none; opacity: 0.7; } }
+
+/* folder-preview: org logo sits in a folder; on hover the flap tips forward and the logo rises out */
+.fold { position: relative; width: 60px; height: 48px; flex-shrink: 0; perspective: 400px; }
+.fold-back { position: absolute; inset: 6px 0 0; border-radius: 4px 10px 10px 10px; background: color-mix(in srgb, var(--blue) 70%, #000); }
+.fold-back::before { content: ""; position: absolute; left: 0; top: -6px; width: 24px; height: 8px; border-radius: 4px 6px 0 0; background: inherit; }
+.fold-paper { position: absolute; left: 7px; right: 7px; top: 4px; height: 38px; display: grid; place-items: center; overflow: hidden; border-radius: 6px; background: #fff; box-shadow: 0 2px 6px rgb(0 0 0 / 0.2); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.fold-paper img { width: 100%; height: 100%; object-fit: cover; }
+.fold-paper b { font: 700 13px "Geist", sans-serif; color: #12172b; }
+.fold-front { position: absolute; inset: 18px 0 0; border-radius: 6px 6px 10px 10px; background: linear-gradient(180deg, color-mix(in srgb, var(--blue) 85%, #fff), var(--blue)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35); transform-origin: 50% 100%; transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+.tile:hover .fold-paper { transform: translateY(-14px) rotate(-4deg); }
+.tile:hover .fold-front { transform: rotateX(-38deg); }
+@media (prefers-reduced-motion: reduce) { .fold-paper, .fold-front { transition: none; } }
