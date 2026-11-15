@@ -391,10 +391,10 @@ body:has(.os[data-mode="dark"]) { background: #070b18; }
 .morph-word { grid-area: 1 / 1; }
 .morph-defs { position: absolute; width: 0; height: 0; pointer-events: none; }
 .hello-text.morphing { filter: url(#morph-goo); }
-.morph-word.out { animation: morphOut 1.1s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
-.morph-word.in { animation: morphIn 1.1s cubic-bezier(0.65, 0, 0.35, 1) both; }
-@keyframes morphOut { to { opacity: 0; filter: blur(12px); } }
-@keyframes morphIn { from { opacity: 0; filter: blur(12px); } }
+.morph-word.out { animation: morphOut 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+.morph-word.in { animation: morphIn 0.8s cubic-bezier(0.65, 0, 0.35, 1) both; }
+@keyframes morphOut { to { opacity: 0; filter: blur(5px); } }
+@keyframes morphIn { from { opacity: 0; filter: blur(5px); } }
 
 /* ---------- Vengeance UI ports ---------- */
 /* copy-button: copy email, swaps to a check for 2s */

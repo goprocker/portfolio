@@ -116,7 +116,7 @@ const headlines = [
           </p>
         </div>
         <h1 class="hello mt-8" data-boot style="--d:.15s"><span class="hello-text" data-headlines={JSON.stringify(headlines)} aria-live="polite"><span class="morph-word">{headlines[0]}</span></span></h1>
-        <svg class="morph-defs" aria-hidden="true" focusable="false"><defs><filter id="morph-goo"><feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 25 -9" result="goo" /><feComposite in="SourceGraphic" in2="goo" operator="atop" /></filter></defs></svg>
+        <svg class="morph-defs" aria-hidden="true" focusable="false"><defs><filter id="morph-goo"><feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 14 -5" result="goo" /><feComposite in="SourceGraphic" in2="goo" operator="atop" /></filter></defs></svg>
         <p class="lede mt-6" data-boot style="--d:.3s">
           Full-stack developer from {developer.location}. Co-founder of LoopFound, building AI that ships.
         </p>
@@ -680,7 +680,7 @@ const headlines = [
       el.classList.add("morphing");
       old?.classList.add("out");
       el.appendChild(next);
-      setTimeout(() => { old?.remove(); next.classList.remove("in"); el.classList.remove("morphing"); }, 1100);
+      setTimeout(() => { old?.remove(); next.classList.remove("in"); el.classList.remove("morphing"); }, 800);
     }, 7000);
   });
 
