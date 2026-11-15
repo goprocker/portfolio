@@ -132,7 +132,9 @@
 @media (prefers-reduced-motion: reduce) { .dock-tip, .dock-tip > span { rotate: 0deg; transform: none !important; animation: none !important; } }
 .dock a.active::before { content: ""; position: absolute; bottom: -6px; width: 4px; height: 4px; border-radius: 999px; background: var(--ink); }
 .dock .sep { width: 1px; height: 32px; background: var(--hair); margin: 0 4px 6px; }
-@media (max-width: 640px) { .dock { gap: 2px; padding: 6px; max-width: calc(100vw - 16px); overflow-x: auto; } .dock .app-icon { width: 34px; height: 34px; } .dock-tip { display: none; } }
+/* Phones: every icon fits without sideways scrolling (Resume stays in the hero buttons) */
+@media (max-width: 640px) { .dock { gap: 2px; padding: 6px; max-width: calc(100vw - 16px); overflow: visible; } .dock .app-icon { width: 28px; height: 28px; } .dock .sep { height: 22px; margin: 0 2px 3px; } .dock a[href="/resume.pdf"] { display: none; } .dock-tip { display: none; } }
+@media (max-width: 380px) { .dock .app-icon { width: 25px; height: 25px; } }
 
 /* ---------- Desktop hero ---------- */
 .desktop { min-height: 92vh; padding-top: 88px; padding-bottom: 40px; }
@@ -240,6 +242,11 @@
 .mail-field { display: flex; gap: 12px; align-items: baseline; border-bottom: 1px solid var(--hair); padding: 12px 0; }
 .mail-field label { width: 64px; flex-shrink: 0; font-size: 13px; color: var(--muted); }
 .mail-field input, .mail-field textarea { flex: 1; background: transparent; border: 0; outline: none; color: var(--ink); font: 400 15px "Geist", sans-serif; resize: none; }
+.mail-select { flex: 1; min-width: 0; appearance: none; -webkit-appearance: none; cursor: pointer; padding: 6px 30px 6px 10px; border-radius: 9px; border: 1px solid var(--hair); color: var(--ink); font: 500 14px "Geist", sans-serif; background: var(--glass-strong) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a8199' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>") no-repeat right 10px center; transition: border-color 0.2s, box-shadow 0.2s; }
+.mail-select:hover { border-color: rgb(61 107 255 / 0.4); }
+.mail-select:focus-visible { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgb(61 107 255 / 0.18); }
+.mail-select option { color: #12172b; background: #fff; }
+.mail-field:has(select) { align-items: center; }
 .mail-field input::placeholder, .mail-field textarea::placeholder { color: var(--muted); opacity: 0.7; }
 
 /* Scroll progress + cursor follower (driven by ScrollEffects) */

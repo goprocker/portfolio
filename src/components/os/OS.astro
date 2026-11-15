@@ -331,9 +331,9 @@ const headlines = [
           <p class="mt-2 text-sm text-[var(--muted)]">{gssoc.note}</p>
           <p class="os-mono mt-4 text-xs text-[var(--blue)]">{gssoc.badges.length} badges earned</p>
         </div>
-        <div class="grid grid-cols-3 gap-4 sm:grid-cols-4 lg:col-span-8 lg:grid-cols-7">
+        <div class="flex flex-wrap justify-center gap-x-4 gap-y-5 lg:col-span-8 lg:flex-nowrap lg:justify-between lg:gap-2">
           {gssoc.badges.map((b) => (
-            <figure class="badge grid justify-items-center gap-2 text-center" data-reveal>
+            <figure class="badge grid w-[calc((100%-2rem)/3)] justify-items-center gap-2 text-center sm:w-[calc((100%-3rem)/4)] lg:w-auto lg:flex-1" data-reveal>
               <img src={b.image} alt="" class="badge-img" loading="lazy" width="92" height="92" />
               <figcaption class:list={["text-[11px]", b.rare ? "font-bold text-[var(--ink)]" : "text-[var(--muted)]"]}>{b.name}</figcaption>
             </figure>
@@ -461,7 +461,7 @@ const headlines = [
       <Fragment slot="heading">When I'm <span class="os-serif">not</span> shipping</Fragment>
       <div class="grid gap-4 md:grid-cols-3">
         <a href={developer.instagram} target="_blank" rel="noopener noreferrer" class="tile group flex flex-col gap-3 p-6" data-spot data-reveal>
-          <AppIcon name="pin" size={40} />
+          <AppIcon name="camera" size={40} />
           <h3 class="text-lg font-bold text-[var(--ink)] group-hover:text-[var(--blue)]">Photography</h3>
           <p class="text-sm text-[var(--ink-2)]">Streets, people and light around Chennai. I shoot when I'm not shipping.</p>
           <span class="os-mono mt-auto text-xs text-[var(--blue)]">@goprocker_photography_ ↗</span>
@@ -499,6 +499,15 @@ const headlines = [
           <div class="mail-field"><label>To</label><span class="text-[15px] text-[var(--ink)]">Gopinath R &lt;{developer.email}&gt;</span></div>
           <div class="mail-field"><label for="contact-name">From</label><input id="contact-name" name="name" type="text" required placeholder="Your name" /></div>
           <div class="mail-field"><label for="contact-email">Reply-to</label><input id="contact-email" name="email" type="email" required placeholder="you@company.com" /></div>
+          <div class="mail-field"><label for="contact-topic">About</label>
+            <select id="contact-topic" name="topic" class="mail-select">
+              <option>Full-stack web development</option>
+              <option>AI / ML system &amp; model integration</option>
+              <option>Hackathon collaboration / team lead</option>
+              <option>Job offer / role</option>
+              <option>Something else</option>
+            </select>
+          </div>
           <div class="mail-field"><label for="contact-message">Message</label><textarea id="contact-message" name="message" required rows="5" placeholder="Tell me about the role, project or idea…"></textarea></div>
           <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
             <span id="form-status" class="hidden text-xs font-bold"></span>
@@ -639,15 +648,15 @@ const headlines = [
       try {
         const id = form.dataset.formspree;
         if (!id) {
-          const body = `From: ${data.name}\nReply-to: ${data.email}\n\n${data.message}`;
-          location.href = `mailto:${form.dataset.recipientEmail}?subject=${encodeURIComponent(`Portfolio message from ${data.name} <${data.email}>`)}&body=${encodeURIComponent(body)}`;
+          const body = `From: ${data.name}\nReply-to: ${data.email}\nAbout: ${data.topic}\n\n${data.message}`;
+          location.href = `mailto:${form.dataset.recipientEmail}?subject=${encodeURIComponent(`[${data.topic}] Portfolio message from ${data.name}`)}&body=${encodeURIComponent(body)}`;
           say("Opened your mail app with this message — press send there to deliver it.", "info");
           return;
         }
         const res = await fetch(`https://formspree.io/f/${id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ ...data, _replyto: data.email, _subject: `Portfolio message from ${data.name}` }),
+          body: JSON.stringify({ ...data, _replyto: data.email, _subject: `[${data.topic}] Portfolio message from ${data.name}` }),
         });
         if (!res.ok) throw new Error(String(res.status));
         say("✓ Sent — I'll get back to you soon.", "ok");
