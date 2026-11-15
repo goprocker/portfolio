@@ -54,6 +54,47 @@
     });
   }
 
+  // Vengeance UI stagger-text: window headings rise in letter by letter the first time they scroll into view
+  function initStaggerHeadings() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const heads = document.querySelectorAll<HTMLElement>(".os .win-h");
+    heads.forEach((h) => {
+      h.setAttribute("aria-label", h.textContent?.replace(/\s+/g, " ").trim() ?? "");
+      let i = 0;
+      const walk = (node: Node) => {
+        node.childNodes.forEach((child) => {
+          if (child.nodeType === Node.TEXT_NODE) {
+            const frag = document.createDocumentFragment();
+            (child.textContent ?? "").split(/(\s+)/).forEach((word) => {
+              if (!word) return;
+              if (/^\s+$/.test(word)) { frag.append(word); return; }
+              const w = document.createElement("span");
+              w.className = "stg-w";
+              w.setAttribute("aria-hidden", "true");
+              for (const ch of word) {
+                const c = document.createElement("span");
+                c.className = "stg-c";
+                c.style.setProperty("--i", String(i++));
+                c.textContent = ch;
+                w.append(c);
+              }
+              frag.append(w);
+            });
+            child.replaceWith(frag);
+          } else if (child.nodeType === Node.ELEMENT_NODE) walk(child);
+        });
+      };
+      walk(h);
+      h.classList.add("stg");
+    });
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add("stg-in");
+      io.unobserve(e.target);
+    }), { threshold: 0.4 });
+    heads.forEach((h) => io.observe(h));
+  }
+
   function initCountUp() {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -64,13 +105,17 @@
         const target = parseInt(raw, 10);
         const suffix = raw.replace(/^\d+/, "");
         if (Number.isNaN(target)) return;
-        const start = performance.now();
-        const step = (now: number) => {
-          const t = Math.min(1, (now - start) / 1400);
-          el.textContent = `${Math.round(target * (1 - Math.pow(1 - t, 3)))}${suffix}`;
-          if (t < 1) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
+        // Vengeance UI stats-counter: each digit is a 0–9 reel that rolls into place, right-most first
+        el.setAttribute("aria-label", raw);
+        const digits = String(target).split("");
+        el.innerHTML = digits.map(() => `<span class="odo" aria-hidden="true"><span class="odo-reel">${"0123456789".split("").map((n) => `<span>${n}</span>`).join("")}</span></span>`).join("") + (suffix ? `<span aria-hidden="true">${suffix}</span>` : "");
+        const reels = el.querySelectorAll<HTMLElement>(".odo-reel");
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          reels.forEach((reel, i) => {
+            reel.style.transitionDelay = `${(digits.length - 1 - i) * 90}ms`;
+            reel.style.transform = `translateY(-${Number(digits[i]) * 10}%)`;
+          });
+        }));
       });
     }, { threshold: 0.5 });
     document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => observer.observe(el));
@@ -172,6 +217,7 @@
     document.documentElement.classList.add("fx-ready");
     initReveal();
     initCountUp();
+    initStaggerHeadings();
     initParallax();
     if (reduceMotion) return;
     initScramble();
