@@ -1,5 +1,5 @@
 ---
-import type { ExperienceItem } from "../data/portfolio";
+import { PORTFOLIO_DATA, type ExperienceItem } from "../data/portfolio";
 
 interface Props {
   items: ExperienceItem[];
@@ -9,11 +9,15 @@ const { items } = Astro.props;
 const current = items.filter((item) => item.status === "ACTIVE");
 const past = items.filter((item) => item.status !== "ACTIVE");
 const cleanRole = (role: string) => role.replace(/\s*\(.*\)/, "");
+// Logo for the hover preview, matched loosely against the organizations list
+const norm = (t: string) => t.toLowerCase().replace(/[^a-z0-9]/g, "");
+const logoFor = (org: string) => PORTFOLIO_DATA.orgs.find((o) => o.logo && (norm(org).includes(norm(o.name)) || norm(o.name).includes(norm(org))))?.logo ?? "";
+const rowData = (item: ExperienceItem) => ({ "data-reveal-row": "", "data-org": item.organization, "data-role": cleanRole(item.role), "data-period": item.period, "data-desc": item.description, "data-logo": logoFor(item.organization) });
 ---
 
 <ul class="divide-y divide-[var(--border-color)] text-sm">
   {current.map((item) => (
-    <li class="flex items-start gap-3 py-2.5 first:pt-0">
+    <li class="flex items-start gap-3 py-2.5 first:pt-0" {...rowData(item)}>
       <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
       <span class="min-w-0">
         <span class="block font-semibold text-[var(--fg-bright)]">{item.organization}</span>
@@ -28,7 +32,7 @@ const cleanRole = (role: string) => role.replace(/\s*\(.*\)/, "");
     <p class="mb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--fg-dim)]">// Past roles</p>
     <ul class="space-y-2.5 text-sm opacity-70">
       {past.map((item) => (
-        <li class="flex items-start gap-3">
+        <li class="flex items-start gap-3" {...rowData(item)}>
           <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full border border-[var(--fg-dim)]"></span>
           <span class="min-w-0">
             <span class="flex flex-wrap items-center gap-2 font-semibold text-[var(--fg-main)]">{item.organization}<span class="rounded border border-[var(--border-color)] px-1 text-[9px] font-bold text-[var(--fg-dim)]">ENDED</span></span>
