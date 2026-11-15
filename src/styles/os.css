@@ -455,17 +455,6 @@ body:has(.os[data-mode="dark"]) { background: #070b18; }
 @keyframes kinWave { 0%, 60%, 100% { transform: none; opacity: 0.45; } 25% { transform: translateY(-5px); opacity: 1; color: var(--blue); } }
 @media (prefers-reduced-motion: reduce) { .kin > span { animation: none; opacity: 0.7; } }
 
-/* folder-preview: org logo sits in a folder; on hover the flap tips forward and the logo rises out */
-.fold { position: relative; width: 60px; height: 48px; flex-shrink: 0; perspective: 400px; }
-.fold-back { position: absolute; inset: 6px 0 0; border-radius: 4px 10px 10px 10px; background: color-mix(in srgb, var(--blue) 70%, #000); }
-.fold-back::before { content: ""; position: absolute; left: 0; top: -6px; width: 24px; height: 8px; border-radius: 4px 6px 0 0; background: inherit; }
-.fold-paper { position: absolute; left: 7px; right: 7px; top: 4px; height: 38px; display: grid; place-items: center; overflow: hidden; border-radius: 6px; background: #fff; box-shadow: 0 2px 6px rgb(0 0 0 / 0.2); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.fold-paper img { width: 100%; height: 100%; object-fit: cover; }
-.fold-paper b { font: 700 13px "Geist", sans-serif; color: #12172b; }
-.fold-front { position: absolute; inset: 18px 0 0; border-radius: 6px 6px 10px 10px; background: linear-gradient(180deg, color-mix(in srgb, var(--blue) 85%, #fff), var(--blue)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35); transform-origin: 50% 100%; transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
-.tile:hover .fold-paper { transform: translateY(-14px) rotate(-4deg); }
-.tile:hover .fold-front { transform: rotateX(-38deg); }
-@media (prefers-reduced-motion: reduce) { .fold-paper, .fold-front { transition: none; } }
 
 /* ---------- Intro landing: notch + dock (Vengeance UI border-beam / glass-dock) ---------- */
 /* Glass sheen sweeps across the real notch once, the moment the boot pill lands on it */

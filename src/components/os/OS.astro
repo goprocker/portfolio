@@ -290,13 +290,9 @@ const headlines = [
         {orgs.map((o) => (
           <a href={o.link} target="_blank" rel="noopener noreferrer" class="tile group flex flex-col gap-4 p-5" data-spot data-reveal>
             <div class="flex items-start justify-between gap-3">
-<span class="fold" aria-hidden="true">
-                <span class="fold-back"></span>
-                <span class="fold-paper">{o.logo
-                  ? <img src={o.logo} alt="" loading="lazy" />
-                  : <b>{o.name.replace(/[^A-Za-z ]/g, "").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</b>}</span>
-                <span class="fold-front"></span>
-              </span>
+{o.logo
+                ? <img src={o.logo} alt="" class="h-12 w-12 rounded-2xl object-cover shadow-sm" loading="lazy" />
+                : <span class="grid h-12 w-12 place-items-center rounded-2xl bg-[var(--ink)] text-sm font-bold text-[var(--desk)]">{o.name.replace(/[^A-Za-z ]/g, "").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</span>}
               <span class={`pill shrink-0 !text-[10px] ${o.badge === "Founder" ? "pill-blue" : o.badge === "Rare" ? "pill-amber" : o.badge === "Lead" ? "pill-violet" : ""}`}>{o.badge}</span>
             </div>
             <div>
