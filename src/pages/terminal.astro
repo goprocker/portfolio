@@ -13,11 +13,11 @@ const { developer } = PORTFOLIO_DATA;
     <main class="os-wrap flex min-h-screen flex-col py-6 sm:py-10">
       <div class="term glass win flex flex-1 flex-col" data-boot>
         <div class="win-bar">
-          <span class="win-title">
+          <span class="win-title min-w-0">
             <span class="flex gap-1.5" aria-hidden="true"><i class="tdot bg-[#ff5f57]"></i><i class="tdot bg-[#febc2e]"></i><i class="tdot bg-[#28c840]"></i></span>
-            <span class="os-mono ml-2 text-xs">{developer.handle}@goopros: ~</span>
+            <span class="os-mono ml-2 truncate text-xs">{developer.handle}@goopros: ~</span>
           </span>
-          <a href="/" class="ob ml-auto !px-3 !py-1.5 text-xs">← Back to desktop</a>
+          <a href="/" class="ob ml-auto shrink-0 whitespace-nowrap !px-3 !py-1.5 text-xs">← Back to desktop</a>
         </div>
 
         <div id="term-out" class="term-out os-mono flex-1 overflow-y-auto p-5 text-[13.5px] leading-relaxed sm:p-7" aria-live="polite"></div>
